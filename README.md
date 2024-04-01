@@ -20,6 +20,11 @@ dbdocs login
 npm install -g @dbml/cli
 ```
 
+### sqlc
+```
+brew install sqlc
+```
+
 ## Documentation
 ### db documentetion
 ```
@@ -35,4 +40,9 @@ make new_migration name=<migration_name>
 ### SQL: generate doc/schema.sql form doc/db.dbml
 ```
 make db_schema
+```
+
+### Generate pb
+```
+make proto
 ```

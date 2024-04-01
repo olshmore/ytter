@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package pb;
+
+import "rpc_create_user.proto";
+
+option go_package = "github.com/olshmore/ytter/pb";
+
+service Ytter {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {};
+}
