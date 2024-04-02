@@ -42,4 +42,7 @@ proto:
 	--grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
 	proto/*.proto
 
-.PHONY: up down db_docs db_schema new_migration migrateup migratedown migrateup1 migratedown1 server sqlc proto
+test:
+	go test -v -count=1 -cover -short ./...
+
+.PHONY: up down db_docs db_schema new_migration migrateup migratedown migrateup1 migratedown1 server sqlc proto test
