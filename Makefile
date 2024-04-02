@@ -1,5 +1,4 @@
-include app.env
-export
+DB_URL=postgresql://root:secret@localhost:5432/ytter?sslmode=disable
 
 up:
 	docker compose up
