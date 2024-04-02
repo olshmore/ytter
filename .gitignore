@@ -20,9 +20,6 @@ go.work
 # Logs
 *.log
 
-# Environment variables
-*.env
-
 # Editor directories and files
 .vscode
 .idea
