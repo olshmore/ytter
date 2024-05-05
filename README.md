@@ -25,6 +25,17 @@ npm install -g @dbml/cli
 brew install sqlc
 ```
 
+### kubectl
+```
+brew install kubectl
+kubectl version --client
+```
+
+### k9s
+```
+brew install derailed/k9s/k9s
+```
+
 ## Documentation
 ### db documentetion
 ```

@@ -35,6 +35,7 @@ func main() {
 	// Environment
 	config, err := config.LoadConfig(".")
 	if err != nil {
+		log.Info().Msgf("failed to load config err: %s", err)
 		log.Fatal().Msg("failed to load config")
 	}
 
@@ -73,6 +74,7 @@ func main() {
 func runDBMigrations(migrationURL string, DBSource string) {
 	migration, err := migrate.New(migrationURL, DBSource)
 	if err != nil {
+		log.Info().Msgf("failed to create new migrate instance err: %s", err)
 		log.Fatal().Msg("failed to create new migrate instance")
 	}
 
