@@ -2,12 +2,9 @@ services:
   postgres:
     image: postgres:14-alpine
     environment:
-      # - POSTGRES_USER=${POSTGRES_USER}
-      # - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      # - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=ytter
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -20,7 +17,7 @@ services:
     ports:
       - "50051:50051"
     environment:
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/ytter?sslmode=disable
+      - DB_SOURCE=${DB_URL}
     depends_on:
       - postgres
     entrypoint:

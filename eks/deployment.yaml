@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ytter-api-deployment
+  labels:
+    app: ytter-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ytter-api
+  template:
+    metadata:
+      labels:
+        app: ytter-api
+    spec:
+      containers:
+      - name: ytter-api
+        image: 211125664612.dkr.ecr.eu-west-2.amazonaws.com/ytter:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http-server
+        - containerPort: 50051
+          name: grpc-server
