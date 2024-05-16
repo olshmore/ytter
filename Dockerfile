@@ -14,5 +14,4 @@ COPY wait-for.sh .
 COPY db/migration ./db/migration
 
 EXPOSE 50051
-CMD [ "/app/main" ]
 ENTRYPOINT [ "/app/start.sh" ]
