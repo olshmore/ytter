@@ -17,3 +17,14 @@ Table users as U {
   updated_at timestamptz [not null, default: "0001.01.01 00:00:00Z"]
   deleted_at timestamptz [not null, default: "0001.01.01 00:00:00Z"]
 }
+
+Table sessions {
+  id bigserial [pk]
+  username varchar [not null]
+  refresh_token varchar [not null]
+  user_agent varchar [not null]
+  client_ip varchar [not null]
+  is_blocked bool [not null, default: false]
+  expires_at timestamptz [not null]
+  created_at timestamptz [not null, default: `now()`]
+}

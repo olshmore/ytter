@@ -18,3 +18,13 @@ func ConvertUser(user db.User) *pb.User {
 		DeletedAt:         timestamppb.New(user.DeletedAt),
 	}
 }
+
+func ConvertUsers(users []db.User) []*pb.User {
+	pbUsers := make([]*pb.User, len(users))
+
+	for i, user := range users {
+		pbUsers[i] = ConvertUser(user)
+	}
+
+	return pbUsers
+}

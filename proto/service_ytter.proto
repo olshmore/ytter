@@ -2,10 +2,46 @@ syntax = "proto3";
 
 package pb;
 
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "rpc_create_user.proto";
+import "rpc_login_user.proto";
+import "rpc_list_users.proto";
 
 option go_package = "github.com/olshmore/ytter/pb";
 
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Ytter API";
+    version: "1.0";
+    contact: {
+      name: "ytter";
+      url: "https://github.com/olshmore/ytter";
+      email: "olyshsuk@gmail.com";
+    };
+  };
+};
+
 service Ytter {
-  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {};
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/create_user"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to create a new user";
+      summary: "Create new user";
+    };
+  };
+  rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/login"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to login user";
+      summary: "Login user";
+    };
+  };
+  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {};
 }

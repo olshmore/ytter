@@ -36,6 +36,25 @@ kubectl version --client
 brew install derailed/k9s/k9s
 ```
 
+### proto
+```
+brew install protobuf
+protoc --version
+
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+protoc-gen-go --version
+
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+protoc-gen-go-grpc --version
+```
+
+### grpc gateway
+go install \
+  github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
+  github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 \
+  google.golang.org/protobuf/cmd/protoc-gen-go \
+  google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
 ## Documentation
 ### db documentetion
 ```
