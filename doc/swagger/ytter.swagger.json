@@ -21,7 +21,75 @@
     "application/json"
   ],
   "paths": {
-    "/v1/auth/create_user": {
+    "/v1/auth/login": {
+      "post": {
+        "summary": "Login user",
+        "description": "Use this API to login user",
+        "operationId": "Ytter_LoginUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbLoginUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbLoginUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Ytter"
+        ]
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "summary": "Refresh token",
+        "description": "Use this API to refresh token",
+        "operationId": "Ytter_RefreshToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbRefreshTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbRefreshTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Ytter"
+        ]
+      }
+    },
+    "/v1/auth/register": {
       "post": {
         "summary": "Create new user",
         "description": "Use this API to create a new user",
@@ -47,40 +115,6 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/pbCreateUserRequest"
-            }
-          }
-        ],
-        "tags": [
-          "Ytter"
-        ]
-      }
-    },
-    "/v1/auth/login": {
-      "post": {
-        "summary": "Create new user",
-        "description": "Use this API to create a new user",
-        "operationId": "Ytter_LoginUser",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/pbLoginUserResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbLoginUserRequest"
             }
           }
         ],
@@ -162,6 +196,26 @@
           "format": "date-time"
         },
         "refreshTokenExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "pbRefreshTokenRequest": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "pbRefreshTokenResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "accessTokenExpiresAt": {
           "type": "string",
           "format": "date-time"
         }

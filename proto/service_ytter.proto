@@ -7,6 +7,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 import "rpc_create_user.proto";
 import "rpc_login_user.proto";
 import "rpc_list_users.proto";
+import "rpc_refresh_token.proto";
 
 option go_package = "github.com/olshmore/ytter/pb";
 
@@ -25,7 +26,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 service Ytter {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/create_user"
+      post: "/v1/auth/register"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -41,6 +42,16 @@ service Ytter {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to login user";
       summary: "Login user";
+    };
+  };
+  rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/refresh"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to refresh token";
+      summary: "Refresh token";
     };
   };
   rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {};
