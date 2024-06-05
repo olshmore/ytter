@@ -1,11 +1,12 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/olshmore/ytter/config"
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/pb"
 	"github.com/olshmore/ytter/token"
-	"github.com/rs/zerolog/log"
 )
 
 type Server struct {
@@ -18,9 +19,7 @@ type Server struct {
 func NewServer(config config.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
-		log.Error().Msgf("cannot create token maker: %w", err)
-
-		return nil, err
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
 
 	server := &Server{
