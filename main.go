@@ -73,7 +73,7 @@ func main() {
 
 	err = waitGroup.Wait()
 	if err != nil {
-		log.Fatal().Msg("error from wait group")
+		log.Fatal().Msgf("error from wait group: %s", err)
 	}
 }
 
@@ -83,11 +83,16 @@ func runDBMigrations(migrationURL string, DBSource string) {
 		log.Fatal().Msgf("failed to create new migrate instance err: %s", err)
 	}
 
-	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal().Msg("failed to run migrate up")
+	if err = migration.Up(); err != nil {
+		if err == migrate.ErrNoChange {
+			log.Info().Msg("db migration success! no change")
+			return
+		} else {
+			log.Fatal().Msgf("failed to run migrate up: %s", err)
+		}
 	}
 
-	log.Info().Msg("db migrated successfully")
+	log.Info().Msg("db migration success! db migrated")
 }
 
 func runGrpcServer(
