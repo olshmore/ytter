@@ -54,8 +54,8 @@ func ValidateEmail(value string) error {
 }
 
 func ValidateInt32(value int32) error {
-	if value <= 0 {
-		return fmt.Errorf("Value must be a positive integer.")
+	if value < 0 {
+		return fmt.Errorf("Value must be a zero or a positive integer.")
 	}
 	return nil
 }

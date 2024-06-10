@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package pb;
+
+import "user.proto";
+
+option go_package = "github.com/olshmore/ytter/pb";
+
+message UpdateUserRequest {
+  string username = 1;
+  optional string password = 2;
+  optional string first_name = 3;
+  optional string last_name = 4;
+  optional string email = 5;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+}

@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Ytter API",
-    "version": "1.0",
+    "version": "1.1",
     "contact": {
       "name": "ytter",
       "url": "https://github.com/olshmore/ytter",
@@ -122,6 +122,40 @@
           "Ytter"
         ]
       }
+    },
+    "/v1/auth/update_user": {
+      "patch": {
+        "summary": "Update user",
+        "description": "Use this API to update user. Username field is required, other fields are optional",
+        "operationId": "Ytter_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUpdateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Ytter"
+        ]
+      }
     }
   },
   "definitions": {
@@ -218,6 +252,34 @@
         "accessTokenExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "pbUpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "pbUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/pbUser"
         }
       }
     },
