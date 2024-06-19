@@ -106,7 +106,9 @@ func runGrpcServer(
 		log.Fatal().Msg("failed to create server")
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcLogger := grpc.UnaryInterceptor(api.GrpcLogger)
+
+	grpcServer := grpc.NewServer(grpcLogger)
 
 	pb.RegisterYtterServer(grpcServer, server)
 
@@ -184,7 +186,7 @@ func runGatewayServer(
 	mux.Handle("/swagger/", swaggerHandler)
 
 	httpServer := &http.Server{
-		Handler: mux,
+		Handler: api.HttpLogger(mux),
 		Addr:    config.HTTPServerAddress,
 	}
 
