@@ -55,6 +55,10 @@ go install \
   google.golang.org/protobuf/cmd/protoc-gen-go \
   google.golang.org/grpc/cmd/protoc-gen-go-grpc
 
+### mockgen
+go install github.com/golang/mock/mockgen@v1.6.0
+which mockgen
+
 ## Documentation
 ### db documentetion
 ```

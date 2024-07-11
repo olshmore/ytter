@@ -48,4 +48,7 @@ proto:
 test:
 	go test -v -count=1 -cover -short ./...
 
-.PHONY: up down db_docs db_schema new_migration migrateup migratedown migrateup1 migratedown1 server sqlc proto test
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/olshmore/ytter/db/sqlc Store
+
+.PHONY: up down db_docs db_schema new_migration migrateup migratedown migrateup1 migratedown1 server sqlc proto test mock
