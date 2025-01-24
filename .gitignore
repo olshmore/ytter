@@ -29,8 +29,7 @@ go.work
 db-data
 
 # Environment
-# *.env
-# dev.env
+*.env
 
 # Local
 READ.md

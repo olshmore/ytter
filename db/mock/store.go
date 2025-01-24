@@ -126,21 +126,6 @@ func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockStore)(nil).GetUser), arg0, arg1)
 }
 
-// GetUserByEmail mocks base method.
-func (m *MockStore) GetUserByEmail(arg0 context.Context, arg1 string) (db.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByEmail", arg0, arg1)
-	ret0, _ := ret[0].(db.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUserByEmail indicates an expected call of GetUserByEmail.
-func (mr *MockStoreMockRecorder) GetUserByEmail(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockStore)(nil).GetUserByEmail), arg0, arg1)
-}
-
 // GetUserByUsername mocks base method.
 func (m *MockStore) GetUserByUsername(arg0 context.Context, arg1 string) (db.User, error) {
 	m.ctrl.T.Helper()
@@ -154,6 +139,21 @@ func (m *MockStore) GetUserByUsername(arg0 context.Context, arg1 string) (db.Use
 func (mr *MockStoreMockRecorder) GetUserByUsername(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByUsername", reflect.TypeOf((*MockStore)(nil).GetUserByUsername), arg0, arg1)
+}
+
+// GetVerificationEmailByToken mocks base method.
+func (m *MockStore) GetVerificationEmailByToken(arg0 context.Context, arg1 string) (db.VerificationEmail, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVerificationEmailByToken", arg0, arg1)
+	ret0, _ := ret[0].(db.VerificationEmail)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVerificationEmailByToken indicates an expected call of GetVerificationEmailByToken.
+func (mr *MockStoreMockRecorder) GetVerificationEmailByToken(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVerificationEmailByToken", reflect.TypeOf((*MockStore)(nil).GetVerificationEmailByToken), arg0, arg1)
 }
 
 // ListUsers mocks base method.
