@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/zerolog"
@@ -20,11 +21,13 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/olshmore/ytter/api"
-	"github.com/olshmore/ytter/config"
 	db "github.com/olshmore/ytter/db/sqlc"
+	"github.com/olshmore/ytter/internal/email"
+	"github.com/olshmore/ytter/internal/worker"
 	"github.com/olshmore/ytter/pb"
+	"github.com/olshmore/ytter/pkg/config"
 
-	_ "github.com/olshmore/ytter/doc/statik"
+	_ "github.com/olshmore/ytter/docs/statik"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -66,14 +69,21 @@ func main() {
 	// Init store
 	store := db.NewStore(connPool)
 
+	// Connect to Redis
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+
 	waitGroup, ctx := errgroup.WithContext(ctx)
 
-	runGrpcServer(ctx, waitGroup, config, store)
-	runGatewayServer(ctx, waitGroup, config, store)
+	runTaskProcessor(ctx, waitGroup, config, redisOpt, store)
+	runGrpcServer(ctx, waitGroup, config, store, taskDistributor)
+	runGatewayServer(ctx, waitGroup, config, store, taskDistributor)
 
 	err = waitGroup.Wait()
 	if err != nil {
-		log.Fatal().Msgf("error from wait group: %s", err)
+		log.Fatal().Err(err).Msg("error from wait group")
 	}
 }
 
@@ -95,13 +105,43 @@ func runDBMigrations(migrationURL string, DBSource string) {
 	log.Info().Msg("db migration success! db migrated")
 }
 
+func runTaskProcessor(
+	ctx context.Context,
+	waitGroup *errgroup.Group,
+	config config.Config,
+	redisOpt asynq.RedisClientOpt,
+	store db.Store,
+) {
+	mailer := email.NewGmailSender(config.EmailSenderName, config.EmailSenderAddress, config.EmailSenderPassword)
+
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
+
+	err := taskProcessor.Start()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to start task processor")
+	}
+
+	log.Info().Msg("started task processor")
+
+	waitGroup.Go(func() error {
+		<-ctx.Done()
+		log.Info().Msg("graceful shutdown task processor")
+
+		taskProcessor.Shutdown()
+		log.Info().Msg("task processor is stopped")
+
+		return nil
+	})
+}
+
 func runGrpcServer(
 	ctx context.Context,
 	waitGroup *errgroup.Group,
 	config config.Config,
 	store db.Store,
+	taskDistributor worker.TaskDistributor,
 ) {
-	server, err := api.NewServer(config, store)
+	server, err := api.NewServer(config, store, taskDistributor)
 	if err != nil {
 		log.Fatal().Msg("failed to create server")
 	}
@@ -151,8 +191,9 @@ func runGatewayServer(
 	waitGroup *errgroup.Group,
 	config config.Config,
 	store db.Store,
+	taskDistributor worker.TaskDistributor,
 ) {
-	server, err := api.NewServer(config, store)
+	server, err := api.NewServer(config, store, taskDistributor)
 	if err != nil {
 		log.Fatal().Msgf("cannot create server: %s", err)
 	}

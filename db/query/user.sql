@@ -30,7 +30,16 @@ SET
   password_changed_at = COALESCE(sqlc.narg(password_changed_at), password_changed_at),
   first_name = COALESCE(sqlc.narg(first_name), first_name),
   last_name = COALESCE(sqlc.narg(last_name), last_name),
-  email = COALESCE(sqlc.narg(email), email)
+  email = COALESCE(sqlc.narg(email), email),
+  is_email_verified = COALESCE(sqlc.narg(is_email_verified), is_email_verified)
 WHERE
   username = sqlc.arg(username)
+RETURNING *;
+
+-- name: UpdateUserEmailVerified :one
+UPDATE users
+SET
+  is_email_verified = COALESCE(sqlc.narg(is_email_verified), is_email_verified)
+WHERE
+  email = sqlc.arg(email)
 RETURNING *;

@@ -6,8 +6,8 @@ import (
 
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/pb"
+	"github.com/olshmore/ytter/pkg/utils"
 	"github.com/olshmore/ytter/pkg/validator"
-	"github.com/olshmore/ytter/util"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,7 +28,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.Internal, "failed to find user")
 	}
 
-	err = util.CheckPassword(req.Password, user.HashedPassword)
+	err = utils.CheckPassword(req.Password, user.HashedPassword)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "incorrect password")
 	}

@@ -5,6 +5,7 @@ ytter
 ### migrate
 ```
 brew install golang-migrate
+migrate -version
 ```
 
 ### dbdocs
@@ -15,7 +16,7 @@ dbdocs login
 ```
 
 ### dbml2sql
-###### **make db_schema** creates doc/schema.sql
+###### **make db_schema** creates docs/schema.sql
 ```
 npm install -g @dbml/cli
 ```
@@ -23,6 +24,7 @@ npm install -g @dbml/cli
 ### sqlc
 ```
 brew install sqlc
+sqlc version
 ```
 
 ### kubectl
@@ -65,13 +67,19 @@ which mockgen
 make db_docs
 ```
 
+### statik for swagger binary
+```
+go install github.com/rakyll/statik
+statik -help
+```
+
 ## Code generation
 ### New migration
 ```
 make new_migration name=<migration_name>
 ```
 
-### SQL: generate doc/schema.sql form doc/db.dbml
+### SQL: generate docs/schema.sql form docs/db.dbml
 ```
 make db_schema
 ```

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/olshmore/ytter/config"
+	"github.com/olshmore/ytter/pkg/config"
 )
 
 var testStore Store

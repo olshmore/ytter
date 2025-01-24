@@ -2,11 +2,14 @@ package api
 
 import (
 	"context"
+	"time"
 
+	"github.com/hibiken/asynq"
 	db "github.com/olshmore/ytter/db/sqlc"
+	"github.com/olshmore/ytter/internal/worker"
 	"github.com/olshmore/ytter/pb"
+	"github.com/olshmore/ytter/pkg/utils"
 	"github.com/olshmore/ytter/pkg/validator"
-	"github.com/olshmore/ytter/util"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,20 +21,35 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		return nil, invalidArgumentError(violations)
 	}
 
-	hashedPassword, err := util.HashPassword(req.GetPassword())
+	hashedPassword, err := utils.HashPassword(req.GetPassword())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
 	}
 
-	arg := db.CreateUserParams{
-		Username:       req.GetUsername(),
-		HashedPassword: hashedPassword,
-		FirstName:      req.GetFirstName(),
-		LastName:       req.GetLastName(),
-		Email:          req.GetEmail(),
+	arg := db.CreateUserTxParams{
+		CreateUserParams: db.CreateUserParams{
+			Username:       req.GetUsername(),
+			HashedPassword: hashedPassword,
+			FirstName:      req.GetFirstName(),
+			LastName:       req.GetLastName(),
+			Email:          req.GetEmail(),
+		},
+		AfterCreate: func(user db.User) error {
+			// send verification email
+			taskPayload := &worker.PayloadSendVerificationEmail{
+				Username: user.Username,
+			}
+			opts := []asynq.Option{
+				asynq.MaxRetry(10),
+				asynq.ProcessIn(10 * time.Second),
+				asynq.Queue(worker.QueueCritical),
+			}
+
+			return server.taskDistributor.DistributeTaskSendVerificationEmail(ctx, taskPayload, opts...)
+		},
 	}
 
-	user, err := server.store.CreateUser(ctx, arg)
+	txResult, err := server.store.CreateUserTx(ctx, arg)
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolation {
 			return nil, status.Errorf(codes.AlreadyExists, "username already exisits: %s", err.Error())
@@ -41,7 +59,7 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	}
 
 	res := &pb.CreateUserResponse{
-		User: ConvertUser(user),
+		User: ConvertUser(txResult.User),
 	}
 
 	return res, nil

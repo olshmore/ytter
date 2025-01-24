@@ -9,12 +9,13 @@ import (
 var (
 	isValidUsername = regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
 	isValidName     = regexp.MustCompile(`^[a-zA-Z\s]+$`).MatchString
+	isValidUUID     = regexp.MustCompile(`^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$`).MatchString
 )
 
 func ValidateString(value string, minLength int, maxLength int) error {
 	n := len(value)
 	if n < minLength || n > maxLength {
-		return fmt.Errorf("Please enter between %d and %d characters.", minLength, maxLength)
+		return fmt.Errorf("please enter between %d and %d characters", minLength, maxLength)
 	}
 	return nil
 }
@@ -24,7 +25,7 @@ func ValidateUsername(value string) error {
 		return err
 	}
 	if !isValidUsername(value) {
-		return fmt.Errorf("Username must only contain lowercase letters, digits, or underscores.")
+		return fmt.Errorf("username must only contain lowercase letters, digits, or underscores")
 	}
 	return nil
 }
@@ -34,7 +35,7 @@ func ValidateName(value string) error {
 		return err
 	}
 	if !isValidName(value) {
-		return fmt.Errorf("Name must only contain letters or spaces.")
+		return fmt.Errorf("name must only contain letters or spaces")
 	}
 	return nil
 }
@@ -48,25 +49,32 @@ func ValidateEmail(value string) error {
 		return err
 	}
 	if _, err := mail.ParseAddress(value); err != nil {
-		return fmt.Errorf("Invalid email address.")
+		return fmt.Errorf("invalid email address")
+	}
+	return nil
+}
+
+func ValidateEmailVerificationToken(value string) error {
+	if !isValidUUID(value) {
+		return fmt.Errorf("token validation failed")
 	}
 	return nil
 }
 
 func ValidateInt32(value int32) error {
 	if value < 0 {
-		return fmt.Errorf("Value must be a zero or a positive integer.")
+		return fmt.Errorf("value must be a zero or a positive integer")
 	}
 	return nil
 }
 
 func ValidateInt64(value int64) error {
 	if value <= 0 {
-		return fmt.Errorf("Value must be a positive integer.")
+		return fmt.Errorf("value must be a positive integer")
 	}
 	return nil
 }
 
-func ValidateSecretCode(value string) error {
+func ValidateStringLength(value string) error {
 	return ValidateString(value, 32, 128)
 }

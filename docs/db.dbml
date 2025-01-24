@@ -1,7 +1,7 @@
-Project yitter {
+Project ytter {
   database_type: 'PostgreSQL'
   Note: '''
-    # yitter db
+    # ytter db
   '''
 }
 
@@ -12,10 +12,20 @@ Table users as U {
   first_name varchar [not null]
   last_name varchar [not null]
   email varchar [unique, not null]
+  is_email_verified bool [not null, default: false]
   password_changed_at timestamptz [not null, default: "0001.01.01 00:00:00Z"]
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null, default: "0001.01.01 00:00:00Z"]
   deleted_at timestamptz [not null, default: "0001.01.01 00:00:00Z"]
+}
+
+Table verification_emails {
+  id bigserial [pk]
+  email varchar [not null]
+  verification_token varchar [not null]
+  is_used bool [not null, default: false]
+  created_at timestamptz [not null, default: `now()`]
+  token_expiry timestamptz [not null, default: `now() + interval '15 minutes'`]
 }
 
 Table sessions {

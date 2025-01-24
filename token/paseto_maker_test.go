@@ -4,15 +4,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/olshmore/ytter/util"
+	"github.com/olshmore/ytter/pkg/utils"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPasetoMaker(t *testing.T) {
-	maker, err := NewPasetoMaker(util.RandomString(32))
+	maker, err := NewPasetoMaker(utils.RandomString(32))
 	require.NoError(t, err)
 
-	username := util.RandomOwner()
+	username := utils.RandomOwner()
 	duration := time.Minute
 
 	issuedAt := time.Now()
@@ -34,10 +34,10 @@ func TestPasetoMaker(t *testing.T) {
 }
 
 func TestExpiredPasetoToken(t *testing.T) {
-	maker, err := NewPasetoMaker(util.RandomString(32))
+	maker, err := NewPasetoMaker(utils.RandomString(32))
 	require.NoError(t, err)
 
-	token, payload, err := maker.CreateToken(util.RandomOwner(), -time.Minute)
+	token, payload, err := maker.CreateToken(utils.RandomOwner(), -time.Minute)
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
 	require.NotEmpty(t, payload)

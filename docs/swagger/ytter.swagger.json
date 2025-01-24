@@ -156,6 +156,38 @@
           "Ytter"
         ]
       }
+    },
+    "/v1/auth/verify_email": {
+      "get": {
+        "summary": "Verify email",
+        "description": "Use this API to verify user's email",
+        "operationId": "Ytter_VerifyEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbVerifyEmailResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "verificationToken",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Ytter"
+        ]
+      }
     }
   },
   "definitions": {
@@ -317,6 +349,14 @@
         "deletedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "pbVerifyEmailResponse": {
+      "type": "object",
+      "properties": {
+        "isVerified": {
+          "type": "boolean"
         }
       }
     },

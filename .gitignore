@@ -27,3 +27,10 @@ go.work
 
 # Local docker volumes
 db-data
+
+# Environment
+# *.env
+# dev.env
+
+# Local
+READ.md

@@ -8,8 +8,8 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/pb"
+	"github.com/olshmore/ytter/pkg/utils"
 	"github.com/olshmore/ytter/pkg/validator"
-	"github.com/olshmore/ytter/util"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -47,7 +47,7 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 	}
 
 	if req.Password != nil {
-		hashedPassword, err := util.HashPassword(req.GetPassword())
+		hashedPassword, err := utils.HashPassword(req.GetPassword())
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
 		}
