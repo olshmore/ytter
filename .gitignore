@@ -30,6 +30,7 @@ db-data
 
 # Environment
 *.env
+!app.env
 
 # Local
 READ.md
