@@ -1,4 +1,4 @@
-include dev.env
+include apptesting.env
 export
 
 up:
@@ -46,6 +46,10 @@ proto:
 	statik -src=./docs/swagger -dest=./docs
 
 test:
+	@echo "ENVIRONMENT: $(ENVIRONMENT)"
+	@echo "DB_URL_LOCAL: $(DB_URL_LOCAL)"
+	@echo "DB_URL: $(DB_URL)"
+	go clean -testcache
 	go test -v -count=1 -cover -short ./...
 
 test_all:

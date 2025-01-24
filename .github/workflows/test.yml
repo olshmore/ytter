@@ -44,7 +44,7 @@ jobs:
 
     - name: Run migrations
       run: |
-        migrate -path db/migration -database postgresql://root:secret@localhost:5432/ytter?sslmode=disable -verbose up || echo "Migration failed. See output above for details."
+        make migrateup || echo "Migration failed. See output above for details."
 
     - name: Test
-      run: go test -v -count=1 -cover -short ./...
+      run: make test
