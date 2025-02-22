@@ -57,5 +57,6 @@ test_all:
 
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/olshmore/ytter/db/sqlc Store
+	mockgen -package mockwk -destination internal/worker/mock/distributor.go github.com/olshmore/ytter/internal/worker TaskDistributor
 
 .PHONY: up down db_docs db_schema new_migration migrateup migratedown migrateup1 migratedown1 server sqlc proto test test_all mock
