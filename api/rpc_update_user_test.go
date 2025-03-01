@@ -17,21 +17,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func randomUser(t *testing.T) (user db.User, password string) {
-	password = utils.RandomString(6)
-	hashedPassword, err := utils.HashPassword(password)
-	require.NoError(t, err)
-
-	user = db.User{
-		Username:       utils.RandomOwner(),
-		HashedPassword: hashedPassword,
-		FirstName:      utils.RandomOwner(),
-		LastName:       utils.RandomOwner(),
-		Email:          utils.RandomEmail(),
-	}
-	return
-}
-
 func TestUpdateUserAPI(t *testing.T) {
 	user, _ := randomUser(t)
 	newFirstName := utils.RandomOwner()
