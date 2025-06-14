@@ -75,7 +75,7 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerificationEmail(
 	// send email
 	subject := "Welcome to Ytter"
 	// TODO: utilise email templates and replace debug with frontend url
-	verificationURL := fmt.Sprintf("http://localhost:8080/v1/auth/verify_email?email=%s&verification_token=%s", verificationEmail.Email, verificationEmail.VerificationToken)
+	verificationURL := fmt.Sprintf("http://localhost:8080/v1/auth/verify_email?verification_token=%s", verificationEmail.VerificationToken)
 	content := fmt.Sprintf(`Hello %s,<br/>
 	Thank you for registering!<br/>
 	<a href="%s">Click here to verify your email</a>
