@@ -13,6 +13,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rakyll/statik/fs"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
@@ -226,8 +227,26 @@ func runGatewayServer(
 	swaggerHandler := http.StripPrefix("/swagger/", http.FileServer(statikFS))
 	mux.Handle("/swagger/", swaggerHandler)
 
+	// CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins: config.AllowedOrigins,
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowedHeaders: []string{
+			"Authorization",
+			"Content-Type",
+		},
+		AllowCredentials: true,
+	})
+	handler := c.Handler(api.HttpLogger(mux))
+
 	httpServer := &http.Server{
-		Handler: api.HttpLogger(mux),
+		Handler: handler,
 		Addr:    config.HTTPServerAddress,
 	}
 

@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Environment          string        `mapstructure:"ENVIRONMENT"`
+	AllowedOrigins       []string      `mapstructure:"ALLOWED_ORIGINS"`
 	DBSource             string        `mapstructure:"DB_URL"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
 	GRPCServerAddress    string        `mapstructure:"GRPC_SERVER_ADDRESS"`
