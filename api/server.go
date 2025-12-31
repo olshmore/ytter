@@ -7,7 +7,7 @@ import (
 	"github.com/olshmore/ytter/internal/worker"
 	"github.com/olshmore/ytter/pb"
 	"github.com/olshmore/ytter/pkg/config"
-	"github.com/olshmore/ytter/token"
+	"github.com/olshmore/ytter/pkg/token"
 )
 
 type Server struct {

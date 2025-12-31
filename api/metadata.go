@@ -31,14 +31,17 @@ func (server *Server) extractMetadata(ctx context.Context) *Metadata {
 		}
 
 		if clientIPs := md.Get(xForwardedForHeader); len(clientIPs) > 0 {
-			// GRPC ClientIP
+			// GRPC ClientIP (x-forwarded-for takes precedence)
 			mtdt.ClientIP = clientIPs[0]
 		}
 	}
 
-	if p, ok := peer.FromContext(ctx); ok {
-		// HTTP ClientIP
-		mtdt.ClientIP = p.Addr.String()
+	// Use peer context if x-forwarded-for is not set
+	if mtdt.ClientIP == "" {
+		if p, ok := peer.FromContext(ctx); ok {
+			// HTTP ClientIP
+			mtdt.ClientIP = p.Addr.String()
+		}
 	}
 
 	return mtdt

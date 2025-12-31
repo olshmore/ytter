@@ -9,8 +9,8 @@ import (
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/internal/worker"
 	"github.com/olshmore/ytter/pkg/config"
+	"github.com/olshmore/ytter/pkg/token"
 	"github.com/olshmore/ytter/pkg/utils"
-	"github.com/olshmore/ytter/token"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 )

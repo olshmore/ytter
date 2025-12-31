@@ -43,7 +43,7 @@ var interruptSignals = []os.Signal{
 
 func main() {
 	// Environment
-	config, err := config.LoadConfig(".")
+	config, err := config.LoadConfig("./config")
 	if err != nil {
 		log.Fatal().Msgf("failed to load config err: %s", err)
 	}

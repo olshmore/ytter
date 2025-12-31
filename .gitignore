@@ -30,8 +30,9 @@ db-data
 
 # Environment
 *.env
-!app.env
-!apptesting.env
+config/*.env
+!config/app.env
+!config/apptesting.env
 
 # Local
 READ.md

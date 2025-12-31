@@ -9,7 +9,7 @@ import (
 	mockdb "github.com/olshmore/ytter/db/mock"
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/pb"
-	"github.com/olshmore/ytter/token"
+	"github.com/olshmore/ytter/pkg/token"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/olshmore/ytter/token"
+	"github.com/olshmore/ytter/pkg/token"
 	"google.golang.org/grpc/metadata"
 )
 

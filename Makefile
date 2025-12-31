@@ -1,4 +1,4 @@
-include apptesting.env
+include config/apptesting.env
 export
 
 up:
