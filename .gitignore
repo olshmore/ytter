@@ -28,6 +28,10 @@ go.work
 # Local docker volumes
 db-data
 
+# Air hot reload
+tmp/
+build-errors.log
+
 # Environment
 *.env
 config/*.env
