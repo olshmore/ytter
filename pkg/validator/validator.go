@@ -78,3 +78,10 @@ func ValidateInt64(value int64) error {
 func ValidateStringLength(value string) error {
 	return ValidateString(value, 32, 128)
 }
+
+func ValidateRole(value string) error {
+	if value != "admin" && value != "member" {
+		return fmt.Errorf("role must be either 'admin' or 'member'")
+	}
+	return nil
+}

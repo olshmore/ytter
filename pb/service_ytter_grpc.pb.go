@@ -21,10 +21,10 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Ytter_CreateUser_FullMethodName   = "/pb.Ytter/CreateUser"
 	Ytter_VerifyEmail_FullMethodName  = "/pb.Ytter/VerifyEmail"
-	Ytter_UpdateUser_FullMethodName   = "/pb.Ytter/UpdateUser"
 	Ytter_LoginUser_FullMethodName    = "/pb.Ytter/LoginUser"
 	Ytter_RefreshToken_FullMethodName = "/pb.Ytter/RefreshToken"
 	Ytter_ListUsers_FullMethodName    = "/pb.Ytter/ListUsers"
+	Ytter_UpdateUser_FullMethodName   = "/pb.Ytter/UpdateUser"
 )
 
 // YtterClient is the client API for Ytter service.
@@ -33,10 +33,10 @@ const (
 type YtterClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyEmailResponse, error)
-	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
+	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 }
 
 type ytterClient struct {
@@ -61,16 +61,6 @@ func (c *ytterClient) VerifyEmail(ctx context.Context, in *VerifyEmailRequest, o
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(VerifyEmailResponse)
 	err := c.cc.Invoke(ctx, Ytter_VerifyEmail_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *ytterClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateUserResponse)
-	err := c.cc.Invoke(ctx, Ytter_UpdateUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -107,16 +97,26 @@ func (c *ytterClient) ListUsers(ctx context.Context, in *ListUsersRequest, opts 
 	return out, nil
 }
 
+func (c *ytterClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateUserResponse)
+	err := c.cc.Invoke(ctx, Ytter_UpdateUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // YtterServer is the server API for Ytter service.
 // All implementations must embed UnimplementedYtterServer
 // for forward compatibility.
 type YtterServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error)
-	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
+	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	mustEmbedUnimplementedYtterServer()
 }
 
@@ -133,9 +133,6 @@ func (UnimplementedYtterServer) CreateUser(context.Context, *CreateUserRequest) 
 func (UnimplementedYtterServer) VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmail not implemented")
 }
-func (UnimplementedYtterServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
-}
 func (UnimplementedYtterServer) LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
 }
@@ -144,6 +141,9 @@ func (UnimplementedYtterServer) RefreshToken(context.Context, *RefreshTokenReque
 }
 func (UnimplementedYtterServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
+}
+func (UnimplementedYtterServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedYtterServer) mustEmbedUnimplementedYtterServer() {}
 func (UnimplementedYtterServer) testEmbeddedByValue()               {}
@@ -202,24 +202,6 @@ func _Ytter_VerifyEmail_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Ytter_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(YtterServer).UpdateUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Ytter_UpdateUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(YtterServer).UpdateUser(ctx, req.(*UpdateUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Ytter_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginUserRequest)
 	if err := dec(in); err != nil {
@@ -274,6 +256,24 @@ func _Ytter_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).UpdateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_UpdateUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).UpdateUser(ctx, req.(*UpdateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Ytter_ServiceDesc is the grpc.ServiceDesc for Ytter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -290,10 +290,6 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Ytter_VerifyEmail_Handler,
 		},
 		{
-			MethodName: "UpdateUser",
-			Handler:    _Ytter_UpdateUser_Handler,
-		},
-		{
 			MethodName: "LoginUser",
 			Handler:    _Ytter_LoginUser_Handler,
 		},
@@ -304,6 +300,10 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListUsers",
 			Handler:    _Ytter_ListUsers_Handler,
+		},
+		{
+			MethodName: "UpdateUser",
+			Handler:    _Ytter_UpdateUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

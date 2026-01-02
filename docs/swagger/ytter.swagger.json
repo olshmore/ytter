@@ -2,6 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Ytter API",
+    "description": "API with role-based access control. Roles: 'member' (regular users) and 'admin' (administrators)",
     "version": "1.1",
     "contact": {
       "name": "ytter",
@@ -10,6 +11,14 @@
     }
   },
   "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "user",
+      "description": "User endpoints"
+    },
     {
       "name": "Ytter"
     }
@@ -51,14 +60,14 @@
           }
         ],
         "tags": [
-          "Ytter"
+          "auth"
         ]
       }
     },
     "/v1/auth/refresh": {
       "post": {
         "summary": "Refresh token",
-        "description": "Use this API to refresh token",
+        "description": "Use this API to refresh access token. Public endpoint - validates refresh token from request body (not Bearer header).",
         "operationId": "Ytter_RefreshToken",
         "responses": {
           "200": {
@@ -85,7 +94,7 @@
           }
         ],
         "tags": [
-          "Ytter"
+          "auth"
         ]
       }
     },
@@ -119,41 +128,7 @@
           }
         ],
         "tags": [
-          "Ytter"
-        ]
-      }
-    },
-    "/v1/auth/update_user": {
-      "patch": {
-        "summary": "Update user",
-        "description": "Use this API to update user. Username field is required, other fields are optional",
-        "operationId": "Ytter_UpdateUser",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/pbUpdateUserResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbUpdateUserRequest"
-            }
-          }
-        ],
-        "tags": [
-          "Ytter"
+          "auth"
         ]
       }
     },
@@ -185,7 +160,91 @@
           }
         ],
         "tags": [
-          "Ytter"
+          "auth"
+        ]
+      }
+    },
+    "/v1/user/list": {
+      "get": {
+        "summary": "List users",
+        "description": "List users. Roles: admin",
+        "operationId": "Ytter_ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/user/update": {
+      "patch": {
+        "summary": "Update user",
+        "description": "Update user. Roles: admin \u0026 member",
+        "operationId": "Ytter_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUpdateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ]
       }
     }
@@ -304,6 +363,9 @@
         },
         "email": {
           "type": "string"
+        },
+        "role": {
+          "type": "string"
         }
       }
     },
@@ -349,6 +411,9 @@
         "deletedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "role": {
+          "type": "string"
         }
       }
     },
@@ -387,6 +452,14 @@
           }
         }
       }
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "description": "Bearer token authentication. Format: 'Bearer \u003ctoken\u003e'. Required for authenticated endpoints.",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }

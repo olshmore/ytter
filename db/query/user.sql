@@ -4,9 +4,10 @@ INSERT INTO users (
   hashed_password,
   first_name,
   last_name,
-  email
+  email,
+  role
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 ) RETURNING *;
 
 -- name: ListUsers :many
@@ -31,7 +32,8 @@ SET
   first_name = COALESCE(sqlc.narg(first_name), first_name),
   last_name = COALESCE(sqlc.narg(last_name), last_name),
   email = COALESCE(sqlc.narg(email), email),
-  is_email_verified = COALESCE(sqlc.narg(is_email_verified), is_email_verified)
+  is_email_verified = COALESCE(sqlc.narg(is_email_verified), is_email_verified),
+  role = COALESCE(sqlc.narg(role), role)
 WHERE
   username = sqlc.arg(username)
 RETURNING *;

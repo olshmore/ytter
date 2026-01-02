@@ -1,6 +1,13 @@
 include config/apptesting.env
 export
 
+dev:
+	@which air > /dev/null || (echo "Air is not installed. Install it with: go install github.com/air-verse/air@latest" && exit 1)
+	@echo "Starting database services..."
+	@docker compose up -d postgres redis
+	@echo "Starting development server with hot reload..."
+	air
+
 up:
 	docker compose up --build
 
@@ -50,7 +57,8 @@ test:
 	@echo "DB_URL_LOCAL: $(DB_URL_LOCAL)"
 	@echo "DB_URL: $(DB_URL)"
 	go clean -testcache
-	go test -v -count=1 -cover -short ./...
+	go test -v -count=1 -coverprofile=coverage.out -short ./...
+	@go tool cover -func=coverage.out | awk '!/\/pb\// && !/\/db\// || /^total:/'
 
 test_all:
 	go test -v -count=1 -cover ./...
@@ -59,4 +67,4 @@ mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/olshmore/ytter/db/sqlc Store
 	mockgen -package mockwk -destination internal/worker/mock/distributor.go github.com/olshmore/ytter/internal/worker TaskDistributor
 
-.PHONY: up down db_docs db_schema new_migration migrateup migratedown migrateup1 migratedown1 server sqlc proto test test_all mock
+.PHONY: dev up down db_docs db_schema new_migration migrateup migratedown migrateup1 migratedown1 server sqlc proto test test_all mock

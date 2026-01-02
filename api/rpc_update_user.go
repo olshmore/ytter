@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/olshmore/ytter/db/sqlc"
@@ -16,17 +15,13 @@ import (
 )
 
 func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
-	authPayload, err := server.authoriseUser(ctx)
-	if err != nil {
-		return nil, unauthenticatedError(err)
-	}
-
 	violations := validateUpdateUserRequest(req)
 	if violations != nil {
 		return nil, invalidArgumentError(violations)
 	}
 
-	if authPayload.Username != req.Username {
+	authPayload := GetAuthPayload(ctx)
+	if authPayload.Role != utils.RoleAdmin && authPayload.Username != req.Username {
 		return nil, status.Errorf(codes.PermissionDenied, "cannot update other users's data")
 	}
 
@@ -44,24 +39,29 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 			String: req.GetEmail(),
 			Valid:  req.Email != nil,
 		},
+		Role: pgtype.Text{
+			String: req.GetRole(),
+			Valid:  req.Role != nil,
+		},
 	}
 
-	if req.Password != nil {
-		hashedPassword, err := utils.HashPassword(req.GetPassword())
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
-		}
+	// TODO: Implement password update
+	// if req.Password != nil {
+	// 	hashedPassword, err := utils.HashPassword(req.GetPassword())
+	// 	if err != nil {
+	// 		return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
+	// 	}
 
-		arg.HashedPassword = pgtype.Text{
-			String: hashedPassword,
-			Valid:  true,
-		}
+	// 	arg.HashedPassword = pgtype.Text{
+	// 		String: hashedPassword,
+	// 		Valid:  true,
+	// 	}
 
-		arg.PasswordChangedAt = pgtype.Timestamptz{
-			Time:  time.Now(),
-			Valid: true,
-		}
-	}
+	// 	arg.PasswordChangedAt = pgtype.Timestamptz{
+	// 		Time:  time.Now(),
+	// 		Valid: true,
+	// 	}
+	// }
 
 	user, err := server.store.UpdateUser(ctx, arg)
 	if err != nil {
@@ -105,6 +105,12 @@ func validateUpdateUserRequest(req *pb.UpdateUserRequest) (violations []*errdeta
 	if req.Email != nil {
 		if err := validator.ValidateEmail(req.GetEmail()); err != nil {
 			violations = append(violations, fieldViolation("email", err))
+		}
+	}
+
+	if req.Role != nil {
+		if err := validator.ValidateRole(req.GetRole()); err != nil {
+			violations = append(violations, fieldViolation("role", err))
 		}
 	}
 

@@ -23,6 +23,26 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
       url: "https://github.com/olshmore/ytter";
       email: "olyshsuk@gmail.com";
     };
+    description: "API with role-based access control. Roles: 'member' (regular users) and 'admin' (administrators)";
+  };
+  security_definitions: {
+    security: {
+      key: "Bearer";
+      value: {
+        type: TYPE_API_KEY;
+        in: IN_HEADER;
+        name: "Authorization";
+        description: "Bearer token authentication. Format: 'Bearer <token>'. Required for authenticated endpoints.";
+      };
+    };
+  };
+  tags: {
+    name: "auth";
+    description: "Authentication endpoints";
+  };
+  tags: {
+    name: "user";
+    description: "User endpoints";
   };
 };
 
@@ -35,6 +55,7 @@ service Ytter {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to create a new user";
       summary: "Create new user";
+      tags: "auth";
     };
   };
   rpc VerifyEmail (VerifyEmailRequest) returns (VerifyEmailResponse) {
@@ -44,16 +65,7 @@ service Ytter {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to verify user's email";
       summary: "Verify email";
-    };
-  };
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
-    option (google.api.http) = {
-      patch: "/v1/auth/update_user"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      description: "Use this API to update user. Username field is required, other fields are optional";
-      summary: "Update user";
+      tags: "auth";
     };
   };
   rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {
@@ -64,6 +76,7 @@ service Ytter {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to login user";
       summary: "Login user";
+      tags: "auth";
     };
   };
   rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {
@@ -72,9 +85,42 @@ service Ytter {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      description: "Use this API to refresh token";
+      description: "Use this API to refresh access token. Public endpoint - validates refresh token from request body (not Bearer header).";
       summary: "Refresh token";
+      tags: "auth";
     };
   };
-  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {};
+  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get: "/v1/user/list"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List users";
+      description: "List users. Roles: admin";
+      tags: "user";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      patch: "/v1/user/update"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update user";
+      description: "Update user. Roles: admin & member";
+      tags: "user";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
 }

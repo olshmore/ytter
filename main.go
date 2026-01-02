@@ -147,9 +147,14 @@ func runGrpcServer(
 		log.Fatal().Msg("failed to create server")
 	}
 
-	grpcLogger := grpc.UnaryInterceptor(api.GrpcLogger)
+	roleConfig := api.ConfigureRoleBasedAccess()
 
-	grpcServer := grpc.NewServer(grpcLogger)
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			api.GrpcLogger,
+			server.RequireRoles(roleConfig),
+		),
+	)
 
 	pb.RegisterYtterServer(grpcServer, server)
 
@@ -201,7 +206,8 @@ func runGatewayServer(
 
 	jsonOption := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{
-			UseProtoNames: true,
+			UseProtoNames:   true,
+			EmitUnpopulated: true,
 		},
 		UnmarshalOptions: protojson.UnmarshalOptions{
 			DiscardUnknown: true,
@@ -227,6 +233,10 @@ func runGatewayServer(
 	swaggerHandler := http.StripPrefix("/swagger/", http.FileServer(statikFS))
 	mux.Handle("/swagger/", swaggerHandler)
 
+	// Role-based access control
+	roleConfig := api.ConfigureRoleBasedAccess()
+	handler := server.RequireRolesHTTP(roleConfig)(mux)
+
 	// CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: config.AllowedOrigins,
@@ -243,7 +253,7 @@ func runGatewayServer(
 		},
 		AllowCredentials: true,
 	})
-	handler := c.Handler(api.HttpLogger(mux))
+	handler = c.Handler(api.HttpLogger(handler))
 
 	httpServer := &http.Server{
 		Handler: handler,
@@ -259,7 +269,7 @@ func runGatewayServer(
 				return nil
 			}
 
-			log.Error().Msgf("HTTP Gateway server falied to serve: %s", err)
+			log.Error().Msgf("HTTP Gateway server failed to serve: %s", err)
 
 			return err
 		}
@@ -270,10 +280,9 @@ func runGatewayServer(
 		<-ctx.Done()
 		log.Info().Msg("graceful shutdown HTTP gateway server")
 
-		httpServer.Shutdown(context.Background())
+		err := httpServer.Shutdown(context.Background())
 		if err != nil {
-			log.Error().Msg("falied to shutdown HTTP gateway server")
-
+			log.Error().Err(err).Msg("failed to shutdown HTTP gateway server")
 			return err
 		}
 

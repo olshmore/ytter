@@ -6,6 +6,7 @@ import (
 
 	"github.com/aead/chacha20poly1305"
 	"github.com/o1egl/paseto"
+	"github.com/olshmore/ytter/pkg/utils"
 )
 
 // PasetoMaker is a PASETO token maker
@@ -29,8 +30,8 @@ func NewPasetoMaker(symmetricKey string) (Maker, error) {
 }
 
 // CreateToken creates a new token for a specific username and duration
-func (maker *PasetoMaker) CreateToken(username string, duration time.Duration) (string, *Payload, error) {
-	payload, err := NewPayload(username, duration)
+func (maker *PasetoMaker) CreateToken(username string, role utils.Role, duration time.Duration) (string, *Payload, error) {
+	payload, err := NewPayload(username, role, duration)
 	if err != nil {
 		return "", payload, err
 	}

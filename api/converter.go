@@ -8,6 +8,7 @@ import (
 
 func ConvertUser(user db.User) *pb.User {
 	return &pb.User{
+		Id:                user.ID,
 		Username:          user.Username,
 		FirstName:         user.FirstName,
 		LastName:          user.LastName,
@@ -16,6 +17,7 @@ func ConvertUser(user db.User) *pb.User {
 		CreatedAt:         timestamppb.New(user.CreatedAt),
 		UpdatedAt:         timestamppb.New(user.UpdatedAt),
 		DeletedAt:         timestamppb.New(user.DeletedAt),
+		Role:              user.Role,
 	}
 }
 
