@@ -425,3 +425,60 @@ func TestValidateStringLength(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateRole(t *testing.T) {
+	testCases := []struct {
+		name      string
+		role      string
+		expectErr bool
+	}{
+		{
+			name:      "ValidAdmin",
+			role:      "admin",
+			expectErr: false,
+		},
+		{
+			name:      "ValidMember",
+			role:      "member",
+			expectErr: false,
+		},
+		{
+			name:      "InvalidRole",
+			role:      "user",
+			expectErr: true,
+		},
+		{
+			name:      "EmptyRole",
+			role:      "",
+			expectErr: true,
+		},
+		{
+			name:      "InvalidRoleModerator",
+			role:      "moderator",
+			expectErr: true,
+		},
+		{
+			name:      "CaseSensitiveAdmin",
+			role:      "Admin",
+			expectErr: true,
+		},
+		{
+			name:      "CaseSensitiveMember",
+			role:      "Member",
+			expectErr: true,
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			err := ValidateRole(tc.role)
+			if tc.expectErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}

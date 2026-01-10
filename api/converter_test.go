@@ -28,6 +28,7 @@ func TestConvertUser(t *testing.T) {
 	pbUser := ConvertUser(user)
 
 	require.NotNil(t, pbUser)
+	require.Equal(t, user.ID, pbUser.Id)
 	require.Equal(t, user.Username, pbUser.Username)
 	require.Equal(t, user.FirstName, pbUser.FirstName)
 	require.Equal(t, user.LastName, pbUser.LastName)
@@ -71,7 +72,9 @@ func TestConvertUsers(t *testing.T) {
 	pbUsers := ConvertUsers(users)
 
 	require.Len(t, pbUsers, 2)
+	require.Equal(t, users[0].ID, pbUsers[0].Id)
 	require.Equal(t, users[0].Username, pbUsers[0].Username)
+	require.Equal(t, users[1].ID, pbUsers[1].Id)
 	require.Equal(t, users[1].Username, pbUsers[1].Username)
 }
 

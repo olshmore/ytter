@@ -104,6 +104,54 @@ func TestLoginUserAPI(t *testing.T) {
 				require.Equal(t, codes.Internal, st.Code())
 			},
 		},
+		{
+			name: "InvalidUsername",
+			req: &pb.LoginUserRequest{
+				Username: "ab", // Too short
+				Password: password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				// No store calls expected for validation errors
+			},
+			checkResponse: func(t *testing.T, res *pb.LoginUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
+			},
+		},
+		{
+			name: "InvalidPassword",
+			req: &pb.LoginUserRequest{
+				Username: user.Username,
+				Password: "short", // Too short
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				// No store calls expected for validation errors
+			},
+			checkResponse: func(t *testing.T, res *pb.LoginUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
+			},
+		},
+		{
+			name: "InvalidUsernameAndPassword",
+			req: &pb.LoginUserRequest{
+				Username: "ab",    // Too short
+				Password: "short", // Too short
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				// No store calls expected for validation errors
+			},
+			checkResponse: func(t *testing.T, res *pb.LoginUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
+			},
+		},
 	}
 
 	for i := range testCases {

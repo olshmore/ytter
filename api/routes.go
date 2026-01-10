@@ -37,10 +37,10 @@ func ConfigureRoleBasedAccess() RoleConfig {
 	}
 
 	// ============================================================================
-	// AUTHENTICATED: MEMBER OR ADMIN
-	// Routes accessible by authenticated members or admins
+	// AUTHENTICATED: ANY ROLE
+	// Routes accessible by any authenticated user
 	// ============================================================================
-	config.RequireAuth([]utils.Role{utils.RoleMember, utils.RoleAdmin},
+	config.RequireAuth([]utils.Role{},
 		RouteUpdateUser,
 	)
 

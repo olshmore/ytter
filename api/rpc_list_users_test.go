@@ -57,6 +57,34 @@ func TestListUsersAPI(t *testing.T) {
 				require.Equal(t, codes.InvalidArgument, status.Code(err))
 			},
 		},
+		{
+			name: "Invalid Offset",
+			req: &pb.ListUsersRequest{
+				Limit:  10,
+				Offset: -1,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().ListUsers(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checkResponse: func(t *testing.T, res *pb.ListUsersResponse, err error) {
+				require.Error(t, err)
+				require.Equal(t, codes.InvalidArgument, status.Code(err))
+			},
+		},
+		{
+			name: "Invalid Limit and Offset",
+			req: &pb.ListUsersRequest{
+				Limit:  -10,
+				Offset: -1,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().ListUsers(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checkResponse: func(t *testing.T, res *pb.ListUsersResponse, err error) {
+				require.Error(t, err)
+				require.Equal(t, codes.InvalidArgument, status.Code(err))
+			},
+		},
 	}
 
 	for i := range testCases {

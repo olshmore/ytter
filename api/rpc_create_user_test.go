@@ -60,6 +60,7 @@ func randomUser(t *testing.T) (user db.User, password string) {
 
 	user = db.User{
 		Username:       utils.RandomOwner(),
+		Role:           string(utils.RoleMember),
 		HashedPassword: hashedPassword,
 		FirstName:      utils.RandomOwner(),
 		LastName:       utils.RandomOwner(),
@@ -178,6 +179,106 @@ func TestCreateUserAPI(t *testing.T) {
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
 				Email:     "invalid-email",
+			},
+			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {
+				store.EXPECT().
+					CreateUserTx(gomock.Any(), gomock.Any()).
+					Times(0)
+
+				taskDistributor.EXPECT().
+					DistributeTaskSendVerificationEmail(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
+			},
+		},
+		{
+			name: "InvalidUsername",
+			req: &pb.CreateUserRequest{
+				Username:  "ab", // Too short
+				Password:  password,
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				Email:     user.Email,
+			},
+			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {
+				store.EXPECT().
+					CreateUserTx(gomock.Any(), gomock.Any()).
+					Times(0)
+
+				taskDistributor.EXPECT().
+					DistributeTaskSendVerificationEmail(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
+			},
+		},
+		{
+			name: "InvalidPassword",
+			req: &pb.CreateUserRequest{
+				Username:  user.Username,
+				Password:  "short", // Too short
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				Email:     user.Email,
+			},
+			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {
+				store.EXPECT().
+					CreateUserTx(gomock.Any(), gomock.Any()).
+					Times(0)
+
+				taskDistributor.EXPECT().
+					DistributeTaskSendVerificationEmail(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
+			},
+		},
+		{
+			name: "InvalidFirstName",
+			req: &pb.CreateUserRequest{
+				Username:  user.Username,
+				Password:  password,
+				FirstName: "Jo", // Too short
+				LastName:  user.LastName,
+				Email:     user.Email,
+			},
+			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {
+				store.EXPECT().
+					CreateUserTx(gomock.Any(), gomock.Any()).
+					Times(0)
+
+				taskDistributor.EXPECT().
+					DistributeTaskSendVerificationEmail(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
+			},
+		},
+		{
+			name: "InvalidLastName",
+			req: &pb.CreateUserRequest{
+				Username:  user.Username,
+				Password:  password,
+				FirstName: user.FirstName,
+				LastName:  "Do", // Too short
+				Email:     user.Email,
 			},
 			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {
 				store.EXPECT().

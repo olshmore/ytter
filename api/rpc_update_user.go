@@ -21,6 +21,15 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 	}
 
 	authPayload := GetAuthPayload(ctx)
+
+	if authPayload == nil {
+		var err error
+		authPayload, err = server.extractAuthPayload(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "authentication required: %s", err)
+		}
+	}
+
 	if authPayload.Role != utils.RoleAdmin && authPayload.Username != req.Username {
 		return nil, status.Errorf(codes.PermissionDenied, "cannot update other users's data")
 	}
