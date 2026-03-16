@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -16,6 +17,8 @@ type Querier interface {
 	CreateVerificationEmail(ctx context.Context, arg CreateVerificationEmailParams) (VerificationEmail, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetUser(ctx context.Context, id int64) (User, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+	GetUserByGoogleID(ctx context.Context, googleID pgtype.Text) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetVerificationEmailByToken(ctx context.Context, verificationToken string) (VerificationEmail, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)

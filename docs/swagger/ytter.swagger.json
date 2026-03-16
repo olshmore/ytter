@@ -30,6 +30,68 @@
     "application/json"
   ],
   "paths": {
+    "/v1/auth/google/callback": {
+      "get": {
+        "summary": "Google OAuth callback",
+        "description": "Handle Google OAuth callback. Creates or links user account and returns tokens.",
+        "operationId": "Ytter_GoogleAuthCallback",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGoogleAuthCallbackResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/google/initiate": {
+      "get": {
+        "summary": "Initiate Google OAuth",
+        "description": "Initiate Google OAuth flow. Returns the Google OAuth URL to redirect the user to.",
+        "operationId": "Ytter_InitiateGoogleAuth",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbInitiateGoogleAuthResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/v1/auth/login": {
       "post": {
         "summary": "Login user",
@@ -275,6 +337,39 @@
       "properties": {
         "user": {
           "$ref": "#/definitions/pbUser"
+        }
+      }
+    },
+    "pbGoogleAuthCallbackResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/pbUser"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "accessTokenExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "refreshTokenExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "pbInitiateGoogleAuthResponse": {
+      "type": "object",
+      "properties": {
+        "authUrl": {
+          "type": "string"
         }
       }
     },

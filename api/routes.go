@@ -12,12 +12,14 @@ import (
 
 // Route method names from generated proto code
 const (
-	RouteCreateUser   = pb.Ytter_CreateUser_FullMethodName
-	RouteVerifyEmail  = pb.Ytter_VerifyEmail_FullMethodName
-	RouteLoginUser    = pb.Ytter_LoginUser_FullMethodName
-	RouteRefreshToken = pb.Ytter_RefreshToken_FullMethodName
-	RouteListUsers    = pb.Ytter_ListUsers_FullMethodName
-	RouteUpdateUser   = pb.Ytter_UpdateUser_FullMethodName
+	RouteCreateUser         = pb.Ytter_CreateUser_FullMethodName
+	RouteVerifyEmail        = pb.Ytter_VerifyEmail_FullMethodName
+	RouteLoginUser          = pb.Ytter_LoginUser_FullMethodName
+	RouteRefreshToken       = pb.Ytter_RefreshToken_FullMethodName
+	RouteListUsers          = pb.Ytter_ListUsers_FullMethodName
+	RouteUpdateUser         = pb.Ytter_UpdateUser_FullMethodName
+	RouteInitiateGoogleAuth = pb.Ytter_InitiateGoogleAuth_FullMethodName
+	RouteGoogleAuthCallback = pb.Ytter_GoogleAuthCallback_FullMethodName
 )
 
 // ConfigureRoleBasedAccess sets up GRPC role-based access control
@@ -30,10 +32,12 @@ func ConfigureRoleBasedAccess() RoleConfig {
 	// ============================================================================
 	// No configuration needed - routes not listed here are public by default
 	_ = []string{
-		RouteCreateUser,   // registration
-		RouteLoginUser,    // login
-		RouteVerifyEmail,  // email verification
-		RouteRefreshToken, // token refresh
+		RouteCreateUser,         // registration
+		RouteLoginUser,          // login
+		RouteVerifyEmail,        // email verification
+		RouteRefreshToken,       // token refresh
+		RouteInitiateGoogleAuth, // Google OAuth initiation
+		RouteGoogleAuthCallback, // Google OAuth callback
 	}
 
 	// ============================================================================

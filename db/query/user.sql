@@ -24,6 +24,14 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM users
 WHERE username = $1 LIMIT 1;
 
+-- name: GetUserByGoogleID :one
+SELECT * FROM users
+WHERE google_id = $1 LIMIT 1;
+
+-- name: GetUserByEmail :one
+SELECT * FROM users
+WHERE email = $1 LIMIT 1;
+
 -- name: UpdateUser :one
 UPDATE users
 SET
@@ -33,7 +41,8 @@ SET
   last_name = COALESCE(sqlc.narg(last_name), last_name),
   email = COALESCE(sqlc.narg(email), email),
   is_email_verified = COALESCE(sqlc.narg(is_email_verified), is_email_verified),
-  role = COALESCE(sqlc.narg(role), role)
+  role = COALESCE(sqlc.narg(role), role),
+  google_id = COALESCE(sqlc.narg(google_id), google_id)
 WHERE
   username = sqlc.arg(username)
 RETURNING *;

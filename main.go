@@ -223,6 +223,7 @@ func runGatewayServer(
 
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
+	mux.HandleFunc("/v1/auth/google/callback", server.GoogleAuthCallbackHTTPHandler())
 
 	// Swagger API Docs
 	statikFS, err := fs.New()

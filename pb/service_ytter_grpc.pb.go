@@ -19,12 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Ytter_CreateUser_FullMethodName   = "/pb.Ytter/CreateUser"
-	Ytter_VerifyEmail_FullMethodName  = "/pb.Ytter/VerifyEmail"
-	Ytter_LoginUser_FullMethodName    = "/pb.Ytter/LoginUser"
-	Ytter_RefreshToken_FullMethodName = "/pb.Ytter/RefreshToken"
-	Ytter_ListUsers_FullMethodName    = "/pb.Ytter/ListUsers"
-	Ytter_UpdateUser_FullMethodName   = "/pb.Ytter/UpdateUser"
+	Ytter_CreateUser_FullMethodName         = "/pb.Ytter/CreateUser"
+	Ytter_VerifyEmail_FullMethodName        = "/pb.Ytter/VerifyEmail"
+	Ytter_LoginUser_FullMethodName          = "/pb.Ytter/LoginUser"
+	Ytter_RefreshToken_FullMethodName       = "/pb.Ytter/RefreshToken"
+	Ytter_ListUsers_FullMethodName          = "/pb.Ytter/ListUsers"
+	Ytter_UpdateUser_FullMethodName         = "/pb.Ytter/UpdateUser"
+	Ytter_InitiateGoogleAuth_FullMethodName = "/pb.Ytter/InitiateGoogleAuth"
+	Ytter_GoogleAuthCallback_FullMethodName = "/pb.Ytter/GoogleAuthCallback"
 )
 
 // YtterClient is the client API for Ytter service.
@@ -37,6 +39,8 @@ type YtterClient interface {
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
+	InitiateGoogleAuth(ctx context.Context, in *InitiateGoogleAuthRequest, opts ...grpc.CallOption) (*InitiateGoogleAuthResponse, error)
+	GoogleAuthCallback(ctx context.Context, in *GoogleAuthCallbackRequest, opts ...grpc.CallOption) (*GoogleAuthCallbackResponse, error)
 }
 
 type ytterClient struct {
@@ -107,6 +111,26 @@ func (c *ytterClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opt
 	return out, nil
 }
 
+func (c *ytterClient) InitiateGoogleAuth(ctx context.Context, in *InitiateGoogleAuthRequest, opts ...grpc.CallOption) (*InitiateGoogleAuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InitiateGoogleAuthResponse)
+	err := c.cc.Invoke(ctx, Ytter_InitiateGoogleAuth_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) GoogleAuthCallback(ctx context.Context, in *GoogleAuthCallbackRequest, opts ...grpc.CallOption) (*GoogleAuthCallbackResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GoogleAuthCallbackResponse)
+	err := c.cc.Invoke(ctx, Ytter_GoogleAuthCallback_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // YtterServer is the server API for Ytter service.
 // All implementations must embed UnimplementedYtterServer
 // for forward compatibility.
@@ -117,6 +141,8 @@ type YtterServer interface {
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
+	InitiateGoogleAuth(context.Context, *InitiateGoogleAuthRequest) (*InitiateGoogleAuthResponse, error)
+	GoogleAuthCallback(context.Context, *GoogleAuthCallbackRequest) (*GoogleAuthCallbackResponse, error)
 	mustEmbedUnimplementedYtterServer()
 }
 
@@ -144,6 +170,12 @@ func (UnimplementedYtterServer) ListUsers(context.Context, *ListUsersRequest) (*
 }
 func (UnimplementedYtterServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
+}
+func (UnimplementedYtterServer) InitiateGoogleAuth(context.Context, *InitiateGoogleAuthRequest) (*InitiateGoogleAuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitiateGoogleAuth not implemented")
+}
+func (UnimplementedYtterServer) GoogleAuthCallback(context.Context, *GoogleAuthCallbackRequest) (*GoogleAuthCallbackResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GoogleAuthCallback not implemented")
 }
 func (UnimplementedYtterServer) mustEmbedUnimplementedYtterServer() {}
 func (UnimplementedYtterServer) testEmbeddedByValue()               {}
@@ -274,6 +306,42 @@ func _Ytter_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_InitiateGoogleAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitiateGoogleAuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).InitiateGoogleAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_InitiateGoogleAuth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).InitiateGoogleAuth(ctx, req.(*InitiateGoogleAuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_GoogleAuthCallback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GoogleAuthCallbackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).GoogleAuthCallback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_GoogleAuthCallback_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).GoogleAuthCallback(ctx, req.(*GoogleAuthCallbackRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Ytter_ServiceDesc is the grpc.ServiceDesc for Ytter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +372,14 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUser",
 			Handler:    _Ytter_UpdateUser_Handler,
+		},
+		{
+			MethodName: "InitiateGoogleAuth",
+			Handler:    _Ytter_InitiateGoogleAuth_Handler,
+		},
+		{
+			MethodName: "GoogleAuthCallback",
+			Handler:    _Ytter_GoogleAuthCallback_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

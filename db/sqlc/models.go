@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Session struct {
@@ -22,18 +23,19 @@ type Session struct {
 }
 
 type User struct {
-	ID                int64     `json:"id"`
-	Username          string    `json:"username"`
-	HashedPassword    string    `json:"hashed_password"`
-	FirstName         string    `json:"first_name"`
-	LastName          string    `json:"last_name"`
-	Email             string    `json:"email"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
-	DeletedAt         time.Time `json:"deleted_at"`
-	IsEmailVerified   bool      `json:"is_email_verified"`
-	Role              string    `json:"role"`
+	ID                int64       `json:"id"`
+	Username          string      `json:"username"`
+	HashedPassword    string      `json:"hashed_password"`
+	FirstName         string      `json:"first_name"`
+	LastName          string      `json:"last_name"`
+	Email             string      `json:"email"`
+	PasswordChangedAt time.Time   `json:"password_changed_at"`
+	CreatedAt         time.Time   `json:"created_at"`
+	UpdatedAt         time.Time   `json:"updated_at"`
+	DeletedAt         time.Time   `json:"deleted_at"`
+	IsEmailVerified   bool        `json:"is_email_verified"`
+	Role              string      `json:"role"`
+	GoogleID          pgtype.Text `json:"google_id"`
 }
 
 type VerificationEmail struct {

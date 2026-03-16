@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
+	pgtype "github.com/jackc/pgx/v5/pgtype"
 	db "github.com/olshmore/ytter/db/sqlc"
 )
 
@@ -124,6 +125,36 @@ func (m *MockStore) GetUser(arg0 context.Context, arg1 int64) (db.User, error) {
 func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockStore)(nil).GetUser), arg0, arg1)
+}
+
+// GetUserByEmail mocks base method.
+func (m *MockStore) GetUserByEmail(arg0 context.Context, arg1 string) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByEmail", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByEmail indicates an expected call of GetUserByEmail.
+func (mr *MockStoreMockRecorder) GetUserByEmail(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockStore)(nil).GetUserByEmail), arg0, arg1)
+}
+
+// GetUserByGoogleID mocks base method.
+func (m *MockStore) GetUserByGoogleID(arg0 context.Context, arg1 pgtype.Text) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByGoogleID", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByGoogleID indicates an expected call of GetUserByGoogleID.
+func (mr *MockStoreMockRecorder) GetUserByGoogleID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByGoogleID", reflect.TypeOf((*MockStore)(nil).GetUserByGoogleID), arg0, arg1)
 }
 
 // GetUserByUsername mocks base method.

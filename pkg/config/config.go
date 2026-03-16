@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Environment          string        `mapstructure:"ENVIRONMENT"`
 	AllowedOrigins       []string      `mapstructure:"ALLOWED_ORIGINS"`
+	FrontendBaseURL      string        `mapstructure:"FRONTEND_BASE_URL"`
 	DBSource             string        `mapstructure:"DB_URL"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
 	GRPCServerAddress    string        `mapstructure:"GRPC_SERVER_ADDRESS"`
@@ -20,6 +21,9 @@ type Config struct {
 	EmailSenderName      string        `mapstructure:"EMAIL_SENDER_NAME"`
 	EmailSenderAddress   string        `mapstructure:"EMAIL_SENDER_ADDRESS"`
 	EmailSenderPassword  string        `mapstructure:"EMAIL_SENDER_PASSWORD"`
+	GoogleClientID       string        `mapstructure:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret   string        `mapstructure:"GOOGLE_CLIENT_SECRET"`
+	GoogleRedirectURL    string        `mapstructure:"GOOGLE_REDIRECT_URL"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
