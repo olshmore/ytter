@@ -139,8 +139,13 @@ func TestValidateName(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name:      "TooShort",
-			value:     "Jo",
+			name:      "ValidSingleLetter",
+			value:     "J",
+			expectErr: false,
+		},
+		{
+			name:      "EmptyString",
+			value:     "",
 			expectErr: true,
 		},
 		{

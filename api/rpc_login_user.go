@@ -33,6 +33,10 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.NotFound, "incorrect password")
 	}
 
+	if !user.IsEmailVerified {
+		return nil, status.Errorf(codes.FailedPrecondition, "email not verified")
+	}
+
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
 		utils.Role(user.Role),

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
@@ -59,7 +60,7 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerificationEmail(
 	// generate random token
 	u, err := uuid.NewRandom()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to generate verification token: %w", err)
 	}
 	randomToken := u.String()
 
@@ -74,8 +75,25 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerificationEmail(
 
 	// send email
 	subject := "Welcome to Ytter"
-	// TODO: utilise email templates and replace debug with frontend url
-	verificationURL := fmt.Sprintf("http://localhost:8080/v1/auth/verify_email?verification_token=%s", verificationEmail.VerificationToken)
+
+	frontendBase := processor.config.FrontendBaseURL
+	if frontendBase == "" {
+		if len(processor.config.AllowedOrigins) > 0 {
+			frontendBase = processor.config.AllowedOrigins[0]
+		} else {
+			frontendBase = "http://localhost:3000"
+		}
+	}
+
+	uURL, err := url.Parse(frontendBase)
+	if err != nil {
+		return fmt.Errorf("invalid frontend base url: %w", err)
+	}
+	uURL.Path = "/verify-email"
+	q := uURL.Query()
+	q.Set("verification_token", verificationEmail.VerificationToken)
+	uURL.RawQuery = q.Encode()
+	verificationURL := uURL.String()
 	content := fmt.Sprintf(`Hello %s,<br/>
 	Thank you for registering!<br/>
 	<a href="%s">Click here to verify your email</a>

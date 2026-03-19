@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/pb"
@@ -21,6 +22,9 @@ func (server *Server) VerifyEmail(ctx context.Context, req *pb.VerifyEmailReques
 		VerificationToken: req.GetVerificationToken(),
 	})
 	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid or expired verification token")
+		}
 		return nil, status.Errorf(codes.Internal, "failed to verify email")
 	}
 

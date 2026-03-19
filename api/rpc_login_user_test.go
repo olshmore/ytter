@@ -86,6 +86,28 @@ func TestLoginUserAPI(t *testing.T) {
 			},
 		},
 		{
+			name: "EmailNotVerified",
+			req: &pb.LoginUserRequest{
+				Username: user.Username,
+				Password: password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				userCopy := user
+				userCopy.IsEmailVerified = false
+
+				store.EXPECT().
+					GetUserByUsername(gomock.Any(), gomock.Eq(user.Username)).
+					Times(1).
+					Return(userCopy, nil)
+			},
+			checkResponse: func(t *testing.T, res *pb.LoginUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.FailedPrecondition, st.Code())
+			},
+		},
+		{
 			name: "InternalServerError",
 			req: &pb.LoginUserRequest{
 				Username: user.Username,

@@ -118,7 +118,7 @@ func TestVerifyEmailAPI(t *testing.T) {
 				require.Error(t, err)
 				st, ok := status.FromError(err)
 				require.True(t, ok)
-				require.Equal(t, codes.Internal, st.Code())
+				require.Equal(t, codes.InvalidArgument, st.Code())
 			},
 		},
 		{

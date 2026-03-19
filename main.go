@@ -115,7 +115,7 @@ func runTaskProcessor(
 ) {
 	mailer := email.NewGmailSender(config.EmailSenderName, config.EmailSenderAddress, config.EmailSenderPassword)
 
-	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer, config)
 
 	err := taskProcessor.Start()
 	if err != nil {
