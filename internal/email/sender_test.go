@@ -1,6 +1,7 @@
 package email
 
 import (
+	"net/mail"
 	"testing"
 
 	"github.com/olshmore/ytter/pkg/config"
@@ -14,6 +15,13 @@ func TestSendEmailWithGmail(t *testing.T) {
 
 	config, err := config.LoadConfig("../../config")
 	require.NoError(t, err)
+
+	if config.EmailSenderAddress == "" || config.EmailSenderPassword == "" {
+		t.Skip("EMAIL_SENDER_ADDRESS and EMAIL_SENDER_PASSWORD must be set to run this integration test")
+	}
+	if _, err := mail.ParseAddress(config.EmailSenderAddress); err != nil {
+		t.Skipf("invalid EMAIL_SENDER_ADDRESS in config: %v", err)
+	}
 
 	sender := NewGmailSender(config.EmailSenderName, config.EmailSenderAddress, config.EmailSenderPassword)
 

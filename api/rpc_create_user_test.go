@@ -59,12 +59,13 @@ func randomUser(t *testing.T) (user db.User, password string) {
 	require.NoError(t, err)
 
 	user = db.User{
-		Username:       utils.RandomOwner(),
-		Role:           string(utils.RoleMember),
-		HashedPassword: hashedPassword,
-		FirstName:      utils.RandomOwner(),
-		LastName:       utils.RandomOwner(),
-		Email:          utils.RandomEmail(),
+		Username:          utils.RandomOwner(),
+		Role:              string(utils.RoleMember),
+		HashedPassword:    hashedPassword,
+		FirstName:         utils.RandomOwner(),
+		LastName:          utils.RandomOwner(),
+		Email:             utils.RandomEmail(),
+		IsEmailVerified:   true,
 	}
 	return
 }
@@ -251,7 +252,7 @@ func TestCreateUserAPI(t *testing.T) {
 			req: &pb.CreateUserRequest{
 				Username:  user.Username,
 				Password:  password,
-				FirstName: "Jo", // Too short
+				FirstName: "John123", // digits not allowed
 				LastName:  user.LastName,
 				Email:     user.Email,
 			},
@@ -277,7 +278,7 @@ func TestCreateUserAPI(t *testing.T) {
 				Username:  user.Username,
 				Password:  password,
 				FirstName: user.FirstName,
-				LastName:  "Do", // Too short
+				LastName:  "Doe123", // digits not allowed
 				Email:     user.Email,
 			},
 			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {

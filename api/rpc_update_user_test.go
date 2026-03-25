@@ -368,7 +368,7 @@ func TestUpdateUserAPI(t *testing.T) {
 			name: "InvalidFirstName",
 			req: &pb.UpdateUserRequest{
 				Username:  user.Username,
-				FirstName: func() *string { f := "Jo"; return &f }(), // Too short
+				FirstName: func() *string { f := "John123"; return &f }(), // digits not allowed
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -389,7 +389,7 @@ func TestUpdateUserAPI(t *testing.T) {
 			name: "InvalidLastName",
 			req: &pb.UpdateUserRequest{
 				Username: user.Username,
-				LastName: func() *string { l := "Do"; return &l }(), // Too short
+				LastName: func() *string { l := "Doe123"; return &l }(), // digits not allowed
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
