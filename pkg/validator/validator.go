@@ -80,8 +80,8 @@ func ValidateStringLength(value string) error {
 }
 
 func ValidateRole(value string) error {
-	if value != "admin" && value != "member" {
-		return fmt.Errorf("role must be either 'admin' or 'member'")
+	if value != "admin" && value != "host" && value != "client" {
+		return fmt.Errorf("role must be one of 'admin', 'host', or 'client'")
 	}
 	return nil
 }

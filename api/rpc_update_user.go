@@ -30,7 +30,7 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 		}
 	}
 
-	if authPayload.Role != utils.RoleAdmin && authPayload.Username != req.Username {
+	if !hasPermission(authPayload.Roles, []utils.Role{utils.RoleAdmin}) && authPayload.Username != req.Username {
 		return nil, status.Errorf(codes.PermissionDenied, "cannot update other users's data")
 	}
 
@@ -48,10 +48,7 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 			String: req.GetEmail(),
 			Valid:  req.Email != nil,
 		},
-		Role: pgtype.Text{
-			String: req.GetRole(),
-			Valid:  req.Role != nil,
-		},
+		Roles: req.GetRoles(),
 	}
 
 	// TODO: Implement password update
@@ -117,9 +114,12 @@ func validateUpdateUserRequest(req *pb.UpdateUserRequest) (violations []*errdeta
 		}
 	}
 
-	if req.Role != nil {
-		if err := validator.ValidateRole(req.GetRole()); err != nil {
-			violations = append(violations, fieldViolation("role", err))
+	if len(req.GetRoles()) > 0 {
+		for _, role := range req.GetRoles() {
+			if err := validator.ValidateRole(role); err != nil {
+				violations = append(violations, fieldViolation("roles", err))
+				break
+			}
 		}
 	}
 

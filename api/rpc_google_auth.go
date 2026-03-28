@@ -18,6 +18,16 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+const googleAuthStateHostPrefix = "role_host__"
+
+func requestedRoleFromGoogleAuthState(state string) string {
+	if strings.HasPrefix(state, googleAuthStateHostPrefix) {
+		return string(utils.RoleHost)
+	}
+
+	return string(utils.RoleClient)
+}
+
 func (server *Server) InitiateGoogleAuth(ctx context.Context, req *pb.InitiateGoogleAuthRequest) (*pb.InitiateGoogleAuthResponse, error) {
 	if server.config.GoogleClientID == "" || server.config.GoogleClientSecret == "" {
 		return nil, status.Errorf(codes.Internal, "Google OAuth is not configured")
@@ -126,13 +136,14 @@ func (server *Server) GoogleAuthCallback(ctx context.Context, req *pb.GoogleAuth
 				return nil, status.Errorf(codes.Internal, "failed to hash password: %v", err)
 			}
 
+			requestedRole := requestedRoleFromGoogleAuthState(req.GetState())
 			createUserParams := db.CreateUserParams{
 				Username:       username,
 				HashedPassword: hashedPassword,
 				FirstName:      firstName,
 				LastName:       lastName,
 				Email:          email,
-				Role:           "member",
+				Roles:          []string{requestedRole},
 			}
 
 			// TODO: Update CreateUser to support google_id
@@ -179,7 +190,7 @@ func (server *Server) GoogleAuthCallback(ctx context.Context, req *pb.GoogleAuth
 	// Generate tokens (same as login)
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
-		utils.Role(user.Role),
+		utils.RolesFromStrings(user.Roles),
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
@@ -188,7 +199,7 @@ func (server *Server) GoogleAuthCallback(ctx context.Context, req *pb.GoogleAuth
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
-		utils.Role(user.Role),
+		utils.RolesFromStrings(user.Roles),
 		server.config.RefreshTokenDuration,
 	)
 	if err != nil {

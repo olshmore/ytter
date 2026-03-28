@@ -28,7 +28,7 @@ func TestRefreshTokenAPI(t *testing.T) {
 		{
 			name: "OK",
 			setupToken: func(tokenMaker token.Maker) (string, *token.Payload) {
-				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.Role(user.Role), time.Minute)
+				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 				return refreshToken, payload
 			},
 			buildStubs: func(store *mockdb.MockStore, payload *token.Payload, refreshToken string) {
@@ -69,7 +69,7 @@ func TestRefreshTokenAPI(t *testing.T) {
 		{
 			name: "SessionNotFound",
 			setupToken: func(tokenMaker token.Maker) (string, *token.Payload) {
-				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.Role(user.Role), time.Minute)
+				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 				return refreshToken, payload
 			},
 			buildStubs: func(store *mockdb.MockStore, payload *token.Payload, _ string) {
@@ -87,7 +87,7 @@ func TestRefreshTokenAPI(t *testing.T) {
 		{
 			name: "BlockedSession",
 			setupToken: func(tokenMaker token.Maker) (string, *token.Payload) {
-				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.Role(user.Role), time.Minute)
+				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 				return refreshToken, payload
 			},
 			buildStubs: func(store *mockdb.MockStore, payload *token.Payload, refreshToken string) {
@@ -112,7 +112,7 @@ func TestRefreshTokenAPI(t *testing.T) {
 		{
 			name: "UsernameMismatch",
 			setupToken: func(tokenMaker token.Maker) (string, *token.Payload) {
-				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.Role(user.Role), time.Minute)
+				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 				return refreshToken, payload
 			},
 			buildStubs: func(store *mockdb.MockStore, payload *token.Payload, refreshToken string) {
@@ -137,7 +137,7 @@ func TestRefreshTokenAPI(t *testing.T) {
 		{
 			name: "TokenMismatch",
 			setupToken: func(tokenMaker token.Maker) (string, *token.Payload) {
-				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.Role(user.Role), time.Minute)
+				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 				return refreshToken, payload
 			},
 			buildStubs: func(store *mockdb.MockStore, payload *token.Payload, _ string) {
@@ -162,7 +162,7 @@ func TestRefreshTokenAPI(t *testing.T) {
 		{
 			name: "SessionExpired",
 			setupToken: func(tokenMaker token.Maker) (string, *token.Payload) {
-				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.Role(user.Role), time.Minute)
+				refreshToken, payload, _ := tokenMaker.CreateToken(user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 				return refreshToken, payload
 			},
 			buildStubs: func(store *mockdb.MockStore, payload *token.Payload, refreshToken string) {

@@ -20,12 +20,12 @@ func TestNewRoleConfig(t *testing.T) {
 	require.Equal(t, 0, len(config))
 }
 
-func TestRoleConfig_RequireMemberRole(t *testing.T) {
+func TestRoleConfig_RequireClientRole(t *testing.T) {
 	config := NewRoleConfig()
-	config = config.RequireMemberRole("/test.Method1", "/test.Method2")
+	config = config.RequireClientRole("/test.Method1", "/test.Method2")
 
-	require.Equal(t, []utils.Role{utils.RoleMember}, config["/test.Method1"])
-	require.Equal(t, []utils.Role{utils.RoleMember}, config["/test.Method2"])
+	require.Equal(t, []utils.Role{utils.RoleClient}, config["/test.Method1"])
+	require.Equal(t, []utils.Role{utils.RoleClient}, config["/test.Method2"])
 }
 
 func TestRoleConfig_RequireAdminRole(t *testing.T) {
@@ -38,7 +38,7 @@ func TestRoleConfig_RequireAdminRole(t *testing.T) {
 
 func TestRoleConfig_RequireAuth(t *testing.T) {
 	config := NewRoleConfig()
-	roles := []utils.Role{utils.RoleAdmin, utils.RoleMember}
+	roles := []utils.Role{utils.RoleAdmin, utils.RoleClient}
 	config = config.RequireAuth(roles, "/test.Method1")
 
 	require.Equal(t, roles, config["/test.Method1"])
@@ -73,27 +73,27 @@ func TestServer_RequireRoles(t *testing.T) {
 			config: NewRoleConfig().RequireAuth([]utils.Role{}, "/test.Method"),
 			method: "/test.Method",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
 			expectErr:     false,
 			expectPayload: true,
 		},
 		{
-			name:   "MethodRequiresMemberRole_ValidToken_MemberRole",
-			config: NewRoleConfig().RequireMemberRole("/test.Method"),
+			name:   "MethodRequiresClientRole_ValidToken_ClientRole",
+			config: NewRoleConfig().RequireClientRole("/test.Method"),
 			method: "/test.Method",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
 			expectErr:     false,
 			expectPayload: true,
 		},
 		{
-			name:   "MethodRequiresMemberRole_ValidToken_AdminRole",
-			config: NewRoleConfig().RequireMemberRole("/test.Method"),
+			name:   "MethodRequiresClientRole_ValidToken_AdminRole",
+			config: NewRoleConfig().RequireClientRole("/test.Method"),
 			method: "/test.Method",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleAdmin, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleAdmin}, duration)
 			},
 			expectErr:     true,
 			expectErrCode: codes.PermissionDenied,
@@ -104,7 +104,7 @@ func TestServer_RequireRoles(t *testing.T) {
 			config: NewRoleConfig().RequireAdminRole("/test.Method"),
 			method: "/test.Method",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleAdmin, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleAdmin}, duration)
 			},
 			expectErr:     false,
 			expectPayload: true,
@@ -114,7 +114,7 @@ func TestServer_RequireRoles(t *testing.T) {
 			config: NewRoleConfig().RequireAdminRole("/test.Method"),
 			method: "/test.Method",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
 			expectErr:     true,
 			expectErrCode: codes.PermissionDenied,
@@ -147,20 +147,20 @@ func TestServer_RequireRoles(t *testing.T) {
 		},
 		{
 			name:   "MethodRequiresAuth_MultipleRoles_ValidToken_MemberRole",
-			config: NewRoleConfig().RequireAuth([]utils.Role{utils.RoleMember, utils.RoleAdmin}, "/test.Method"),
+			config: NewRoleConfig().RequireAuth([]utils.Role{utils.RoleClient, utils.RoleAdmin}, "/test.Method"),
 			method: "/test.Method",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
 			expectErr:     false,
 			expectPayload: true,
 		},
 		{
 			name:   "MethodRequiresAuth_MultipleRoles_ValidToken_AdminRole",
-			config: NewRoleConfig().RequireAuth([]utils.Role{utils.RoleMember, utils.RoleAdmin}, "/test.Method"),
+			config: NewRoleConfig().RequireAuth([]utils.Role{utils.RoleClient, utils.RoleAdmin}, "/test.Method"),
 			method: "/test.Method",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleAdmin, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleAdmin}, duration)
 			},
 			expectErr:     false,
 			expectPayload: true,
@@ -223,7 +223,7 @@ func TestServer_extractAuthPayload(t *testing.T) {
 		{
 			name: "OK",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
 			expectErr: false,
 		},
@@ -327,7 +327,7 @@ func TestGetAuthPayload(t *testing.T) {
 		{
 			name: "PayloadInContext",
 			setupCtx: func() context.Context {
-				ctx := newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				ctx := newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 				payload, err := server.extractAuthPayload(ctx)
 				require.NoError(t, err)
 				return context.WithValue(ctx, authPayloadKey, payload)
@@ -384,12 +384,12 @@ func TestServer_MustGetAuthPayload(t *testing.T) {
 		{
 			name: "PayloadInContext",
 			setupCtx: func() context.Context {
-				ctx := newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				ctx := newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 				payload, err := server.extractAuthPayload(ctx)
 				require.NoError(t, err)
 				return context.WithValue(ctx, authPayloadKey, payload)
 			},
-			allowedRoles:     []utils.Role{utils.RoleMember},
+			allowedRoles:     []utils.Role{utils.RoleClient},
 			expectErr:        false,
 			expectPayload:    true,
 			expectedUsername: username,
@@ -397,9 +397,9 @@ func TestServer_MustGetAuthPayload(t *testing.T) {
 		{
 			name: "NoPayloadInContext_FallbackToAuthorise",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
-			allowedRoles:     []utils.Role{utils.RoleMember},
+			allowedRoles:     []utils.Role{utils.RoleClient},
 			expectErr:        false,
 			expectPayload:    true,
 			expectedUsername: username,
@@ -409,7 +409,7 @@ func TestServer_MustGetAuthPayload(t *testing.T) {
 			setupCtx: func() context.Context {
 				return context.Background()
 			},
-			allowedRoles:  []utils.Role{utils.RoleMember},
+			allowedRoles:  []utils.Role{utils.RoleClient},
 			expectErr:     true,
 			expectPayload: false,
 		},
@@ -493,7 +493,7 @@ func TestServer_RequireRolesHTTP(t *testing.T) {
 				config: NewRoleConfig().RequireAuth([]utils.Role{}, RouteUpdateUser),
 				setupRequest: func() *http.Request {
 					req := httptest.NewRequest("PATCH", updateUserPath, nil)
-					accessToken, _, err := server.tokenMaker.CreateToken(username, utils.RoleMember, duration)
+					accessToken, _, err := server.tokenMaker.CreateToken(username, []utils.Role{utils.RoleClient}, duration)
 					require.NoError(t, err)
 					req.Header.Set("Authorization", "Bearer "+accessToken)
 					return req
@@ -522,11 +522,11 @@ func TestServer_RequireRolesHTTP(t *testing.T) {
 				expectPayload: false,
 			},
 			{
-				name:   "MethodRequiresAdminRole_ValidToken_MemberRole",
+			name:   "MethodRequiresAdminRole_ValidToken_ClientRole",
 				config: NewRoleConfig().RequireAdminRole(RouteUpdateUser),
 				setupRequest: func() *http.Request {
 					req := httptest.NewRequest("PATCH", updateUserPath, nil)
-					accessToken, _, err := server.tokenMaker.CreateToken(username, utils.RoleMember, duration)
+					accessToken, _, err := server.tokenMaker.CreateToken(username, []utils.Role{utils.RoleClient}, duration)
 					require.NoError(t, err)
 					req.Header.Set("Authorization", "Bearer "+accessToken)
 					return req
@@ -539,7 +539,7 @@ func TestServer_RequireRolesHTTP(t *testing.T) {
 				config: NewRoleConfig().RequireAdminRole(RouteUpdateUser),
 				setupRequest: func() *http.Request {
 					req := httptest.NewRequest("PATCH", updateUserPath, nil)
-					accessToken, _, err := server.tokenMaker.CreateToken(username, utils.RoleAdmin, duration)
+					accessToken, _, err := server.tokenMaker.CreateToken(username, []utils.Role{utils.RoleAdmin}, duration)
 					require.NoError(t, err)
 					req.Header.Set("Authorization", "Bearer "+accessToken)
 					return req
@@ -731,9 +731,9 @@ func TestAuthoriseUser(t *testing.T) {
 		{
 			name: "OK",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    false,
 		},
 		{
@@ -741,7 +741,7 @@ func TestAuthoriseUser(t *testing.T) {
 			setupCtx: func() context.Context {
 				return context.Background()
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
@@ -750,7 +750,7 @@ func TestAuthoriseUser(t *testing.T) {
 				md := metadata.MD{}
 				return metadata.NewIncomingContext(context.Background(), md)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
@@ -761,7 +761,7 @@ func TestAuthoriseUser(t *testing.T) {
 				}
 				return metadata.NewIncomingContext(context.Background(), md)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
@@ -772,7 +772,7 @@ func TestAuthoriseUser(t *testing.T) {
 				}
 				return metadata.NewIncomingContext(context.Background(), md)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
@@ -783,13 +783,13 @@ func TestAuthoriseUser(t *testing.T) {
 				}
 				return metadata.NewIncomingContext(context.Background(), md)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
 			name: "ExpiredToken",
 			setupCtx: func() context.Context {
-				accessToken, _, err := server.tokenMaker.CreateToken(username, utils.RoleMember, -time.Hour)
+				accessToken, _, err := server.tokenMaker.CreateToken(username, []utils.Role{utils.RoleClient}, -time.Hour)
 				require.NoError(t, err)
 				bearerToken := "bearer " + accessToken
 				md := metadata.MD{
@@ -797,7 +797,7 @@ func TestAuthoriseUser(t *testing.T) {
 				}
 				return metadata.NewIncomingContext(context.Background(), md)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
@@ -808,7 +808,7 @@ func TestAuthoriseUser(t *testing.T) {
 				}
 				return metadata.NewIncomingContext(context.Background(), md)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
@@ -819,13 +819,13 @@ func TestAuthoriseUser(t *testing.T) {
 				}
 				return metadata.NewIncomingContext(context.Background(), md)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember, utils.RoleAdmin},
+			allowedRoles: []utils.Role{utils.RoleClient, utils.RoleAdmin},
 			expectErr:    true,
 		},
 		{
 			name: "PermissionDenied_MemberRoleNotAllowed",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleMember, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleClient}, duration)
 			},
 			allowedRoles: []utils.Role{utils.RoleAdmin},
 			expectErr:    true,
@@ -833,9 +833,9 @@ func TestAuthoriseUser(t *testing.T) {
 		{
 			name: "PermissionDenied_AdminRoleNotAllowed",
 			setupCtx: func() context.Context {
-				return newContextWithBearerToken(t, server.tokenMaker, username, utils.RoleAdmin, duration)
+				return newContextWithBearerToken(t, server.tokenMaker, username, []utils.Role{utils.RoleAdmin}, duration)
 			},
-			allowedRoles: []utils.Role{utils.RoleMember},
+			allowedRoles: []utils.Role{utils.RoleClient},
 			expectErr:    true,
 		},
 	}

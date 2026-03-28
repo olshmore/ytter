@@ -100,9 +100,13 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerificationEmail(
 	`, user.FirstName, verificationURL)
 	to := []string{user.Email}
 
-	err = processor.mailer.SendEmail(subject, content, to, nil, nil, nil)
-	if err != nil {
-		return fmt.Errorf("failed to send verification email: %w", err)
+	if processor.config.EmailSenderAddress == "" {
+		log.Debug().Msg("debug: verification email would have been sent")
+	} else {
+		err = processor.mailer.SendEmail(subject, content, to, nil, nil, nil)
+		if err != nil {
+			return fmt.Errorf("failed to send verification email: %w", err)
+		}
 	}
 
 	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).Str("email", user.Email).Msg("processed task")

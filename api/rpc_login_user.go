@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"strings"
 
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/pb"
@@ -20,7 +21,16 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, invalidArgumentError(violations)
 	}
 
-	user, err := server.store.GetUserByUsername(ctx, req.GetUsername())
+	loginID := req.GetUsername()
+	isEmailLogin := strings.Contains(loginID, "@")
+
+	var user db.User
+	var err error
+	if isEmailLogin {
+		user, err = server.store.GetUserByEmail(ctx, loginID)
+	} else {
+		user, err = server.store.GetUserByUsername(ctx, loginID)
+	}
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "user not found")
@@ -39,7 +49,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
-		utils.Role(user.Role),
+		utils.RolesFromStrings(user.Roles),
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
@@ -48,7 +58,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
-		utils.Role(user.Role),
+		utils.RolesFromStrings(user.Roles),
 		server.config.RefreshTokenDuration,
 	)
 	if err != nil {
@@ -82,8 +92,15 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 }
 
 func validateLoginUserRequest(req *pb.LoginUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {
-	if err := validator.ValidateUsername(req.GetUsername()); err != nil {
-		violations = append(violations, fieldViolation("username", err))
+	loginID := req.GetUsername()
+	if strings.Contains(loginID, "@") {
+		if err := validator.ValidateEmail(loginID); err != nil {
+			violations = append(violations, fieldViolation("username", err))
+		}
+	} else {
+		if err := validator.ValidateUsername(loginID); err != nil {
+			violations = append(violations, fieldViolation("username", err))
+		}
 	}
 
 	if err := validator.ValidatePassword(req.GetPassword()); err != nil {

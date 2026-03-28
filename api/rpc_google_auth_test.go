@@ -15,6 +15,38 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func TestRequestedRoleFromGoogleAuthState(t *testing.T) {
+	testCases := []struct {
+		name     string
+		state    string
+		expected string
+	}{
+		{
+			name:     "host role prefix",
+			state:    googleAuthStateHostPrefix + "opaque-state",
+			expected: string(utils.RoleHost),
+		},
+		{
+			name:     "plain state defaults to client",
+			state:    "opaque-state",
+			expected: string(utils.RoleClient),
+		},
+		{
+			name:     "empty state defaults to client",
+			state:    "",
+			expected: string(utils.RoleClient),
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			got := requestedRoleFromGoogleAuthState(tc.state)
+			require.Equal(t, tc.expected, got)
+		})
+	}
+}
+
 func TestInitiateGoogleAuth(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping Google OAuth test in short mode")

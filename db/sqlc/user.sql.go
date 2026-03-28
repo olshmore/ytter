@@ -18,19 +18,19 @@ INSERT INTO users (
   first_name,
   last_name,
   email,
-  role
+  roles
 ) VALUES (
   $1, $2, $3, $4, $5, $6
-) RETURNING id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id
+) RETURNING id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles
 `
 
 type CreateUserParams struct {
-	Username       string `json:"username"`
-	HashedPassword string `json:"hashed_password"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Email          string `json:"email"`
-	Role           string `json:"role"`
+	Username       string   `json:"username"`
+	HashedPassword string   `json:"hashed_password"`
+	FirstName      string   `json:"first_name"`
+	LastName       string   `json:"last_name"`
+	Email          string   `json:"email"`
+	Roles          []string `json:"roles"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -40,7 +40,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
-		arg.Role,
+		arg.Roles,
 	)
 	var i User
 	err := row.Scan(
@@ -55,14 +55,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.IsEmailVerified,
-		&i.Role,
 		&i.GoogleID,
+		&i.Roles,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id FROM users
+SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -81,14 +81,14 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.IsEmailVerified,
-		&i.Role,
 		&i.GoogleID,
+		&i.Roles,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id FROM users
+SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -107,14 +107,14 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.IsEmailVerified,
-		&i.Role,
 		&i.GoogleID,
+		&i.Roles,
 	)
 	return i, err
 }
 
 const getUserByGoogleID = `-- name: GetUserByGoogleID :one
-SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id FROM users
+SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles FROM users
 WHERE google_id = $1 LIMIT 1
 `
 
@@ -133,14 +133,14 @@ func (q *Queries) GetUserByGoogleID(ctx context.Context, googleID pgtype.Text) (
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.IsEmailVerified,
-		&i.Role,
 		&i.GoogleID,
+		&i.Roles,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id FROM users
+SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles FROM users
 WHERE username = $1 LIMIT 1
 `
 
@@ -159,14 +159,14 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.IsEmailVerified,
-		&i.Role,
 		&i.GoogleID,
+		&i.Roles,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id FROM users
+SELECT id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles FROM users
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -198,8 +198,8 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 			&i.UpdatedAt,
 			&i.DeletedAt,
 			&i.IsEmailVerified,
-			&i.Role,
 			&i.GoogleID,
+			&i.Roles,
 		); err != nil {
 			return nil, err
 		}
@@ -220,11 +220,11 @@ SET
   last_name = COALESCE($4, last_name),
   email = COALESCE($5, email),
   is_email_verified = COALESCE($6, is_email_verified),
-  role = COALESCE($7, role),
+  roles = COALESCE($7, roles),
   google_id = COALESCE($8, google_id)
 WHERE
   username = $9
-RETURNING id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id
+RETURNING id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles
 `
 
 type UpdateUserParams struct {
@@ -234,7 +234,7 @@ type UpdateUserParams struct {
 	LastName          pgtype.Text        `json:"last_name"`
 	Email             pgtype.Text        `json:"email"`
 	IsEmailVerified   pgtype.Bool        `json:"is_email_verified"`
-	Role              pgtype.Text        `json:"role"`
+	Roles             []string           `json:"roles"`
 	GoogleID          pgtype.Text        `json:"google_id"`
 	Username          string             `json:"username"`
 }
@@ -247,7 +247,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.LastName,
 		arg.Email,
 		arg.IsEmailVerified,
-		arg.Role,
+		arg.Roles,
 		arg.GoogleID,
 		arg.Username,
 	)
@@ -264,8 +264,8 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.IsEmailVerified,
-		&i.Role,
 		&i.GoogleID,
+		&i.Roles,
 	)
 	return i, err
 }
@@ -276,7 +276,7 @@ SET
   is_email_verified = COALESCE($1, is_email_verified)
 WHERE
   email = $2
-RETURNING id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, role, google_id
+RETURNING id, username, hashed_password, first_name, last_name, email, password_changed_at, created_at, updated_at, deleted_at, is_email_verified, google_id, roles
 `
 
 type UpdateUserEmailVerifiedParams struct {
@@ -299,8 +299,8 @@ func (q *Queries) UpdateUserEmailVerified(ctx context.Context, arg UpdateUserEma
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.IsEmailVerified,
-		&i.Role,
 		&i.GoogleID,
+		&i.Roles,
 	)
 	return i, err
 }

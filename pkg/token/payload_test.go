@@ -11,14 +11,14 @@ import (
 
 func TestNewPayload(t *testing.T) {
 	username := "testuser"
-	role := utils.RoleMember
+	roles := []utils.Role{utils.RoleClient}
 	duration := time.Hour
 
-	payload, err := NewPayload(username, role, duration)
+	payload, err := NewPayload(username, roles, duration)
 	require.NoError(t, err)
 	require.NotNil(t, payload)
 	require.Equal(t, username, payload.Username)
-	require.Equal(t, role, payload.Role)
+	require.Equal(t, roles, payload.Roles)
 	require.NotEqual(t, uuid.Nil, payload.ID)
 	require.WithinDuration(t, time.Now(), payload.IssuedAt, time.Second)
 	require.WithinDuration(t, time.Now().Add(duration), payload.ExpiredAt, time.Second)

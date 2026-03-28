@@ -12,7 +12,7 @@ message UpdateUserRequest {
   optional string first_name = 3;
   optional string last_name = 4;
   optional string email = 5;
-  optional string role = 6;
+  repeated string roles = 6;
 }
 
 message UpdateUserResponse {

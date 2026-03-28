@@ -18,9 +18,14 @@ func TestRole_String(t *testing.T) {
 			expected: "admin",
 		},
 		{
-			name:     "MemberRole",
-			role:     RoleMember,
-			expected: "member",
+			name:     "HostRole",
+			role:     RoleHost,
+			expected: "host",
+		},
+		{
+			name:     "ClientRole",
+			role:     RoleClient,
+			expected: "client",
 		},
 		{
 			name:     "EmptyRole",

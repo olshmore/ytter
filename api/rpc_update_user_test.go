@@ -64,7 +64,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					PasswordChangedAt: user.PasswordChangedAt,
 					CreatedAt:         user.CreatedAt,
 					IsEmailVerified:   user.IsEmailVerified,
-					Role:              user.Role,
+					Roles:             user.Roles,
 				}
 				store.EXPECT().
 					UpdateUser(gomock.Any(), gomock.Eq(arg)).
@@ -72,7 +72,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Return(updatedUser, nil)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.NoError(t, err)
@@ -99,7 +99,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Return(db.User{}, db.ErrRecordNotFound)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -122,7 +122,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Times(0)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -145,7 +145,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Times(0)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), -time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), -time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -192,7 +192,7 @@ func TestUpdateUserAPI(t *testing.T) {
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
 				otherUser, _ := randomUser(t)
-				return newContextWithBearerToken(t, tokenMaker, otherUser.Username, utils.Role(otherUser.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, otherUser.Username, utils.RolesFromStrings(otherUser.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -235,7 +235,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					PasswordChangedAt: user.PasswordChangedAt,
 					CreatedAt:         user.CreatedAt,
 					IsEmailVerified:   user.IsEmailVerified,
-					Role:              user.Role,
+					Roles:             user.Roles,
 				}
 				store.EXPECT().
 					UpdateUser(gomock.Any(), gomock.Eq(arg)).
@@ -244,8 +244,8 @@ func TestUpdateUserAPI(t *testing.T) {
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
 				adminUser, _ := randomUser(t)
-				adminUser.Role = string(utils.RoleAdmin)
-				return newContextWithBearerToken(t, tokenMaker, adminUser.Username, utils.Role(adminUser.Role), time.Minute)
+				adminUser.Roles = []string{string(utils.RoleAdmin)}
+				return newContextWithBearerToken(t, tokenMaker, adminUser.Username, []utils.Role{utils.RoleAdmin}, time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.NoError(t, err)
@@ -261,15 +261,12 @@ func TestUpdateUserAPI(t *testing.T) {
 			name: "AdminCanUpdateRole",
 			req: &pb.UpdateUserRequest{
 				Username: user.Username,
-				Role:     func() *string { r := string(utils.RoleAdmin); return &r }(),
+				Roles:    []string{string(utils.RoleAdmin)},
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.UpdateUserParams{
 					Username: user.Username,
-					Role: pgtype.Text{
-						String: string(utils.RoleAdmin),
-						Valid:  true,
-					},
+					Roles: []string{string(utils.RoleAdmin)},
 				}
 				updatedUser := db.User{
 					Username:          user.Username,
@@ -280,7 +277,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					PasswordChangedAt: user.PasswordChangedAt,
 					CreatedAt:         user.CreatedAt,
 					IsEmailVerified:   user.IsEmailVerified,
-					Role:              string(utils.RoleAdmin),
+					Roles:             []string{string(utils.RoleAdmin)},
 				}
 				store.EXPECT().
 					UpdateUser(gomock.Any(), gomock.Eq(arg)).
@@ -289,22 +286,22 @@ func TestUpdateUserAPI(t *testing.T) {
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
 				adminUser, _ := randomUser(t)
-				adminUser.Role = string(utils.RoleAdmin)
-				return newContextWithBearerToken(t, tokenMaker, adminUser.Username, utils.Role(adminUser.Role), time.Minute)
+				adminUser.Roles = []string{string(utils.RoleAdmin)}
+				return newContextWithBearerToken(t, tokenMaker, adminUser.Username, []utils.Role{utils.RoleAdmin}, time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.NoError(t, err)
 				require.NotNil(t, res)
 				updatedUser := res.GetUser()
 				require.Equal(t, user.Username, updatedUser.Username)
-				require.Equal(t, string(utils.RoleAdmin), updatedUser.Role)
+				require.Equal(t, []string{string(utils.RoleAdmin)}, updatedUser.Roles)
 			},
 		},
 		{
 			name: "InvalidRole",
 			req: &pb.UpdateUserRequest{
 				Username: user.Username,
-				Role:     func() *string { r := "invalid_role"; return &r }(),
+				Roles:    []string{"invalid_role"},
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -313,8 +310,8 @@ func TestUpdateUserAPI(t *testing.T) {
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
 				adminUser, _ := randomUser(t)
-				adminUser.Role = string(utils.RoleAdmin)
-				return newContextWithBearerToken(t, tokenMaker, adminUser.Username, utils.Role(adminUser.Role), time.Minute)
+				adminUser.Roles = []string{string(utils.RoleAdmin)}
+				return newContextWithBearerToken(t, tokenMaker, adminUser.Username, []utils.Role{utils.RoleAdmin}, time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -334,7 +331,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Times(0)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -355,7 +352,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Times(0)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -376,7 +373,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Times(0)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)
@@ -397,7 +394,7 @@ func TestUpdateUserAPI(t *testing.T) {
 					Times(0)
 			},
 			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
-				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.Role(user.Role), time.Minute)
+				return newContextWithBearerToken(t, tokenMaker, user.Username, utils.RolesFromStrings(user.Roles), time.Minute)
 			},
 			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
 				require.Error(t, err)

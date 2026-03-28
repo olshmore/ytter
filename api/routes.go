@@ -57,11 +57,9 @@ func ConfigureRoleBasedAccess() RoleConfig {
 	)
 
 	// ============================================================================
-	// AUTHENTICATED: MEMBER ONLY
-	// Routes accessible only by authenticated members (not admin)
+	// AUTHENTICATED: HOST/CLIENT
+	// RequireHostRole / RequireClientRole for explicit role checks
 	// ============================================================================
-	// config.RequireMemberRole(
-	// )
 
 	return config
 }

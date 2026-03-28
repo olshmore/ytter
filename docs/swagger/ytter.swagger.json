@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Ytter API",
-    "description": "API with role-based access control. Roles: 'member' (regular users) and 'admin' (administrators)",
+    "description": "API with role-based access control. Roles: 'admin', 'host', and 'client'.",
     "version": "1.1",
     "contact": {
       "name": "ytter",
@@ -274,7 +274,7 @@
     "/v1/user/update": {
       "patch": {
         "summary": "Update user",
-        "description": "Update user. Roles: admin \u0026 member",
+        "description": "Update user. Roles: admin, host \u0026 client",
         "operationId": "Ytter_UpdateUser",
         "responses": {
           "200": {
@@ -328,6 +328,9 @@
           "type": "string"
         },
         "email": {
+          "type": "string"
+        },
+        "role": {
           "type": "string"
         }
       }
@@ -459,8 +462,11 @@
         "email": {
           "type": "string"
         },
-        "role": {
-          "type": "string"
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -507,8 +513,11 @@
           "type": "string",
           "format": "date-time"
         },
-        "role": {
-          "type": "string"
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

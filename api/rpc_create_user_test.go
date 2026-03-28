@@ -60,7 +60,7 @@ func randomUser(t *testing.T) (user db.User, password string) {
 
 	user = db.User{
 		Username:          utils.RandomOwner(),
-		Role:              string(utils.RoleMember),
+		Roles:             []string{string(utils.RoleClient)},
 		HashedPassword:    hashedPassword,
 		FirstName:         utils.RandomOwner(),
 		LastName:          utils.RandomOwner(),
@@ -95,6 +95,7 @@ func TestCreateUserAPI(t *testing.T) {
 						FirstName: user.FirstName,
 						LastName:  user.LastName,
 						Email:     user.Email,
+						Roles:     []string{string(utils.RoleClient)},
 					},
 				}
 				store.EXPECT().
@@ -118,6 +119,47 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, user.FirstName, createdUser.FirstName)
 				require.Equal(t, user.LastName, createdUser.LastName)
 				require.Equal(t, user.Email, createdUser.Email)
+			},
+		},
+		{
+			name: "OKHostRole",
+			req: &pb.CreateUserRequest{
+				Username:  user.Username,
+				Password:  password,
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				Email:     user.Email,
+				Role:      string(utils.RoleHost),
+			},
+			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {
+				hostUser := user
+				hostUser.Roles = []string{string(utils.RoleHost)}
+				arg := db.CreateUserTxParams{
+					CreateUserParams: db.CreateUserParams{
+						Username:  user.Username,
+						FirstName: user.FirstName,
+						LastName:  user.LastName,
+						Email:     user.Email,
+						Roles:     []string{string(utils.RoleHost)},
+					},
+				}
+				store.EXPECT().
+					CreateUserTx(gomock.Any(), EqCreateUserTxParams(arg, password, hostUser)).
+					Times(1).
+					Return(db.CreateUserTxResult{User: hostUser}, nil)
+
+				taskPayload := &worker.PayloadSendVerificationEmail{
+					Username: user.Username,
+				}
+				taskDistributor.EXPECT().
+					DistributeTaskSendVerificationEmail(gomock.Any(), taskPayload, gomock.Any()).
+					Times(1).
+					Return(nil)
+			},
+			checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
+				require.NoError(t, err)
+				require.NotNil(t, res)
+				require.Equal(t, []string{string(utils.RoleHost)}, res.GetUser().GetRoles())
 			},
 		},
 		{
@@ -170,6 +212,32 @@ func TestCreateUserAPI(t *testing.T) {
 				st, ok := status.FromError(err)
 				require.True(t, ok)
 				require.Equal(t, codes.AlreadyExists, st.Code())
+			},
+		},
+		{
+			name: "InvalidAdminRole",
+			req: &pb.CreateUserRequest{
+				Username:  user.Username,
+				Password:  password,
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				Email:     user.Email,
+				Role:      string(utils.RoleAdmin),
+			},
+			buildStubs: func(store *mockdb.MockStore, taskDistributor *mockwk.MockTaskDistributor) {
+				store.EXPECT().
+					CreateUserTx(gomock.Any(), gomock.Any()).
+					Times(0)
+
+				taskDistributor.EXPECT().
+					DistributeTaskSendVerificationEmail(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
 			},
 		},
 		{

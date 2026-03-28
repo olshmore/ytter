@@ -443,8 +443,13 @@ func TestValidateRole(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name:      "ValidMember",
-			role:      "member",
+			name:      "ValidHost",
+			role:      "host",
+			expectErr: false,
+		},
+		{
+			name:      "ValidClient",
+			role:      "client",
 			expectErr: false,
 		},
 		{
@@ -468,8 +473,8 @@ func TestValidateRole(t *testing.T) {
 			expectErr: true,
 		},
 		{
-			name:      "CaseSensitiveMember",
-			role:      "Member",
+			name:      "CaseSensitiveHost",
+			role:      "Host",
 			expectErr: true,
 		},
 	}

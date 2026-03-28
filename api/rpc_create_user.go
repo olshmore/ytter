@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/hibiken/asynq"
@@ -26,6 +27,11 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
 	}
 
+	role := req.GetRole()
+	if role == "" {
+		role = string(utils.RoleClient)
+	}
+
 	arg := db.CreateUserTxParams{
 		CreateUserParams: db.CreateUserParams{
 			Username:       req.GetUsername(),
@@ -33,6 +39,7 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 			FirstName:      req.GetFirstName(),
 			LastName:       req.GetLastName(),
 			Email:          req.GetEmail(),
+			Roles:          []string{role},
 		},
 		AfterCreate: func(user db.User) error {
 			// send verification email
@@ -84,6 +91,16 @@ func validateCreateUserRequest(req *pb.CreateUserRequest) (violations []*errdeta
 
 	if err := validator.ValidateEmail(req.GetEmail()); err != nil {
 		violations = append(violations, fieldViolation("email", err))
+	}
+
+	role := req.GetRole()
+	if role != "" {
+		if err := validator.ValidateRole(role); err != nil {
+			violations = append(violations, fieldViolation("role", err))
+		}
+		if role == string(utils.RoleAdmin) {
+			violations = append(violations, fieldViolation("role", fmt.Errorf("admin role cannot be self-registered")))
+		}
 	}
 
 	return violations

@@ -17,7 +17,7 @@ func ConvertUser(user db.User) *pb.User {
 		CreatedAt:         timestamppb.New(user.CreatedAt),
 		UpdatedAt:         timestamppb.New(user.UpdatedAt),
 		DeletedAt:         timestamppb.New(user.DeletedAt),
-		Role:              user.Role,
+		Roles:             user.Roles,
 	}
 }
 

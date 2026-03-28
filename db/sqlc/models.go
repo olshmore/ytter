@@ -34,8 +34,8 @@ type User struct {
 	UpdatedAt         time.Time   `json:"updated_at"`
 	DeletedAt         time.Time   `json:"deleted_at"`
 	IsEmailVerified   bool        `json:"is_email_verified"`
-	Role              string      `json:"role"`
 	GoogleID          pgtype.Text `json:"google_id"`
+	Roles             []string    `json:"roles"`
 }
 
 type VerificationEmail struct {

@@ -35,9 +35,14 @@ func NewRoleConfig() RoleConfig {
 	return make(RoleConfig)
 }
 
-// RequireMemberRole adds one or more methods to require member role
-func (config RoleConfig) RequireMemberRole(methods ...string) RoleConfig {
-	return config.RequireAuth([]utils.Role{utils.RoleMember}, methods...)
+// RequireHostRole adds one or more methods to require host role
+func (config RoleConfig) RequireHostRole(methods ...string) RoleConfig {
+	return config.RequireAuth([]utils.Role{utils.RoleHost}, methods...)
+}
+
+// RequireClientRole adds one or more methods to require client role
+func (config RoleConfig) RequireClientRole(methods ...string) RoleConfig {
+	return config.RequireAuth([]utils.Role{utils.RoleClient}, methods...)
 }
 
 // RequireAdminRole adds one or more methods to require admin role
@@ -71,7 +76,7 @@ func (server *Server) RequireRoles(config RoleConfig) grpc.UnaryServerIntercepto
 			return nil, unauthenticatedError(err)
 		}
 
-		if len(allowedRoles) > 0 && !hasPermission(payload.Role, allowedRoles) {
+		if len(allowedRoles) > 0 && !hasPermission(payload.Roles, allowedRoles) {
 			return nil, status.Errorf(codes.PermissionDenied, "permission denied")
 		}
 
@@ -133,17 +138,26 @@ func (server *Server) authoriseUser(ctx context.Context, allowedRoles []utils.Ro
 		return nil, err
 	}
 
-	if !hasPermission(payload.Role, allowedRoles) {
+	if !hasPermission(payload.Roles, allowedRoles) {
 		return nil, fmt.Errorf("permission denied")
 	}
 
 	return payload, nil
 }
 
-// hasPermission checks if a role is in the list of allowed roles
-func hasPermission(role utils.Role, allowedRoles []utils.Role) bool {
+// hasPermission checks if roles are in the allowed list
+func hasPermission(userRoles []utils.Role, allowedRoles []utils.Role) bool {
+	if len(userRoles) == 0 {
+		return false
+	}
+
+	userRoleSet := make(map[utils.Role]struct{}, len(userRoles))
+	for _, role := range userRoles {
+		userRoleSet[role] = struct{}{}
+	}
+
 	for _, allowedRole := range allowedRoles {
-		if role == allowedRole {
+		if _, ok := userRoleSet[allowedRole]; ok {
 			return true
 		}
 	}
@@ -188,7 +202,7 @@ func (server *Server) RequireRolesHTTP(config RoleConfig) func(http.Handler) htt
 				return
 			}
 
-			if len(allowedRoles) > 0 && !hasPermission(payload.Role, allowedRoles) {
+			if len(allowedRoles) > 0 && !hasPermission(payload.Roles, allowedRoles) {
 				httpError(w, codes.PermissionDenied, "permission denied")
 				return
 			}

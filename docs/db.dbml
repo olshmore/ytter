@@ -8,7 +8,7 @@ Project ytter {
 Table users as U {
   id bigserial [pk]
   username varchar [unique, not null]
-  role varchar [not null, default: "member"]
+  roles varchar[] [not null, default: '{}']
   hashed_password varchar [not null]
   first_name varchar [not null]
   last_name varchar [not null]
