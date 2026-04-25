@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/olshmore/ytter/pb";
+
+message HostSlotItem {
+  string id = 1;
+  string location_id = 2;
+  string service_id = 3;
+  string service_name = 4;
+  string practitioner_id = 5;
+  string practitioner_name = 6;
+  string room_id = 7;
+  string room_name = 8;
+  string start_at = 9;
+  string end_at = 10;
+  int32 capacity = 11;
+  int32 booked_count = 12;
+  string status = 13;
+}
+
+message ListHostLocationSlotsRequest {
+  string location_slug = 1;
+  string status = 2;
+  string from_date = 3;
+  string to_date = 4;
+  string service_id = 5;
+  string practitioner_id = 6;
+  string room_id = 7;
+  int32 limit = 8;
+  int32 offset = 9;
+}
+
+message ListHostLocationSlotsResponse {
+  repeated HostSlotItem items = 1;
+  int32 total_count = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message CreateHostLocationSlotRequest {
+  string location_slug = 1;
+  string service_id = 2;
+  optional string practitioner_id = 3;
+  optional string room_id = 4;
+  string start_at = 5;
+  string end_at = 6;
+  int32 capacity = 7;
+  optional string status = 8;
+}
+
+message CreateHostLocationSlotResponse {
+  HostSlotItem slot = 1;
+}
+
+message UpdateHostLocationSlotRequest {
+  string location_slug = 1;
+  string slot_id = 2;
+  optional string service_id = 3;
+  optional string practitioner_id = 4;
+  optional string room_id = 5;
+  optional string start_at = 6;
+  optional string end_at = 7;
+  optional int32 capacity = 8;
+  optional string status = 9;
+}
+
+message UpdateHostLocationSlotResponse {
+  HostSlotItem slot = 1;
+}

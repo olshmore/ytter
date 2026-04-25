@@ -10,6 +10,11 @@ type Store interface {
 	Querier
 	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
 	VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParams) (VerifyEmailTxResult, error)
+	CreatePublicBookingTx(ctx context.Context, arg CreatePublicBookingTxParams) (CreatePublicBookingTxResult, error)
+	CancelPublicBookingTx(ctx context.Context, arg CancelPublicBookingTxParams) (CancelPublicBookingTxResult, error)
+	HostApproveBookingTx(ctx context.Context, arg HostApproveBookingTxParams) (HostApproveBookingTxResult, error)
+	HostRejectBookingTx(ctx context.Context, arg HostRejectBookingTxParams) (HostRejectBookingTxResult, error)
+	HostCancelBookingTx(ctx context.Context, arg HostCancelBookingTxParams) (HostCancelBookingTxResult, error)
 }
 
 type SQLStore struct {

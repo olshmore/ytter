@@ -20,6 +20,25 @@ const (
 	RouteUpdateUser         = pb.Ytter_UpdateUser_FullMethodName
 	RouteInitiateGoogleAuth = pb.Ytter_InitiateGoogleAuth_FullMethodName
 	RouteGoogleAuthCallback = pb.Ytter_GoogleAuthCallback_FullMethodName
+	RouteListHostLocations        = pb.Ytter_ListHostLocations_FullMethodName
+	RouteCreateHostLocation       = pb.Ytter_CreateHostLocation_FullMethodName
+	RouteGetHostLocation          = pb.Ytter_GetHostLocation_FullMethodName
+	RouteGetHostLocationBySlug    = pb.Ytter_GetHostLocationBySlug_FullMethodName
+	RouteUpdateHostLocation       = pb.Ytter_UpdateHostLocation_FullMethodName
+	RouteListHostLocationBookings = pb.Ytter_ListHostLocationBookings_FullMethodName
+	RouteListHostLocationServices = pb.Ytter_ListHostLocationServices_FullMethodName
+	RouteCreateHostLocationService = pb.Ytter_CreateHostLocationService_FullMethodName
+	RouteUpdateHostLocationService = pb.Ytter_UpdateHostLocationService_FullMethodName
+	RouteListHostLocationSlots    = pb.Ytter_ListHostLocationSlots_FullMethodName
+	RouteCreateHostLocationSlot   = pb.Ytter_CreateHostLocationSlot_FullMethodName
+	RouteUpdateHostLocationSlot   = pb.Ytter_UpdateHostLocationSlot_FullMethodName
+	RouteHostApproveBooking       = pb.Ytter_HostApproveBooking_FullMethodName
+	RouteHostRejectBooking        = pb.Ytter_HostRejectBooking_FullMethodName
+	RouteHostCancelBooking        = pb.Ytter_HostCancelBooking_FullMethodName
+	RouteListPublicSlots          = pb.Ytter_ListPublicSlots_FullMethodName
+	RouteGetPublicFilterOptions   = pb.Ytter_GetPublicFilterOptions_FullMethodName
+	RouteCreatePublicBooking      = pb.Ytter_CreatePublicBooking_FullMethodName
+	RouteCancelPublicBooking      = pb.Ytter_CancelPublicBooking_FullMethodName
 )
 
 // ConfigureRoleBasedAccess sets up GRPC role-based access control
@@ -38,6 +57,10 @@ func ConfigureRoleBasedAccess() RoleConfig {
 		RouteRefreshToken,       // token refresh
 		RouteInitiateGoogleAuth, // Google OAuth initiation
 		RouteGoogleAuthCallback, // Google OAuth callback
+		RouteListPublicSlots,        // public slot discovery
+		RouteGetPublicFilterOptions, // public filter options
+		RouteCreatePublicBooking,    // guest booking creation
+		RouteCancelPublicBooking,    // guest booking cancellation
 	}
 
 	// ============================================================================
@@ -54,6 +77,27 @@ func ConfigureRoleBasedAccess() RoleConfig {
 	// ============================================================================
 	config.RequireAdminRole(
 		RouteListUsers,
+	)
+
+	// ============================================================================
+	// AUTHENTICATED: HOST OR ADMIN (booking management)
+	// ============================================================================
+	config.RequireAuth([]utils.Role{utils.RoleHost, utils.RoleAdmin},
+		RouteListHostLocations,
+		RouteCreateHostLocation,
+		RouteGetHostLocation,
+		RouteGetHostLocationBySlug,
+		RouteUpdateHostLocation,
+		RouteListHostLocationBookings,
+		RouteListHostLocationServices,
+		RouteCreateHostLocationService,
+		RouteUpdateHostLocationService,
+		RouteListHostLocationSlots,
+		RouteCreateHostLocationSlot,
+		RouteUpdateHostLocationSlot,
+		RouteHostApproveBooking,
+		RouteHostRejectBooking,
+		RouteHostCancelBooking,
 	)
 
 	// ============================================================================

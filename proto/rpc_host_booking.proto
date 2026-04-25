@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/olshmore/ytter/pb";
+
+message HostLocationItem {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  bool booking_requires_host_approval = 4;
+  int32 cancellation_min_hours_before_start = 5;
+  string owner_username = 6;
+  string timezone = 7;
+  bool is_active = 8;
+}
+
+message ListHostLocationsRequest {}
+
+message ListHostLocationsResponse {
+  repeated HostLocationItem items = 1;
+}
+
+message CreateHostLocationRequest {
+  string name = 1;
+  string slug = 2;
+  string timezone = 3;
+  optional bool is_active = 4;
+}
+
+message CreateHostLocationResponse {
+  HostLocationItem location = 1;
+}
+
+message GetHostLocationRequest {
+  string location_id = 1;
+}
+
+message GetHostLocationResponse {
+  HostLocationItem location = 1;
+}
+
+message GetHostLocationBySlugRequest {
+  string location_slug = 1;
+}
+
+message GetHostLocationBySlugResponse {
+  HostLocationItem location = 1;
+}
+
+message UpdateHostLocationRequest {
+  string location_slug = 1;
+  optional string name = 2;
+  optional string slug = 3;
+  optional string timezone = 4;
+  optional bool is_active = 5;
+  optional bool booking_requires_host_approval = 6;
+}
+
+message UpdateHostLocationResponse {
+  HostLocationItem location = 1;
+}
+
+message HostBookingSlotSummary {
+  string slot_id = 1;
+  string service_name = 2;
+  string practitioner_name = 3;
+  string room_name = 4;
+  string start_at = 5;
+  string end_at = 6;
+}
+
+message HostBookingListItem {
+  string booking_id = 1;
+  string status = 2;
+  string booked_at = 3;
+  string guest_name = 4;
+  string guest_email = 5;
+  string guest_phone = 6;
+  HostBookingSlotSummary slot = 7;
+  string cancel_reason = 8;
+}
+
+message ListHostLocationBookingsRequest {
+  string location_slug = 1;
+  string status = 2;
+  string from_date = 3;
+  string to_date = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message ListHostLocationBookingsResponse {
+  repeated HostBookingListItem items = 1;
+  int32 total_count = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message HostBookingDetail {
+  string id = 1;
+  string location_id = 2;
+  string slot_id = 3;
+  string status = 4;
+  string guest_name = 5;
+  string guest_email = 6;
+  string client_username = 7;
+  string booked_at = 8;
+}
+
+message HostApproveBookingRequest {
+  string booking_id = 1;
+}
+
+message HostApproveBookingResponse {
+  HostBookingDetail booking = 1;
+}
+
+message HostRejectBookingRequest {
+  string booking_id = 1;
+  string cancel_reason = 2;
+}
+
+message HostRejectBookingResponse {}
+
+message HostCancelBookingRequest {
+  string booking_id = 1;
+  string cancel_reason = 2;
+}
+
+message HostCancelBookingResponse {}

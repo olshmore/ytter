@@ -12,6 +12,10 @@ import "rpc_list_users.proto";
 import "rpc_refresh_token.proto";
 import "rpc_verify_email.proto";
 import "rpc_google_auth.proto";
+import "rpc_public_booking.proto";
+import "rpc_host_booking.proto";
+import "rpc_host_slot.proto";
+import "rpc_host_service.proto";
 
 option go_package = "github.com/olshmore/ytter/pb";
 
@@ -44,6 +48,26 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   tags: {
     name: "user";
     description: "User endpoints";
+  };
+  tags: {
+    name: "booking";
+    description: "Public booking endpoints";
+  };
+  tags: {
+    name: "host_booking";
+    description: "Host booking management";
+  };
+  tags: {
+    name: "host_location";
+    description: "Host location management";
+  };
+  tags: {
+    name: "host_slot";
+    description: "Host slot management";
+  };
+  tags: {
+    name: "host_service";
+    description: "Host service management";
   };
 };
 
@@ -142,6 +166,297 @@ service Ytter {
       description: "Handle Google OAuth callback. Creates or links user account and returns tokens.";
       summary: "Google OAuth callback";
       tags: "auth";
+    };
+  };
+  rpc ListPublicSlots (ListPublicSlotsRequest) returns (ListPublicSlotsResponse) {
+    option (google.api.http) = {
+      get: "/v1/public/locations/{location_slug}/slots"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List public slots";
+      description: "Public location slot discovery with filters and pagination.";
+      tags: "booking";
+    };
+  };
+  rpc GetPublicFilterOptions (GetPublicFilterOptionsRequest) returns (GetPublicFilterOptionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/public/locations/{location_slug}/filter_options"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get public filter options";
+      description: "Public service/practitioner/room filters for a location.";
+      tags: "booking";
+    };
+  };
+  rpc CreatePublicBooking (CreatePublicBookingRequest) returns (CreatePublicBookingResponse) {
+    option (google.api.http) = {
+      post: "/v1/public/bookings"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create public booking";
+      description: "Create guest booking for a location slot.";
+      tags: "booking";
+    };
+  };
+  rpc CancelPublicBooking (CancelPublicBookingRequest) returns (CancelPublicBookingResponse) {
+    option (google.api.http) = {
+      post: "/v1/public/bookings/{booking_id}/cancel"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Cancel public booking";
+      description: "Guest cancellation by booking id and cancel token.";
+      tags: "booking";
+    };
+  };
+  rpc ListHostLocations (ListHostLocationsRequest) returns (ListHostLocationsResponse) {
+    option (google.api.http) = {
+      get: "/v1/host/locations"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List host locations";
+      description: "Locations owned by the host (or all locations for admin). Includes booking policy fields.";
+      tags: "host_booking";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc CreateHostLocation (CreateHostLocationRequest) returns (CreateHostLocationResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/locations"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create host location";
+      description: "Create a location owned by the authenticated host.";
+      tags: "host_location";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc GetHostLocation (GetHostLocationRequest) returns (GetHostLocationResponse) {
+    option (google.api.http) = {
+      get: "/v1/host/locations/{location_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get host location";
+      description: "Get one host-owned location by id.";
+      tags: "host_location";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc GetHostLocationBySlug (GetHostLocationBySlugRequest) returns (GetHostLocationBySlugResponse) {
+    option (google.api.http) = {
+      get: "/v1/host/locations/slug/{location_slug}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get host location by slug";
+      description: "Get one host-owned location by slug.";
+      tags: "host_location";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc UpdateHostLocation (UpdateHostLocationRequest) returns (UpdateHostLocationResponse) {
+    option (google.api.http) = {
+      patch: "/v1/host/locations/slug/{location_slug}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update host location";
+      description: "Update fields on a host-owned location.";
+      tags: "host_location";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc ListHostLocationBookings (ListHostLocationBookingsRequest) returns (ListHostLocationBookingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/host/locations/slug/{location_slug}/bookings"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List location bookings";
+      description: "Bookings for one location with optional status and date filters.";
+      tags: "host_booking";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc ListHostLocationSlots (ListHostLocationSlotsRequest) returns (ListHostLocationSlotsResponse) {
+    option (google.api.http) = {
+      get: "/v1/host/locations/slug/{location_slug}/slots"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List location slots";
+      description: "Slots for one location with optional status/date/resource filters.";
+      tags: "host_slot";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc ListHostLocationServices (ListHostLocationServicesRequest) returns (ListHostLocationServicesResponse) {
+    option (google.api.http) = {
+      get: "/v1/host/locations/slug/{location_slug}/services"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List location services";
+      description: "Services for one location with optional active filter.";
+      tags: "host_service";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc CreateHostLocationService (CreateHostLocationServiceRequest) returns (CreateHostLocationServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/locations/slug/{location_slug}/services"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create location service";
+      description: "Create a service for an owned location.";
+      tags: "host_service";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc UpdateHostLocationService (UpdateHostLocationServiceRequest) returns (UpdateHostLocationServiceResponse) {
+    option (google.api.http) = {
+      patch: "/v1/host/locations/slug/{location_slug}/services/{service_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update location service";
+      description: "Update fields on a location service.";
+      tags: "host_service";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc CreateHostLocationSlot (CreateHostLocationSlotRequest) returns (CreateHostLocationSlotResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/locations/slug/{location_slug}/slots"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create location slot";
+      description: "Create a slot for an owned location.";
+      tags: "host_slot";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc UpdateHostLocationSlot (UpdateHostLocationSlotRequest) returns (UpdateHostLocationSlotResponse) {
+    option (google.api.http) = {
+      patch: "/v1/host/locations/slug/{location_slug}/slots/{slot_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update location slot";
+      description: "Update fields on a location slot.";
+      tags: "host_slot";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc HostApproveBooking (HostApproveBookingRequest) returns (HostApproveBookingResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/bookings/{booking_id}/approve"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Approve pending booking";
+      description: "Confirm a pending booking. Idempotent when already confirmed.";
+      tags: "host_booking";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc HostRejectBooking (HostRejectBookingRequest) returns (HostRejectBookingResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/bookings/{booking_id}/reject"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Reject pending booking";
+      description: "Cancel a pending booking and release slot capacity.";
+      tags: "host_booking";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc HostCancelBooking (HostCancelBookingRequest) returns (HostCancelBookingResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/bookings/{booking_id}/cancel"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Host cancel booking";
+      description: "Cancel pending or confirmed booking for an owned location; ignores customer cancellation window.";
+      tags: "host_booking";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
     };
   };
 }

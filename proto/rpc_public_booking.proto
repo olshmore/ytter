@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/olshmore/ytter/pb";
+
+message PublicSlotsLocation {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  string timezone = 4;
+  bool booking_requires_host_approval = 5;
+}
+
+message PublicSlotsService {
+  string id = 1;
+  string name = 2;
+  int32 duration_minutes = 3;
+  int64 price_minor_units = 4;
+  string currency = 5;
+  int32 cancellation_min_hours_before_start = 6;
+}
+
+message PublicSlotsPractitioner {
+  string id = 1;
+  string name = 2;
+  string display_name = 3;
+}
+
+message PublicSlotsRoom {
+  string id = 1;
+  string name = 2;
+}
+
+message PublicSlotsItem {
+  string slot_id = 1;
+  PublicSlotsService service = 2;
+  PublicSlotsPractitioner practitioner = 3;
+  PublicSlotsRoom room = 4;
+  string start_at = 5;
+  string end_at = 6;
+  string availability_status = 7;
+  bool is_bookable = 8;
+}
+
+message ListPublicSlotsRequest {
+  string location_slug = 1;
+  string search = 2;
+  string service_id = 3;
+  string practitioner_id = 4;
+  string room_id = 5;
+  string date = 6;
+  string time_slot = 7;
+  bool only_available = 8;
+  int32 limit = 9;
+  int32 offset = 10;
+}
+
+message ListPublicSlotsResponse {
+  PublicSlotsLocation location = 1;
+  repeated PublicSlotsItem items = 2;
+  int32 total_count = 3;
+  int32 available_count = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message PublicFilterService {
+  string id = 1;
+  string name = 2;
+}
+
+message PublicFilterPractitioner {
+  string id = 1;
+  string name = 2;
+  string display_name = 3;
+}
+
+message PublicFilterRoom {
+  string id = 1;
+  string name = 2;
+}
+
+message GetPublicFilterOptionsRequest {
+  string location_slug = 1;
+}
+
+message GetPublicFilterOptionsResponse {
+  repeated PublicFilterService services = 1;
+  repeated PublicFilterPractitioner practitioners = 2;
+  repeated PublicFilterRoom rooms = 3;
+  repeated string time_slots = 4;
+}
+
+message CreatePublicBookingRequest {
+  string location_id = 1;
+  string slot_id = 2;
+  string guest_name = 3;
+  string guest_email = 4;
+  string guest_phone = 5;
+  string guest_notes = 6;
+}
+
+message CreatePublicBookingBooking {
+  string id = 1;
+  string location_id = 2;
+  string slot_id = 3;
+  string status = 4;
+  string guest_name = 5;
+  string guest_email = 6;
+  string client_username = 7;
+  string booked_at = 8;
+}
+
+message CreatePublicBookingResponse {
+  CreatePublicBookingBooking booking = 1;
+  string cancel_token = 2;
+}
+
+message CancelPublicBookingRequest {
+  string booking_id = 1;
+  string cancel_token = 2;
+  string cancel_reason = 3;
+}
+
+message CancelPublicBookingResponse {}
