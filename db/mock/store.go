@@ -37,6 +37,156 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// CancelPublicBookingTx mocks base method.
+func (m *MockStore) CancelPublicBookingTx(arg0 context.Context, arg1 db.CancelPublicBookingTxParams) (db.CancelPublicBookingTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelPublicBookingTx", arg0, arg1)
+	ret0, _ := ret[0].(db.CancelPublicBookingTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CancelPublicBookingTx indicates an expected call of CancelPublicBookingTx.
+func (mr *MockStoreMockRecorder) CancelPublicBookingTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelPublicBookingTx", reflect.TypeOf((*MockStore)(nil).CancelPublicBookingTx), arg0, arg1)
+}
+
+// ConfirmBooking mocks base method.
+func (m *MockStore) ConfirmBooking(arg0 context.Context, arg1 uuid.UUID) (db.Booking, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfirmBooking", arg0, arg1)
+	ret0, _ := ret[0].(db.Booking)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConfirmBooking indicates an expected call of ConfirmBooking.
+func (mr *MockStoreMockRecorder) ConfirmBooking(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmBooking", reflect.TypeOf((*MockStore)(nil).ConfirmBooking), arg0, arg1)
+}
+
+// CountHostBookingsByLocation mocks base method.
+func (m *MockStore) CountHostBookingsByLocation(arg0 context.Context, arg1 db.CountHostBookingsByLocationParams) (int32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountHostBookingsByLocation", arg0, arg1)
+	ret0, _ := ret[0].(int32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountHostBookingsByLocation indicates an expected call of CountHostBookingsByLocation.
+func (mr *MockStoreMockRecorder) CountHostBookingsByLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountHostBookingsByLocation", reflect.TypeOf((*MockStore)(nil).CountHostBookingsByLocation), arg0, arg1)
+}
+
+// CountHostServicesByLocation mocks base method.
+func (m *MockStore) CountHostServicesByLocation(arg0 context.Context, arg1 db.CountHostServicesByLocationParams) (int32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountHostServicesByLocation", arg0, arg1)
+	ret0, _ := ret[0].(int32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountHostServicesByLocation indicates an expected call of CountHostServicesByLocation.
+func (mr *MockStoreMockRecorder) CountHostServicesByLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountHostServicesByLocation", reflect.TypeOf((*MockStore)(nil).CountHostServicesByLocation), arg0, arg1)
+}
+
+// CountHostSlotsByLocation mocks base method.
+func (m *MockStore) CountHostSlotsByLocation(arg0 context.Context, arg1 db.CountHostSlotsByLocationParams) (int32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountHostSlotsByLocation", arg0, arg1)
+	ret0, _ := ret[0].(int32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountHostSlotsByLocation indicates an expected call of CountHostSlotsByLocation.
+func (mr *MockStoreMockRecorder) CountHostSlotsByLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountHostSlotsByLocation", reflect.TypeOf((*MockStore)(nil).CountHostSlotsByLocation), arg0, arg1)
+}
+
+// CreateBooking mocks base method.
+func (m *MockStore) CreateBooking(arg0 context.Context, arg1 db.CreateBookingParams) (db.Booking, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBooking", arg0, arg1)
+	ret0, _ := ret[0].(db.Booking)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateBooking indicates an expected call of CreateBooking.
+func (mr *MockStoreMockRecorder) CreateBooking(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBooking", reflect.TypeOf((*MockStore)(nil).CreateBooking), arg0, arg1)
+}
+
+// CreateHostLocationService mocks base method.
+func (m *MockStore) CreateHostLocationService(arg0 context.Context, arg1 db.CreateHostLocationServiceParams) (db.Service, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateHostLocationService", arg0, arg1)
+	ret0, _ := ret[0].(db.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateHostLocationService indicates an expected call of CreateHostLocationService.
+func (mr *MockStoreMockRecorder) CreateHostLocationService(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateHostLocationService", reflect.TypeOf((*MockStore)(nil).CreateHostLocationService), arg0, arg1)
+}
+
+// CreateHostLocationSlot mocks base method.
+func (m *MockStore) CreateHostLocationSlot(arg0 context.Context, arg1 db.CreateHostLocationSlotParams) (db.AppointmentSlot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateHostLocationSlot", arg0, arg1)
+	ret0, _ := ret[0].(db.AppointmentSlot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateHostLocationSlot indicates an expected call of CreateHostLocationSlot.
+func (mr *MockStoreMockRecorder) CreateHostLocationSlot(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateHostLocationSlot", reflect.TypeOf((*MockStore)(nil).CreateHostLocationSlot), arg0, arg1)
+}
+
+// CreateLocation mocks base method.
+func (m *MockStore) CreateLocation(arg0 context.Context, arg1 db.CreateLocationParams) (db.Location, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1)
+	ret0, _ := ret[0].(db.Location)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateLocation indicates an expected call of CreateLocation.
+func (mr *MockStoreMockRecorder) CreateLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStore)(nil).CreateLocation), arg0, arg1)
+}
+
+// CreatePublicBookingTx mocks base method.
+func (m *MockStore) CreatePublicBookingTx(arg0 context.Context, arg1 db.CreatePublicBookingTxParams) (db.CreatePublicBookingTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePublicBookingTx", arg0, arg1)
+	ret0, _ := ret[0].(db.CreatePublicBookingTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreatePublicBookingTx indicates an expected call of CreatePublicBookingTx.
+func (mr *MockStoreMockRecorder) CreatePublicBookingTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePublicBookingTx", reflect.TypeOf((*MockStore)(nil).CreatePublicBookingTx), arg0, arg1)
+}
+
 // CreateSession mocks base method.
 func (m *MockStore) CreateSession(arg0 context.Context, arg1 db.CreateSessionParams) (db.Session, error) {
 	m.ctrl.T.Helper()
@@ -97,6 +247,156 @@ func (mr *MockStoreMockRecorder) CreateVerificationEmail(arg0, arg1 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVerificationEmail", reflect.TypeOf((*MockStore)(nil).CreateVerificationEmail), arg0, arg1)
 }
 
+// GetBookingByID mocks base method.
+func (m *MockStore) GetBookingByID(arg0 context.Context, arg1 uuid.UUID) (db.Booking, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBookingByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Booking)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBookingByID indicates an expected call of GetBookingByID.
+func (mr *MockStoreMockRecorder) GetBookingByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBookingByID", reflect.TypeOf((*MockStore)(nil).GetBookingByID), arg0, arg1)
+}
+
+// GetBookingForCancelByIDForUpdate mocks base method.
+func (m *MockStore) GetBookingForCancelByIDForUpdate(arg0 context.Context, arg1 uuid.UUID) (db.GetBookingForCancelByIDForUpdateRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBookingForCancelByIDForUpdate", arg0, arg1)
+	ret0, _ := ret[0].(db.GetBookingForCancelByIDForUpdateRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBookingForCancelByIDForUpdate indicates an expected call of GetBookingForCancelByIDForUpdate.
+func (mr *MockStoreMockRecorder) GetBookingForCancelByIDForUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBookingForCancelByIDForUpdate", reflect.TypeOf((*MockStore)(nil).GetBookingForCancelByIDForUpdate), arg0, arg1)
+}
+
+// GetBookingForHostOpByIDForUpdate mocks base method.
+func (m *MockStore) GetBookingForHostOpByIDForUpdate(arg0 context.Context, arg1 uuid.UUID) (db.GetBookingForHostOpByIDForUpdateRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBookingForHostOpByIDForUpdate", arg0, arg1)
+	ret0, _ := ret[0].(db.GetBookingForHostOpByIDForUpdateRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBookingForHostOpByIDForUpdate indicates an expected call of GetBookingForHostOpByIDForUpdate.
+func (mr *MockStoreMockRecorder) GetBookingForHostOpByIDForUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBookingForHostOpByIDForUpdate", reflect.TypeOf((*MockStore)(nil).GetBookingForHostOpByIDForUpdate), arg0, arg1)
+}
+
+// GetHostServiceByID mocks base method.
+func (m *MockStore) GetHostServiceByID(arg0 context.Context, arg1 db.GetHostServiceByIDParams) (db.Service, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHostServiceByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHostServiceByID indicates an expected call of GetHostServiceByID.
+func (mr *MockStoreMockRecorder) GetHostServiceByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHostServiceByID", reflect.TypeOf((*MockStore)(nil).GetHostServiceByID), arg0, arg1)
+}
+
+// GetHostSlotByID mocks base method.
+func (m *MockStore) GetHostSlotByID(arg0 context.Context, arg1 db.GetHostSlotByIDParams) (db.AppointmentSlot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHostSlotByID", arg0, arg1)
+	ret0, _ := ret[0].(db.AppointmentSlot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHostSlotByID indicates an expected call of GetHostSlotByID.
+func (mr *MockStoreMockRecorder) GetHostSlotByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHostSlotByID", reflect.TypeOf((*MockStore)(nil).GetHostSlotByID), arg0, arg1)
+}
+
+// GetLocationByID mocks base method.
+func (m *MockStore) GetLocationByID(arg0 context.Context, arg1 uuid.UUID) (db.Location, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLocationByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Location)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLocationByID indicates an expected call of GetLocationByID.
+func (mr *MockStoreMockRecorder) GetLocationByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLocationByID", reflect.TypeOf((*MockStore)(nil).GetLocationByID), arg0, arg1)
+}
+
+// GetLocationBySlug mocks base method.
+func (m *MockStore) GetLocationBySlug(arg0 context.Context, arg1 string) (db.Location, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLocationBySlug", arg0, arg1)
+	ret0, _ := ret[0].(db.Location)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLocationBySlug indicates an expected call of GetLocationBySlug.
+func (mr *MockStoreMockRecorder) GetLocationBySlug(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLocationBySlug", reflect.TypeOf((*MockStore)(nil).GetLocationBySlug), arg0, arg1)
+}
+
+// GetPractitionerByID mocks base method.
+func (m *MockStore) GetPractitionerByID(arg0 context.Context, arg1 uuid.UUID) (db.Practitioner, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPractitionerByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Practitioner)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPractitionerByID indicates an expected call of GetPractitionerByID.
+func (mr *MockStoreMockRecorder) GetPractitionerByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPractitionerByID", reflect.TypeOf((*MockStore)(nil).GetPractitionerByID), arg0, arg1)
+}
+
+// GetRoomByID mocks base method.
+func (m *MockStore) GetRoomByID(arg0 context.Context, arg1 uuid.UUID) (db.Room, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRoomByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Room)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRoomByID indicates an expected call of GetRoomByID.
+func (mr *MockStoreMockRecorder) GetRoomByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomByID", reflect.TypeOf((*MockStore)(nil).GetRoomByID), arg0, arg1)
+}
+
+// GetServiceByID mocks base method.
+func (m *MockStore) GetServiceByID(arg0 context.Context, arg1 uuid.UUID) (db.Service, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetServiceByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetServiceByID indicates an expected call of GetServiceByID.
+func (mr *MockStoreMockRecorder) GetServiceByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceByID", reflect.TypeOf((*MockStore)(nil).GetServiceByID), arg0, arg1)
+}
+
 // GetSession mocks base method.
 func (m *MockStore) GetSession(arg0 context.Context, arg1 uuid.UUID) (db.Session, error) {
 	m.ctrl.T.Helper()
@@ -110,6 +410,21 @@ func (m *MockStore) GetSession(arg0 context.Context, arg1 uuid.UUID) (db.Session
 func (mr *MockStoreMockRecorder) GetSession(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockStore)(nil).GetSession), arg0, arg1)
+}
+
+// GetSlotForUpdate mocks base method.
+func (m *MockStore) GetSlotForUpdate(arg0 context.Context, arg1 db.GetSlotForUpdateParams) (db.AppointmentSlot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSlotForUpdate", arg0, arg1)
+	ret0, _ := ret[0].(db.AppointmentSlot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSlotForUpdate indicates an expected call of GetSlotForUpdate.
+func (mr *MockStoreMockRecorder) GetSlotForUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSlotForUpdate", reflect.TypeOf((*MockStore)(nil).GetSlotForUpdate), arg0, arg1)
 }
 
 // GetUser mocks base method.
@@ -187,6 +502,186 @@ func (mr *MockStoreMockRecorder) GetVerificationEmailByToken(arg0, arg1 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVerificationEmailByToken", reflect.TypeOf((*MockStore)(nil).GetVerificationEmailByToken), arg0, arg1)
 }
 
+// HostApproveBookingTx mocks base method.
+func (m *MockStore) HostApproveBookingTx(arg0 context.Context, arg1 db.HostApproveBookingTxParams) (db.HostApproveBookingTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HostApproveBookingTx", arg0, arg1)
+	ret0, _ := ret[0].(db.HostApproveBookingTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HostApproveBookingTx indicates an expected call of HostApproveBookingTx.
+func (mr *MockStoreMockRecorder) HostApproveBookingTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HostApproveBookingTx", reflect.TypeOf((*MockStore)(nil).HostApproveBookingTx), arg0, arg1)
+}
+
+// HostCancelBookingTx mocks base method.
+func (m *MockStore) HostCancelBookingTx(arg0 context.Context, arg1 db.HostCancelBookingTxParams) (db.HostCancelBookingTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HostCancelBookingTx", arg0, arg1)
+	ret0, _ := ret[0].(db.HostCancelBookingTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HostCancelBookingTx indicates an expected call of HostCancelBookingTx.
+func (mr *MockStoreMockRecorder) HostCancelBookingTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HostCancelBookingTx", reflect.TypeOf((*MockStore)(nil).HostCancelBookingTx), arg0, arg1)
+}
+
+// HostRejectBookingTx mocks base method.
+func (m *MockStore) HostRejectBookingTx(arg0 context.Context, arg1 db.HostRejectBookingTxParams) (db.HostRejectBookingTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HostRejectBookingTx", arg0, arg1)
+	ret0, _ := ret[0].(db.HostRejectBookingTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HostRejectBookingTx indicates an expected call of HostRejectBookingTx.
+func (mr *MockStoreMockRecorder) HostRejectBookingTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HostRejectBookingTx", reflect.TypeOf((*MockStore)(nil).HostRejectBookingTx), arg0, arg1)
+}
+
+// ListAllHostLocations mocks base method.
+func (m *MockStore) ListAllHostLocations(arg0 context.Context) ([]db.ListAllHostLocationsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAllHostLocations", arg0)
+	ret0, _ := ret[0].([]db.ListAllHostLocationsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAllHostLocations indicates an expected call of ListAllHostLocations.
+func (mr *MockStoreMockRecorder) ListAllHostLocations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAllHostLocations", reflect.TypeOf((*MockStore)(nil).ListAllHostLocations), arg0)
+}
+
+// ListHostBookingsByLocation mocks base method.
+func (m *MockStore) ListHostBookingsByLocation(arg0 context.Context, arg1 db.ListHostBookingsByLocationParams) ([]db.ListHostBookingsByLocationRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListHostBookingsByLocation", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListHostBookingsByLocationRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListHostBookingsByLocation indicates an expected call of ListHostBookingsByLocation.
+func (mr *MockStoreMockRecorder) ListHostBookingsByLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListHostBookingsByLocation", reflect.TypeOf((*MockStore)(nil).ListHostBookingsByLocation), arg0, arg1)
+}
+
+// ListHostLocationsByOwner mocks base method.
+func (m *MockStore) ListHostLocationsByOwner(arg0 context.Context, arg1 string) ([]db.ListHostLocationsByOwnerRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListHostLocationsByOwner", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListHostLocationsByOwnerRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListHostLocationsByOwner indicates an expected call of ListHostLocationsByOwner.
+func (mr *MockStoreMockRecorder) ListHostLocationsByOwner(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListHostLocationsByOwner", reflect.TypeOf((*MockStore)(nil).ListHostLocationsByOwner), arg0, arg1)
+}
+
+// ListHostServicesByLocation mocks base method.
+func (m *MockStore) ListHostServicesByLocation(arg0 context.Context, arg1 db.ListHostServicesByLocationParams) ([]db.ListHostServicesByLocationRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListHostServicesByLocation", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListHostServicesByLocationRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListHostServicesByLocation indicates an expected call of ListHostServicesByLocation.
+func (mr *MockStoreMockRecorder) ListHostServicesByLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListHostServicesByLocation", reflect.TypeOf((*MockStore)(nil).ListHostServicesByLocation), arg0, arg1)
+}
+
+// ListHostSlotsByLocation mocks base method.
+func (m *MockStore) ListHostSlotsByLocation(arg0 context.Context, arg1 db.ListHostSlotsByLocationParams) ([]db.ListHostSlotsByLocationRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListHostSlotsByLocation", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListHostSlotsByLocationRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListHostSlotsByLocation indicates an expected call of ListHostSlotsByLocation.
+func (mr *MockStoreMockRecorder) ListHostSlotsByLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListHostSlotsByLocation", reflect.TypeOf((*MockStore)(nil).ListHostSlotsByLocation), arg0, arg1)
+}
+
+// ListPublicFilterPractitionersByLocationSlug mocks base method.
+func (m *MockStore) ListPublicFilterPractitionersByLocationSlug(arg0 context.Context, arg1 string) ([]db.ListPublicFilterPractitionersByLocationSlugRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPublicFilterPractitionersByLocationSlug", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListPublicFilterPractitionersByLocationSlugRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPublicFilterPractitionersByLocationSlug indicates an expected call of ListPublicFilterPractitionersByLocationSlug.
+func (mr *MockStoreMockRecorder) ListPublicFilterPractitionersByLocationSlug(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicFilterPractitionersByLocationSlug", reflect.TypeOf((*MockStore)(nil).ListPublicFilterPractitionersByLocationSlug), arg0, arg1)
+}
+
+// ListPublicFilterRoomsByLocationSlug mocks base method.
+func (m *MockStore) ListPublicFilterRoomsByLocationSlug(arg0 context.Context, arg1 string) ([]db.ListPublicFilterRoomsByLocationSlugRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPublicFilterRoomsByLocationSlug", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListPublicFilterRoomsByLocationSlugRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPublicFilterRoomsByLocationSlug indicates an expected call of ListPublicFilterRoomsByLocationSlug.
+func (mr *MockStoreMockRecorder) ListPublicFilterRoomsByLocationSlug(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicFilterRoomsByLocationSlug", reflect.TypeOf((*MockStore)(nil).ListPublicFilterRoomsByLocationSlug), arg0, arg1)
+}
+
+// ListPublicFilterServicesByLocationSlug mocks base method.
+func (m *MockStore) ListPublicFilterServicesByLocationSlug(arg0 context.Context, arg1 string) ([]db.ListPublicFilterServicesByLocationSlugRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPublicFilterServicesByLocationSlug", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListPublicFilterServicesByLocationSlugRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPublicFilterServicesByLocationSlug indicates an expected call of ListPublicFilterServicesByLocationSlug.
+func (mr *MockStoreMockRecorder) ListPublicFilterServicesByLocationSlug(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicFilterServicesByLocationSlug", reflect.TypeOf((*MockStore)(nil).ListPublicFilterServicesByLocationSlug), arg0, arg1)
+}
+
+// ListPublicSlotsByLocationSlug mocks base method.
+func (m *MockStore) ListPublicSlotsByLocationSlug(arg0 context.Context, arg1 string) ([]db.ListPublicSlotsByLocationSlugRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPublicSlotsByLocationSlug", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListPublicSlotsByLocationSlugRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPublicSlotsByLocationSlug indicates an expected call of ListPublicSlotsByLocationSlug.
+func (mr *MockStoreMockRecorder) ListPublicSlotsByLocationSlug(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicSlotsByLocationSlug", reflect.TypeOf((*MockStore)(nil).ListPublicSlotsByLocationSlug), arg0, arg1)
+}
+
 // ListUsers mocks base method.
 func (m *MockStore) ListUsers(arg0 context.Context, arg1 db.ListUsersParams) ([]db.User, error) {
 	m.ctrl.T.Helper()
@@ -200,6 +695,81 @@ func (m *MockStore) ListUsers(arg0 context.Context, arg1 db.ListUsersParams) ([]
 func (mr *MockStoreMockRecorder) ListUsers(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsers", reflect.TypeOf((*MockStore)(nil).ListUsers), arg0, arg1)
+}
+
+// MarkBookingCancelled mocks base method.
+func (m *MockStore) MarkBookingCancelled(arg0 context.Context, arg1 db.MarkBookingCancelledParams) (db.Booking, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkBookingCancelled", arg0, arg1)
+	ret0, _ := ret[0].(db.Booking)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MarkBookingCancelled indicates an expected call of MarkBookingCancelled.
+func (mr *MockStoreMockRecorder) MarkBookingCancelled(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkBookingCancelled", reflect.TypeOf((*MockStore)(nil).MarkBookingCancelled), arg0, arg1)
+}
+
+// UpdateHostLocationService mocks base method.
+func (m *MockStore) UpdateHostLocationService(arg0 context.Context, arg1 db.UpdateHostLocationServiceParams) (db.Service, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateHostLocationService", arg0, arg1)
+	ret0, _ := ret[0].(db.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateHostLocationService indicates an expected call of UpdateHostLocationService.
+func (mr *MockStoreMockRecorder) UpdateHostLocationService(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateHostLocationService", reflect.TypeOf((*MockStore)(nil).UpdateHostLocationService), arg0, arg1)
+}
+
+// UpdateHostLocationSlot mocks base method.
+func (m *MockStore) UpdateHostLocationSlot(arg0 context.Context, arg1 db.UpdateHostLocationSlotParams) (db.AppointmentSlot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateHostLocationSlot", arg0, arg1)
+	ret0, _ := ret[0].(db.AppointmentSlot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateHostLocationSlot indicates an expected call of UpdateHostLocationSlot.
+func (mr *MockStoreMockRecorder) UpdateHostLocationSlot(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateHostLocationSlot", reflect.TypeOf((*MockStore)(nil).UpdateHostLocationSlot), arg0, arg1)
+}
+
+// UpdateLocation mocks base method.
+func (m *MockStore) UpdateLocation(arg0 context.Context, arg1 db.UpdateLocationParams) (db.Location, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateLocation", arg0, arg1)
+	ret0, _ := ret[0].(db.Location)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateLocation indicates an expected call of UpdateLocation.
+func (mr *MockStoreMockRecorder) UpdateLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLocation", reflect.TypeOf((*MockStore)(nil).UpdateLocation), arg0, arg1)
+}
+
+// UpdateSlotCounters mocks base method.
+func (m *MockStore) UpdateSlotCounters(arg0 context.Context, arg1 db.UpdateSlotCountersParams) (db.AppointmentSlot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSlotCounters", arg0, arg1)
+	ret0, _ := ret[0].(db.AppointmentSlot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSlotCounters indicates an expected call of UpdateSlotCounters.
+func (mr *MockStoreMockRecorder) UpdateSlotCounters(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSlotCounters", reflect.TypeOf((*MockStore)(nil).UpdateSlotCounters), arg0, arg1)
 }
 
 // UpdateUser mocks base method.

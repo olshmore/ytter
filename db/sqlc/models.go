@@ -11,6 +11,91 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AppointmentSlot struct {
+	ID             uuid.UUID   `json:"id"`
+	LocationID     uuid.UUID   `json:"location_id"`
+	ServiceID      uuid.UUID   `json:"service_id"`
+	PractitionerID pgtype.UUID `json:"practitioner_id"`
+	RoomID         pgtype.UUID `json:"room_id"`
+	StartAt        time.Time   `json:"start_at"`
+	EndAt          time.Time   `json:"end_at"`
+	Capacity       int32       `json:"capacity"`
+	BookedCount    int32       `json:"booked_count"`
+	Status         string      `json:"status"`
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
+	DeletedAt      time.Time   `json:"deleted_at"`
+}
+
+type Booking struct {
+	ID              uuid.UUID          `json:"id"`
+	LocationID      uuid.UUID          `json:"location_id"`
+	SlotID          uuid.UUID          `json:"slot_id"`
+	Status          string             `json:"status"`
+	GuestName       string             `json:"guest_name"`
+	GuestEmail      string             `json:"guest_email"`
+	GuestPhone      pgtype.Text        `json:"guest_phone"`
+	GuestNotes      pgtype.Text        `json:"guest_notes"`
+	ClientUsername  pgtype.Text        `json:"client_username"`
+	BookedAt        time.Time          `json:"booked_at"`
+	CancelledAt     pgtype.Timestamptz `json:"cancelled_at"`
+	CancelReason    pgtype.Text        `json:"cancel_reason"`
+	CancelTokenHash string             `json:"cancel_token_hash"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
+	DeletedAt       time.Time          `json:"deleted_at"`
+}
+
+type Location struct {
+	ID                              uuid.UUID   `json:"id"`
+	OwnerUsername                   string      `json:"owner_username"`
+	Name                            string      `json:"name"`
+	Slug                            string      `json:"slug"`
+	Timezone                        string      `json:"timezone"`
+	IsActive                        bool        `json:"is_active"`
+	BookingRequiresHostApproval     bool        `json:"booking_requires_host_approval"`
+	CancellationMinHoursBeforeStart pgtype.Int4 `json:"cancellation_min_hours_before_start"`
+	CreatedAt                       time.Time   `json:"created_at"`
+	UpdatedAt                       time.Time   `json:"updated_at"`
+	DeletedAt                       time.Time   `json:"deleted_at"`
+}
+
+type Practitioner struct {
+	ID          uuid.UUID `json:"id"`
+	LocationID  uuid.UUID `json:"location_id"`
+	Name        string    `json:"name"`
+	DisplayName string    `json:"display_name"`
+	IsActive    bool      `json:"is_active"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	DeletedAt   time.Time `json:"deleted_at"`
+}
+
+type Room struct {
+	ID         uuid.UUID `json:"id"`
+	LocationID uuid.UUID `json:"location_id"`
+	Name       string    `json:"name"`
+	IsActive   bool      `json:"is_active"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	DeletedAt  time.Time `json:"deleted_at"`
+}
+
+type Service struct {
+	ID                              uuid.UUID   `json:"id"`
+	LocationID                      uuid.UUID   `json:"location_id"`
+	Name                            string      `json:"name"`
+	Description                     string      `json:"description"`
+	DurationMinutes                 int32       `json:"duration_minutes"`
+	PriceMinorUnits                 int64       `json:"price_minor_units"`
+	Currency                        string      `json:"currency"`
+	IsActive                        bool        `json:"is_active"`
+	CancellationMinHoursBeforeStart pgtype.Int4 `json:"cancellation_min_hours_before_start"`
+	CreatedAt                       time.Time   `json:"created_at"`
+	UpdatedAt                       time.Time   `json:"updated_at"`
+	DeletedAt                       time.Time   `json:"deleted_at"`
+}
+
 type Session struct {
 	ID           uuid.UUID `json:"id"`
 	Username     string    `json:"username"`

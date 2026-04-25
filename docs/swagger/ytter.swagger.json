@@ -20,6 +20,26 @@
       "description": "User endpoints"
     },
     {
+      "name": "booking",
+      "description": "Public booking endpoints"
+    },
+    {
+      "name": "host_booking",
+      "description": "Host booking management"
+    },
+    {
+      "name": "host_location",
+      "description": "Host location management"
+    },
+    {
+      "name": "host_slot",
+      "description": "Host slot management"
+    },
+    {
+      "name": "host_service",
+      "description": "Host service management"
+    },
+    {
       "name": "Ytter"
     }
   ],
@@ -226,6 +246,919 @@
         ]
       }
     },
+    "/v1/host/bookings/{bookingId}/approve": {
+      "post": {
+        "summary": "Approve pending booking",
+        "description": "Confirm a pending booking. Idempotent when already confirmed.",
+        "operationId": "Ytter_HostApproveBooking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbHostApproveBookingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterHostApproveBookingBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/bookings/{bookingId}/cancel": {
+      "post": {
+        "summary": "Host cancel booking",
+        "description": "Cancel pending or confirmed booking for an owned location; ignores customer cancellation window.",
+        "operationId": "Ytter_HostCancelBooking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbHostCancelBookingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterHostCancelBookingBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/bookings/{bookingId}/reject": {
+      "post": {
+        "summary": "Reject pending booking",
+        "description": "Cancel a pending booking and release slot capacity.",
+        "operationId": "Ytter_HostRejectBooking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbHostRejectBookingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterHostRejectBookingBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations": {
+      "get": {
+        "summary": "List host locations",
+        "description": "Locations owned by the host (or all locations for admin). Includes booking policy fields.",
+        "operationId": "Ytter_ListHostLocations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListHostLocationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "host_booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create host location",
+        "description": "Create a location owned by the authenticated host.",
+        "operationId": "Ytter_CreateHostLocation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateHostLocationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbCreateHostLocationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "host_location"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}": {
+      "get": {
+        "summary": "Get host location by slug",
+        "description": "Get one host-owned location by slug.",
+        "operationId": "Ytter_GetHostLocationBySlug",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetHostLocationBySlugResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "host_location"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update host location",
+        "description": "Update fields on a host-owned location.",
+        "operationId": "Ytter_UpdateHostLocation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateHostLocationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterUpdateHostLocationBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_location"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}/bookings": {
+      "get": {
+        "summary": "List location bookings",
+        "description": "Bookings for one location with optional status and date filters.",
+        "operationId": "Ytter_ListHostLocationBookings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListHostLocationBookingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "host_booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}/services": {
+      "get": {
+        "summary": "List location services",
+        "description": "Services for one location with optional active filter.",
+        "operationId": "Ytter_ListHostLocationServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListHostLocationServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "host_service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create location service",
+        "description": "Create a service for an owned location.",
+        "operationId": "Ytter_CreateHostLocationService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateHostLocationServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterCreateHostLocationServiceBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}/services/{serviceId}": {
+      "patch": {
+        "summary": "Update location service",
+        "description": "Update fields on a location service.",
+        "operationId": "Ytter_UpdateHostLocationService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateHostLocationServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "serviceId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterUpdateHostLocationServiceBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}/slots": {
+      "get": {
+        "summary": "List location slots",
+        "description": "Slots for one location with optional status/date/resource filters.",
+        "operationId": "Ytter_ListHostLocationSlots",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListHostLocationSlotsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "serviceId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "practitionerId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "roomId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "host_slot"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create location slot",
+        "description": "Create a slot for an owned location.",
+        "operationId": "Ytter_CreateHostLocationSlot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateHostLocationSlotResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterCreateHostLocationSlotBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_slot"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}/slots/{slotId}": {
+      "patch": {
+        "summary": "Update location slot",
+        "description": "Update fields on a location slot.",
+        "operationId": "Ytter_UpdateHostLocationSlot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateHostLocationSlotResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "slotId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterUpdateHostLocationSlotBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_slot"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/{locationId}": {
+      "get": {
+        "summary": "Get host location",
+        "description": "Get one host-owned location by id.",
+        "operationId": "Ytter_GetHostLocation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetHostLocationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "host_location"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/public/bookings": {
+      "post": {
+        "summary": "Create public booking",
+        "description": "Create guest booking for a location slot.",
+        "operationId": "Ytter_CreatePublicBooking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreatePublicBookingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbCreatePublicBookingRequest"
+            }
+          }
+        ],
+        "tags": [
+          "booking"
+        ]
+      }
+    },
+    "/v1/public/bookings/{bookingId}/cancel": {
+      "post": {
+        "summary": "Cancel public booking",
+        "description": "Guest cancellation by booking id and cancel token.",
+        "operationId": "Ytter_CancelPublicBooking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCancelPublicBookingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterCancelPublicBookingBody"
+            }
+          }
+        ],
+        "tags": [
+          "booking"
+        ]
+      }
+    },
+    "/v1/public/locations/{locationSlug}/filter_options": {
+      "get": {
+        "summary": "Get public filter options",
+        "description": "Public service/practitioner/room filters for a location.",
+        "operationId": "Ytter_GetPublicFilterOptions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetPublicFilterOptionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "booking"
+        ]
+      }
+    },
+    "/v1/public/locations/{locationSlug}/slots": {
+      "get": {
+        "summary": "List public slots",
+        "description": "Public location slot discovery with filters and pagination.",
+        "operationId": "Ytter_ListPublicSlots",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListPublicSlotsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "serviceId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "practitionerId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "roomId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "timeSlot",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "onlyAvailable",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "booking"
+        ]
+      }
+    },
     "/v1/user/list": {
       "get": {
         "summary": "List users",
@@ -312,6 +1245,275 @@
     }
   },
   "definitions": {
+    "YtterCancelPublicBookingBody": {
+      "type": "object",
+      "properties": {
+        "cancelToken": {
+          "type": "string"
+        },
+        "cancelReason": {
+          "type": "string"
+        }
+      }
+    },
+    "YtterCreateHostLocationServiceBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "priceMinorUnits": {
+          "type": "string",
+          "format": "int64"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "cancellationMinHoursBeforeStart": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "YtterCreateHostLocationSlotBody": {
+      "type": "object",
+      "properties": {
+        "serviceId": {
+          "type": "string"
+        },
+        "practitionerId": {
+          "type": "string"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "startAt": {
+          "type": "string"
+        },
+        "endAt": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "YtterHostApproveBookingBody": {
+      "type": "object"
+    },
+    "YtterHostCancelBookingBody": {
+      "type": "object",
+      "properties": {
+        "cancelReason": {
+          "type": "string"
+        }
+      }
+    },
+    "YtterHostRejectBookingBody": {
+      "type": "object",
+      "properties": {
+        "cancelReason": {
+          "type": "string"
+        }
+      }
+    },
+    "YtterUpdateHostLocationBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "bookingRequiresHostApproval": {
+          "type": "boolean"
+        }
+      }
+    },
+    "YtterUpdateHostLocationServiceBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "priceMinorUnits": {
+          "type": "string",
+          "format": "int64"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "cancellationMinHoursBeforeStart": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "YtterUpdateHostLocationSlotBody": {
+      "type": "object",
+      "properties": {
+        "serviceId": {
+          "type": "string"
+        },
+        "practitionerId": {
+          "type": "string"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "startAt": {
+          "type": "string"
+        },
+        "endAt": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "pbCancelPublicBookingResponse": {
+      "type": "object"
+    },
+    "pbCreateHostLocationRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        }
+      }
+    },
+    "pbCreateHostLocationResponse": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/pbHostLocationItem"
+        }
+      }
+    },
+    "pbCreateHostLocationServiceResponse": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/pbHostServiceItem"
+        }
+      }
+    },
+    "pbCreateHostLocationSlotResponse": {
+      "type": "object",
+      "properties": {
+        "slot": {
+          "$ref": "#/definitions/pbHostSlotItem"
+        }
+      }
+    },
+    "pbCreatePublicBookingBooking": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "locationId": {
+          "type": "string"
+        },
+        "slotId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "guestName": {
+          "type": "string"
+        },
+        "guestEmail": {
+          "type": "string"
+        },
+        "clientUsername": {
+          "type": "string"
+        },
+        "bookedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "pbCreatePublicBookingRequest": {
+      "type": "object",
+      "properties": {
+        "locationId": {
+          "type": "string"
+        },
+        "slotId": {
+          "type": "string"
+        },
+        "guestName": {
+          "type": "string"
+        },
+        "guestEmail": {
+          "type": "string"
+        },
+        "guestPhone": {
+          "type": "string"
+        },
+        "guestNotes": {
+          "type": "string"
+        }
+      }
+    },
+    "pbCreatePublicBookingResponse": {
+      "type": "object",
+      "properties": {
+        "booking": {
+          "$ref": "#/definitions/pbCreatePublicBookingBooking"
+        },
+        "cancelToken": {
+          "type": "string"
+        }
+      }
+    },
     "pbCreateUserRequest": {
       "type": "object",
       "properties": {
@@ -343,6 +1545,54 @@
         }
       }
     },
+    "pbGetHostLocationBySlugResponse": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/pbHostLocationItem"
+        }
+      }
+    },
+    "pbGetHostLocationResponse": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/pbHostLocationItem"
+        }
+      }
+    },
+    "pbGetPublicFilterOptionsResponse": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbPublicFilterService"
+          }
+        },
+        "practitioners": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbPublicFilterPractitioner"
+          }
+        },
+        "rooms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbPublicFilterRoom"
+          }
+        },
+        "timeSlots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "pbGoogleAuthCallbackResponse": {
       "type": "object",
       "properties": {
@@ -368,11 +1618,332 @@
         }
       }
     },
+    "pbHostApproveBookingResponse": {
+      "type": "object",
+      "properties": {
+        "booking": {
+          "$ref": "#/definitions/pbHostBookingDetail"
+        }
+      }
+    },
+    "pbHostBookingDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "locationId": {
+          "type": "string"
+        },
+        "slotId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "guestName": {
+          "type": "string"
+        },
+        "guestEmail": {
+          "type": "string"
+        },
+        "clientUsername": {
+          "type": "string"
+        },
+        "bookedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "pbHostBookingListItem": {
+      "type": "object",
+      "properties": {
+        "bookingId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "bookedAt": {
+          "type": "string"
+        },
+        "guestName": {
+          "type": "string"
+        },
+        "guestEmail": {
+          "type": "string"
+        },
+        "guestPhone": {
+          "type": "string"
+        },
+        "slot": {
+          "$ref": "#/definitions/pbHostBookingSlotSummary"
+        },
+        "cancelReason": {
+          "type": "string"
+        }
+      }
+    },
+    "pbHostBookingSlotSummary": {
+      "type": "object",
+      "properties": {
+        "slotId": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "practitionerName": {
+          "type": "string"
+        },
+        "roomName": {
+          "type": "string"
+        },
+        "startAt": {
+          "type": "string"
+        },
+        "endAt": {
+          "type": "string"
+        }
+      }
+    },
+    "pbHostCancelBookingResponse": {
+      "type": "object"
+    },
+    "pbHostLocationItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "bookingRequiresHostApproval": {
+          "type": "boolean"
+        },
+        "cancellationMinHoursBeforeStart": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ownerUsername": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        }
+      }
+    },
+    "pbHostRejectBookingResponse": {
+      "type": "object"
+    },
+    "pbHostServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "locationId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "priceMinorUnits": {
+          "type": "string",
+          "format": "int64"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "cancellationMinHoursBeforeStart": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "pbHostSlotItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "locationId": {
+          "type": "string"
+        },
+        "serviceId": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "practitionerId": {
+          "type": "string"
+        },
+        "practitionerName": {
+          "type": "string"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "roomName": {
+          "type": "string"
+        },
+        "startAt": {
+          "type": "string"
+        },
+        "endAt": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bookedCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "pbInitiateGoogleAuthResponse": {
       "type": "object",
       "properties": {
         "authUrl": {
           "type": "string"
+        }
+      }
+    },
+    "pbListHostLocationBookingsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostBookingListItem"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "pbListHostLocationServicesResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostServiceItem"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "pbListHostLocationSlotsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostSlotItem"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "pbListHostLocationsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostLocationItem"
+          }
+        }
+      }
+    },
+    "pbListPublicSlotsResponse": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/pbPublicSlotsLocation"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbPublicSlotsItem"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "availableCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -424,6 +1995,142 @@
         }
       }
     },
+    "pbPublicFilterPractitioner": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        }
+      }
+    },
+    "pbPublicFilterRoom": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "pbPublicFilterService": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "pbPublicSlotsItem": {
+      "type": "object",
+      "properties": {
+        "slotId": {
+          "type": "string"
+        },
+        "service": {
+          "$ref": "#/definitions/pbPublicSlotsService"
+        },
+        "practitioner": {
+          "$ref": "#/definitions/pbPublicSlotsPractitioner"
+        },
+        "room": {
+          "$ref": "#/definitions/pbPublicSlotsRoom"
+        },
+        "startAt": {
+          "type": "string"
+        },
+        "endAt": {
+          "type": "string"
+        },
+        "availabilityStatus": {
+          "type": "string"
+        },
+        "isBookable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "pbPublicSlotsLocation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "bookingRequiresHostApproval": {
+          "type": "boolean"
+        }
+      }
+    },
+    "pbPublicSlotsPractitioner": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        }
+      }
+    },
+    "pbPublicSlotsRoom": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "pbPublicSlotsService": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "priceMinorUnits": {
+          "type": "string",
+          "format": "int64"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "cancellationMinHoursBeforeStart": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "pbRefreshTokenRequest": {
       "type": "object",
       "properties": {
@@ -441,6 +2148,30 @@
         "accessTokenExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "pbUpdateHostLocationResponse": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/pbHostLocationItem"
+        }
+      }
+    },
+    "pbUpdateHostLocationServiceResponse": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/pbHostServiceItem"
+        }
+      }
+    },
+    "pbUpdateHostLocationSlotResponse": {
+      "type": "object",
+      "properties": {
+        "slot": {
+          "$ref": "#/definitions/pbHostSlotItem"
         }
       }
     },
