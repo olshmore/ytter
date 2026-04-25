@@ -35,6 +35,50 @@ func TestConfigureRoleBasedAccess(t *testing.T) {
 
 	_, exists = config[RouteRefreshToken]
 	require.False(t, exists)
+
+	hostRoles, exists := config[RouteListHostLocations]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteCreateHostLocation]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteGetHostLocation]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteGetHostLocationBySlug]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteUpdateHostLocation]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteListHostLocationServices]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteCreateHostLocationService]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteUpdateHostLocationService]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteListHostLocationSlots]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteCreateHostLocationSlot]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteUpdateHostLocationSlot]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
 }
 
 func TestHTTPPathToGRPCMethodMap(t *testing.T) {
