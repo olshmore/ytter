@@ -37,6 +37,21 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// CancelMyBookingTx mocks base method.
+func (m *MockStore) CancelMyBookingTx(arg0 context.Context, arg1 db.CancelMyBookingTxParams) (db.CancelMyBookingTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelMyBookingTx", arg0, arg1)
+	ret0, _ := ret[0].(db.CancelMyBookingTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CancelMyBookingTx indicates an expected call of CancelMyBookingTx.
+func (mr *MockStoreMockRecorder) CancelMyBookingTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelMyBookingTx", reflect.TypeOf((*MockStore)(nil).CancelMyBookingTx), arg0, arg1)
+}
+
 // CancelPublicBookingTx mocks base method.
 func (m *MockStore) CancelPublicBookingTx(arg0 context.Context, arg1 db.CancelPublicBookingTxParams) (db.CancelPublicBookingTxResult, error) {
 	m.ctrl.T.Helper()
@@ -52,6 +67,21 @@ func (mr *MockStoreMockRecorder) CancelPublicBookingTx(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelPublicBookingTx", reflect.TypeOf((*MockStore)(nil).CancelPublicBookingTx), arg0, arg1)
 }
 
+// ClearBookingNoShow mocks base method.
+func (m *MockStore) ClearBookingNoShow(arg0 context.Context, arg1 uuid.UUID) (db.Booking, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearBookingNoShow", arg0, arg1)
+	ret0, _ := ret[0].(db.Booking)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ClearBookingNoShow indicates an expected call of ClearBookingNoShow.
+func (mr *MockStoreMockRecorder) ClearBookingNoShow(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearBookingNoShow", reflect.TypeOf((*MockStore)(nil).ClearBookingNoShow), arg0, arg1)
+}
+
 // ConfirmBooking mocks base method.
 func (m *MockStore) ConfirmBooking(arg0 context.Context, arg1 uuid.UUID) (db.Booking, error) {
 	m.ctrl.T.Helper()
@@ -65,6 +95,21 @@ func (m *MockStore) ConfirmBooking(arg0 context.Context, arg1 uuid.UUID) (db.Boo
 func (mr *MockStoreMockRecorder) ConfirmBooking(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmBooking", reflect.TypeOf((*MockStore)(nil).ConfirmBooking), arg0, arg1)
+}
+
+// CountActiveWaitlistEntriesForSlot mocks base method.
+func (m *MockStore) CountActiveWaitlistEntriesForSlot(arg0 context.Context, arg1 uuid.UUID) (int32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountActiveWaitlistEntriesForSlot", arg0, arg1)
+	ret0, _ := ret[0].(int32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountActiveWaitlistEntriesForSlot indicates an expected call of CountActiveWaitlistEntriesForSlot.
+func (mr *MockStoreMockRecorder) CountActiveWaitlistEntriesForSlot(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountActiveWaitlistEntriesForSlot", reflect.TypeOf((*MockStore)(nil).CountActiveWaitlistEntriesForSlot), arg0, arg1)
 }
 
 // CountHostBookingsByLocation mocks base method.
@@ -110,6 +155,21 @@ func (m *MockStore) CountHostSlotsByLocation(arg0 context.Context, arg1 db.Count
 func (mr *MockStoreMockRecorder) CountHostSlotsByLocation(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountHostSlotsByLocation", reflect.TypeOf((*MockStore)(nil).CountHostSlotsByLocation), arg0, arg1)
+}
+
+// CountMyBookings mocks base method.
+func (m *MockStore) CountMyBookings(arg0 context.Context, arg1 db.CountMyBookingsParams) (int32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountMyBookings", arg0, arg1)
+	ret0, _ := ret[0].(int32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMyBookings indicates an expected call of CountMyBookings.
+func (mr *MockStoreMockRecorder) CountMyBookings(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMyBookings", reflect.TypeOf((*MockStore)(nil).CountMyBookings), arg0, arg1)
 }
 
 // CreateBooking mocks base method.
@@ -247,6 +307,36 @@ func (mr *MockStoreMockRecorder) CreateVerificationEmail(arg0, arg1 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVerificationEmail", reflect.TypeOf((*MockStore)(nil).CreateVerificationEmail), arg0, arg1)
 }
 
+// CreateWaitlistEntry mocks base method.
+func (m *MockStore) CreateWaitlistEntry(arg0 context.Context, arg1 db.CreateWaitlistEntryParams) (db.WaitlistEntry, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateWaitlistEntry", arg0, arg1)
+	ret0, _ := ret[0].(db.WaitlistEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateWaitlistEntry indicates an expected call of CreateWaitlistEntry.
+func (mr *MockStoreMockRecorder) CreateWaitlistEntry(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWaitlistEntry", reflect.TypeOf((*MockStore)(nil).CreateWaitlistEntry), arg0, arg1)
+}
+
+// GetActiveWaitlistEntryByIdentity mocks base method.
+func (m *MockStore) GetActiveWaitlistEntryByIdentity(arg0 context.Context, arg1 db.GetActiveWaitlistEntryByIdentityParams) (db.WaitlistEntry, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetActiveWaitlistEntryByIdentity", arg0, arg1)
+	ret0, _ := ret[0].(db.WaitlistEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetActiveWaitlistEntryByIdentity indicates an expected call of GetActiveWaitlistEntryByIdentity.
+func (mr *MockStoreMockRecorder) GetActiveWaitlistEntryByIdentity(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetActiveWaitlistEntryByIdentity", reflect.TypeOf((*MockStore)(nil).GetActiveWaitlistEntryByIdentity), arg0, arg1)
+}
+
 // GetBookingByID mocks base method.
 func (m *MockStore) GetBookingByID(arg0 context.Context, arg1 uuid.UUID) (db.Booking, error) {
 	m.ctrl.T.Helper()
@@ -290,6 +380,21 @@ func (m *MockStore) GetBookingForHostOpByIDForUpdate(arg0 context.Context, arg1 
 func (mr *MockStoreMockRecorder) GetBookingForHostOpByIDForUpdate(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBookingForHostOpByIDForUpdate", reflect.TypeOf((*MockStore)(nil).GetBookingForHostOpByIDForUpdate), arg0, arg1)
+}
+
+// GetHostBookingAnalyticsSummary mocks base method.
+func (m *MockStore) GetHostBookingAnalyticsSummary(arg0 context.Context, arg1 db.GetHostBookingAnalyticsSummaryParams) (db.GetHostBookingAnalyticsSummaryRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHostBookingAnalyticsSummary", arg0, arg1)
+	ret0, _ := ret[0].(db.GetHostBookingAnalyticsSummaryRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHostBookingAnalyticsSummary indicates an expected call of GetHostBookingAnalyticsSummary.
+func (mr *MockStoreMockRecorder) GetHostBookingAnalyticsSummary(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHostBookingAnalyticsSummary", reflect.TypeOf((*MockStore)(nil).GetHostBookingAnalyticsSummary), arg0, arg1)
 }
 
 // GetHostServiceByID mocks base method.
@@ -365,6 +470,21 @@ func (m *MockStore) GetPractitionerByID(arg0 context.Context, arg1 uuid.UUID) (d
 func (mr *MockStoreMockRecorder) GetPractitionerByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPractitionerByID", reflect.TypeOf((*MockStore)(nil).GetPractitionerByID), arg0, arg1)
+}
+
+// GetRebookContextByBookingID mocks base method.
+func (m *MockStore) GetRebookContextByBookingID(arg0 context.Context, arg1 uuid.UUID) (db.GetRebookContextByBookingIDRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRebookContextByBookingID", arg0, arg1)
+	ret0, _ := ret[0].(db.GetRebookContextByBookingIDRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRebookContextByBookingID indicates an expected call of GetRebookContextByBookingID.
+func (mr *MockStoreMockRecorder) GetRebookContextByBookingID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRebookContextByBookingID", reflect.TypeOf((*MockStore)(nil).GetRebookContextByBookingID), arg0, arg1)
 }
 
 // GetRoomByID mocks base method.
@@ -547,6 +667,21 @@ func (mr *MockStoreMockRecorder) HostRejectBookingTx(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HostRejectBookingTx", reflect.TypeOf((*MockStore)(nil).HostRejectBookingTx), arg0, arg1)
 }
 
+// HostSetBookingNoShowTx mocks base method.
+func (m *MockStore) HostSetBookingNoShowTx(arg0 context.Context, arg1 db.HostSetBookingNoShowTxParams) (db.HostSetBookingNoShowTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HostSetBookingNoShowTx", arg0, arg1)
+	ret0, _ := ret[0].(db.HostSetBookingNoShowTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HostSetBookingNoShowTx indicates an expected call of HostSetBookingNoShowTx.
+func (mr *MockStoreMockRecorder) HostSetBookingNoShowTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HostSetBookingNoShowTx", reflect.TypeOf((*MockStore)(nil).HostSetBookingNoShowTx), arg0, arg1)
+}
+
 // ListAllHostLocations mocks base method.
 func (m *MockStore) ListAllHostLocations(arg0 context.Context) ([]db.ListAllHostLocationsRow, error) {
 	m.ctrl.T.Helper()
@@ -622,6 +757,21 @@ func (mr *MockStoreMockRecorder) ListHostSlotsByLocation(arg0, arg1 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListHostSlotsByLocation", reflect.TypeOf((*MockStore)(nil).ListHostSlotsByLocation), arg0, arg1)
 }
 
+// ListMyBookings mocks base method.
+func (m *MockStore) ListMyBookings(arg0 context.Context, arg1 db.ListMyBookingsParams) ([]db.ListMyBookingsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListMyBookings", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListMyBookingsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListMyBookings indicates an expected call of ListMyBookings.
+func (mr *MockStoreMockRecorder) ListMyBookings(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListMyBookings", reflect.TypeOf((*MockStore)(nil).ListMyBookings), arg0, arg1)
+}
+
 // ListPublicFilterPractitionersByLocationSlug mocks base method.
 func (m *MockStore) ListPublicFilterPractitionersByLocationSlug(arg0 context.Context, arg1 string) ([]db.ListPublicFilterPractitionersByLocationSlugRow, error) {
 	m.ctrl.T.Helper()
@@ -667,6 +817,21 @@ func (mr *MockStoreMockRecorder) ListPublicFilterServicesByLocationSlug(arg0, ar
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicFilterServicesByLocationSlug", reflect.TypeOf((*MockStore)(nil).ListPublicFilterServicesByLocationSlug), arg0, arg1)
 }
 
+// ListPublicLocations mocks base method.
+func (m *MockStore) ListPublicLocations(arg0 context.Context) ([]db.ListPublicLocationsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPublicLocations", arg0)
+	ret0, _ := ret[0].([]db.ListPublicLocationsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPublicLocations indicates an expected call of ListPublicLocations.
+func (mr *MockStoreMockRecorder) ListPublicLocations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicLocations", reflect.TypeOf((*MockStore)(nil).ListPublicLocations), arg0)
+}
+
 // ListPublicSlotsByLocationSlug mocks base method.
 func (m *MockStore) ListPublicSlotsByLocationSlug(arg0 context.Context, arg1 string) ([]db.ListPublicSlotsByLocationSlugRow, error) {
 	m.ctrl.T.Helper()
@@ -710,6 +875,21 @@ func (m *MockStore) MarkBookingCancelled(arg0 context.Context, arg1 db.MarkBooki
 func (mr *MockStoreMockRecorder) MarkBookingCancelled(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkBookingCancelled", reflect.TypeOf((*MockStore)(nil).MarkBookingCancelled), arg0, arg1)
+}
+
+// MarkBookingNoShow mocks base method.
+func (m *MockStore) MarkBookingNoShow(arg0 context.Context, arg1 uuid.UUID) (db.Booking, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkBookingNoShow", arg0, arg1)
+	ret0, _ := ret[0].(db.Booking)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MarkBookingNoShow indicates an expected call of MarkBookingNoShow.
+func (mr *MockStoreMockRecorder) MarkBookingNoShow(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkBookingNoShow", reflect.TypeOf((*MockStore)(nil).MarkBookingNoShow), arg0, arg1)
 }
 
 // UpdateHostLocationService mocks base method.

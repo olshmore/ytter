@@ -336,6 +336,51 @@
         ]
       }
     },
+    "/v1/host/bookings/{bookingId}/no_show": {
+      "post": {
+        "summary": "Set or clear booking no-show",
+        "description": "Mark a confirmed booking as no-show, or clear no-show back to confirmed. Slot capacity is unchanged.",
+        "operationId": "Ytter_HostSetBookingNoShow",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbHostSetBookingNoShowResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterHostSetBookingNoShowBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/v1/host/bookings/{bookingId}/reject": {
       "post": {
         "summary": "Reject pending booking",
@@ -519,6 +564,55 @@
         ],
         "tags": [
           "host_location"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}/analytics/booking_summary": {
+      "get": {
+        "summary": "Get host booking analytics summary",
+        "description": "Return fill rate, cancellation rate, pending aging, and no-show proxy.",
+        "operationId": "Ytter_GetHostBookingAnalyticsSummary",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetHostBookingAnalyticsSummaryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "host_booking"
         ],
         "security": [
           {
@@ -877,6 +971,51 @@
         ]
       }
     },
+    "/v1/host/locations/slug/{locationSlug}/slots/batch": {
+      "post": {
+        "summary": "Batch create location slots",
+        "description": "Create multiple slots for one location from recurring pattern.",
+        "operationId": "Ytter_CreateHostLocationSlotsBatch",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateHostLocationSlotsBatchResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterCreateHostLocationSlotsBatchBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_slot"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/v1/host/locations/slug/{locationSlug}/slots/{slotId}": {
       "patch": {
         "summary": "Update location slot",
@@ -965,6 +1104,180 @@
         ]
       }
     },
+    "/v1/host/setup/checklist": {
+      "get": {
+        "summary": "Get host setup checklist",
+        "description": "Derived setup progress for location/service/slot prerequisites.",
+        "operationId": "Ytter_GetHostSetupChecklist",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetHostSetupChecklistResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "host_booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/me/bookings": {
+      "get": {
+        "summary": "List my bookings",
+        "description": "List bookings linked to the authenticated client account.",
+        "operationId": "Ytter_ListMyBookings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListMyBookingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/me/bookings/{bookingId}/cancel": {
+      "post": {
+        "summary": "Cancel my booking",
+        "description": "Cancel an authenticated client's own booking within policy window.",
+        "operationId": "Ytter_CancelMyBooking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCancelMyBookingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterCancelMyBookingBody"
+            }
+          }
+        ],
+        "tags": [
+          "booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/me/bookings/{bookingId}/rebook_context": {
+      "get": {
+        "summary": "Get rebook context",
+        "description": "Fetch location/service context to prefill rebook flow for an owned booking.",
+        "operationId": "Ytter_GetMyBookingRebookContext",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetMyBookingRebookContextResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "booking"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/v1/public/bookings": {
       "post": {
         "summary": "Create public booking",
@@ -1034,6 +1347,30 @@
             }
           }
         ],
+        "tags": [
+          "booking"
+        ]
+      }
+    },
+    "/v1/public/locations": {
+      "get": {
+        "summary": "List public locations",
+        "description": "List active locations available for public booking.",
+        "operationId": "Ytter_ListPublicLocations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbListPublicLocationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
         "tags": [
           "booking"
         ]
@@ -1159,6 +1496,40 @@
         ]
       }
     },
+    "/v1/public/waitlist": {
+      "post": {
+        "summary": "Join public waitlist",
+        "description": "Join waitlist for an unavailable slot.",
+        "operationId": "Ytter_JoinPublicWaitlist",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbJoinPublicWaitlistResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbJoinPublicWaitlistRequest"
+            }
+          }
+        ],
+        "tags": [
+          "booking"
+        ]
+      }
+    },
     "/v1/user/list": {
       "get": {
         "summary": "List users",
@@ -1245,6 +1616,14 @@
     }
   },
   "definitions": {
+    "YtterCancelMyBookingBody": {
+      "type": "object",
+      "properties": {
+        "cancelReason": {
+          "type": "string"
+        }
+      }
+    },
     "YtterCancelPublicBookingBody": {
       "type": "object",
       "properties": {
@@ -1312,6 +1691,49 @@
         }
       }
     },
+    "YtterCreateHostLocationSlotsBatchBody": {
+      "type": "object",
+      "properties": {
+        "serviceId": {
+          "type": "string"
+        },
+        "practitionerId": {
+          "type": "string"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "weekdays": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dailyStartLocal": {
+          "type": "string"
+        },
+        "dailyEndLocal": {
+          "type": "string"
+        },
+        "slotMinutes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "capacity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "YtterHostApproveBookingBody": {
       "type": "object"
     },
@@ -1328,6 +1750,14 @@
       "properties": {
         "cancelReason": {
           "type": "string"
+        }
+      }
+    },
+    "YtterHostSetBookingNoShowBody": {
+      "type": "object",
+      "properties": {
+        "noShow": {
+          "type": "boolean"
         }
       }
     },
@@ -1407,6 +1837,23 @@
         }
       }
     },
+    "pbBookingLocationSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "pbCancelMyBookingResponse": {
+      "type": "object"
+    },
     "pbCancelPublicBookingResponse": {
       "type": "object"
     },
@@ -1448,6 +1895,26 @@
       "properties": {
         "slot": {
           "$ref": "#/definitions/pbHostSlotItem"
+        }
+      }
+    },
+    "pbCreateHostLocationSlotsBatchResponse": {
+      "type": "object",
+      "properties": {
+        "createdCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "skippedCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostSlotBatchError"
+          }
         }
       }
     },
@@ -1545,6 +2012,39 @@
         }
       }
     },
+    "pbGetHostBookingAnalyticsSummaryResponse": {
+      "type": "object",
+      "properties": {
+        "locationSlug": {
+          "type": "string"
+        },
+        "fromDate": {
+          "type": "string"
+        },
+        "toDate": {
+          "type": "string"
+        },
+        "fillRate": {
+          "type": "number",
+          "format": "double"
+        },
+        "cancellationRate": {
+          "type": "number",
+          "format": "double"
+        },
+        "pendingApprovalAvgMinutes": {
+          "type": "number",
+          "format": "double"
+        },
+        "noShowProxyRate": {
+          "type": "number",
+          "format": "double"
+        },
+        "generatedAt": {
+          "type": "string"
+        }
+      }
+    },
     "pbGetHostLocationBySlugResponse": {
       "type": "object",
       "properties": {
@@ -1558,6 +2058,53 @@
       "properties": {
         "location": {
           "$ref": "#/definitions/pbHostLocationItem"
+        }
+      }
+    },
+    "pbGetHostSetupChecklistResponse": {
+      "type": "object",
+      "properties": {
+        "hasLocation": {
+          "type": "boolean"
+        },
+        "hasService": {
+          "type": "boolean"
+        },
+        "hasFutureSlot": {
+          "type": "boolean"
+        },
+        "progressDoneCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "readyForBooking": {
+          "type": "boolean"
+        },
+        "sampleLocationSlug": {
+          "type": "string"
+        }
+      }
+    },
+    "pbGetMyBookingRebookContextResponse": {
+      "type": "object",
+      "properties": {
+        "sourceBookingId": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/definitions/pbRebookContextLocation"
+        },
+        "service": {
+          "$ref": "#/definitions/pbRebookContextService"
+        },
+        "preferredPractitionerId": {
+          "type": "string"
+        },
+        "isRebookable": {
+          "type": "boolean"
+        },
+        "reasonCode": {
+          "type": "string"
         }
       }
     },
@@ -1681,6 +2228,12 @@
         },
         "cancelReason": {
           "type": "string"
+        },
+        "location": {
+          "$ref": "#/definitions/pbBookingLocationSummary"
+        },
+        "isWaitlist": {
+          "type": "boolean"
         }
       }
     },
@@ -1778,6 +2331,28 @@
         }
       }
     },
+    "pbHostSetBookingNoShowResponse": {
+      "type": "object",
+      "properties": {
+        "booking": {
+          "$ref": "#/definitions/pbHostBookingDetail"
+        }
+      }
+    },
+    "pbHostSlotBatchError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "at": {
+          "type": "string"
+        }
+      }
+    },
     "pbHostSlotItem": {
       "type": "object",
       "properties": {
@@ -1829,6 +2404,50 @@
       "properties": {
         "authUrl": {
           "type": "string"
+        }
+      }
+    },
+    "pbJoinPublicWaitlistRequest": {
+      "type": "object",
+      "properties": {
+        "locationId": {
+          "type": "string"
+        },
+        "serviceId": {
+          "type": "string"
+        },
+        "slotId": {
+          "type": "string"
+        },
+        "guestName": {
+          "type": "string"
+        },
+        "guestEmail": {
+          "type": "string"
+        },
+        "guestPhone": {
+          "type": "string"
+        },
+        "practitionerId": {
+          "type": "string"
+        },
+        "preferredDate": {
+          "type": "string"
+        }
+      }
+    },
+    "pbJoinPublicWaitlistResponse": {
+      "type": "object",
+      "properties": {
+        "waitlistEntryId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "positionHint": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -1912,6 +2531,42 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/pbHostLocationItem"
+          }
+        }
+      }
+    },
+    "pbListMyBookingsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostBookingListItem"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "pbListPublicLocationsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbPublicLocationItem"
           }
         }
       }
@@ -2031,6 +2686,26 @@
         }
       }
     },
+    "pbPublicLocationItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "bookingRequiresHostApproval": {
+          "type": "boolean"
+        }
+      }
+    },
     "pbPublicSlotsItem": {
       "type": "object",
       "properties": {
@@ -2057,6 +2732,18 @@
         },
         "isBookable": {
           "type": "boolean"
+        },
+        "capacity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bookedCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "spacesLeft": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -2128,6 +2815,31 @@
         "cancellationMinHoursBeforeStart": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "pbRebookContextLocation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "pbRebookContextService": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },

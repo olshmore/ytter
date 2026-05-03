@@ -13,6 +13,41 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const clearBookingNoShow = `-- name: ClearBookingNoShow :one
+UPDATE bookings
+SET
+  status = 'confirmed',
+  updated_at = now()
+WHERE id = $1
+  AND status = 'no_show'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+RETURNING id, location_id, slot_id, status, guest_name, guest_email, guest_phone, guest_notes, client_username, booked_at, cancelled_at, cancel_reason, cancel_token_hash, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) ClearBookingNoShow(ctx context.Context, id uuid.UUID) (Booking, error) {
+	row := q.db.QueryRow(ctx, clearBookingNoShow, id)
+	var i Booking
+	err := row.Scan(
+		&i.ID,
+		&i.LocationID,
+		&i.SlotID,
+		&i.Status,
+		&i.GuestName,
+		&i.GuestEmail,
+		&i.GuestPhone,
+		&i.GuestNotes,
+		&i.ClientUsername,
+		&i.BookedAt,
+		&i.CancelledAt,
+		&i.CancelReason,
+		&i.CancelTokenHash,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const confirmBooking = `-- name: ConfirmBooking :one
 UPDATE bookings
 SET
@@ -47,24 +82,59 @@ func (q *Queries) ConfirmBooking(ctx context.Context, id uuid.UUID) (Booking, er
 	return i, err
 }
 
-const countHostBookingsByLocation = `-- name: CountHostBookingsByLocation :one
+const countActiveWaitlistEntriesForSlot = `-- name: CountActiveWaitlistEntriesForSlot :one
 SELECT COUNT(*)::int4 AS count
-FROM bookings b
-JOIN appointment_slots s ON s.id = b.slot_id
-JOIN locations l ON l.id = b.location_id
-WHERE b.location_id = $1
-  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
-  AND (
+FROM waitlist_entries
+WHERE slot_id = $1
+  AND status = 'active'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+`
+
+func (q *Queries) CountActiveWaitlistEntriesForSlot(ctx context.Context, slotID uuid.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, countActiveWaitlistEntriesForSlot, slotID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countHostBookingsByLocation = `-- name: CountHostBookingsByLocation :one
+WITH unified AS (
+  SELECT
+    b.status,
+    s.start_at,
+    l.timezone
+  FROM bookings b
+  JOIN appointment_slots s ON s.id = b.slot_id
+  JOIN locations l ON l.id = b.location_id
+  WHERE b.location_id = $1
+    AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+
+  UNION ALL
+
+  SELECT
+    'pending'::varchar AS status,
+    s.start_at,
+    l.timezone
+  FROM waitlist_entries w
+  JOIN appointment_slots s ON s.id = w.slot_id
+  JOIN locations l ON l.id = w.location_id
+  WHERE w.location_id = $1
+    AND w.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND w.status = 'active'
+)
+SELECT COUNT(*)::int4 AS count
+FROM unified u
+WHERE (
     COALESCE($2::text, '') = ''
-    OR b.status = $2
+    OR u.status = $2
   )
   AND (
     COALESCE($3::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date >= $3::date
+    OR (u.start_at AT TIME ZONE u.timezone)::date >= $3::date
   )
   AND (
     COALESCE($4::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date <= $4::date
+    OR (u.start_at AT TIME ZONE u.timezone)::date <= $4::date
   )
 `
 
@@ -160,6 +230,54 @@ func (q *Queries) CountHostSlotsByLocation(ctx context.Context, arg CountHostSlo
 		arg.FilterServiceID,
 		arg.FilterPractitionerID,
 		arg.FilterRoomID,
+	)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countMyBookings = `-- name: CountMyBookings :one
+SELECT COUNT(*)::int4 AS count
+FROM bookings b
+JOIN appointment_slots s ON s.id = b.slot_id
+JOIN locations l ON l.id = b.location_id
+WHERE (
+    b.client_username = $1
+    OR (
+    COALESCE($2::text, '') <> ''
+    AND lower(b.guest_email) = lower($2)
+    )
+  )
+  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND (
+    COALESCE($3::text, '') = ''
+    OR b.status = $3
+  )
+  AND (
+    COALESCE($4::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date >= $4::date
+  )
+  AND (
+    COALESCE($5::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date <= $5::date
+  )
+`
+
+type CountMyBookingsParams struct {
+	ClientUsername   pgtype.Text `json:"client_username"`
+	FilterGuestEmail pgtype.Text `json:"filter_guest_email"`
+	FilterStatus     pgtype.Text `json:"filter_status"`
+	FromDate         pgtype.Text `json:"from_date"`
+	ToDate           pgtype.Text `json:"to_date"`
+}
+
+func (q *Queries) CountMyBookings(ctx context.Context, arg CountMyBookingsParams) (int32, error) {
+	row := q.db.QueryRow(ctx, countMyBookings,
+		arg.ClientUsername,
+		arg.FilterGuestEmail,
+		arg.FilterStatus,
+		arg.FromDate,
+		arg.ToDate,
 	)
 	var count int32
 	err := row.Scan(&count)
@@ -388,6 +506,113 @@ func (q *Queries) CreateLocation(ctx context.Context, arg CreateLocationParams) 
 	return i, err
 }
 
+const createWaitlistEntry = `-- name: CreateWaitlistEntry :one
+INSERT INTO waitlist_entries (
+  location_id,
+  service_id,
+  slot_id,
+  guest_name,
+  guest_email,
+  guest_phone,
+  practitioner_id,
+  preferred_date,
+  status
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, 'active'
+)
+RETURNING id, location_id, service_id, slot_id, guest_name, guest_email, guest_phone, practitioner_id, preferred_date, status, offer_token_hash, offer_expires_at, created_at, updated_at, deleted_at
+`
+
+type CreateWaitlistEntryParams struct {
+	LocationID     uuid.UUID   `json:"location_id"`
+	ServiceID      uuid.UUID   `json:"service_id"`
+	SlotID         uuid.UUID   `json:"slot_id"`
+	GuestName      string      `json:"guest_name"`
+	GuestEmail     string      `json:"guest_email"`
+	GuestPhone     pgtype.Text `json:"guest_phone"`
+	PractitionerID pgtype.UUID `json:"practitioner_id"`
+	PreferredDate  pgtype.Date `json:"preferred_date"`
+}
+
+func (q *Queries) CreateWaitlistEntry(ctx context.Context, arg CreateWaitlistEntryParams) (WaitlistEntry, error) {
+	row := q.db.QueryRow(ctx, createWaitlistEntry,
+		arg.LocationID,
+		arg.ServiceID,
+		arg.SlotID,
+		arg.GuestName,
+		arg.GuestEmail,
+		arg.GuestPhone,
+		arg.PractitionerID,
+		arg.PreferredDate,
+	)
+	var i WaitlistEntry
+	err := row.Scan(
+		&i.ID,
+		&i.LocationID,
+		&i.ServiceID,
+		&i.SlotID,
+		&i.GuestName,
+		&i.GuestEmail,
+		&i.GuestPhone,
+		&i.PractitionerID,
+		&i.PreferredDate,
+		&i.Status,
+		&i.OfferTokenHash,
+		&i.OfferExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getActiveWaitlistEntryByIdentity = `-- name: GetActiveWaitlistEntryByIdentity :one
+SELECT id, location_id, service_id, slot_id, guest_name, guest_email, guest_phone, practitioner_id, preferred_date, status, offer_token_hash, offer_expires_at, created_at, updated_at, deleted_at
+FROM waitlist_entries
+WHERE location_id = $1
+  AND service_id = $2
+  AND slot_id = $3
+  AND lower(guest_email) = lower($4)
+  AND status = 'active'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+LIMIT 1
+`
+
+type GetActiveWaitlistEntryByIdentityParams struct {
+	LocationID uuid.UUID `json:"location_id"`
+	ServiceID  uuid.UUID `json:"service_id"`
+	SlotID     uuid.UUID `json:"slot_id"`
+	GuestEmail string    `json:"guest_email"`
+}
+
+func (q *Queries) GetActiveWaitlistEntryByIdentity(ctx context.Context, arg GetActiveWaitlistEntryByIdentityParams) (WaitlistEntry, error) {
+	row := q.db.QueryRow(ctx, getActiveWaitlistEntryByIdentity,
+		arg.LocationID,
+		arg.ServiceID,
+		arg.SlotID,
+		arg.GuestEmail,
+	)
+	var i WaitlistEntry
+	err := row.Scan(
+		&i.ID,
+		&i.LocationID,
+		&i.ServiceID,
+		&i.SlotID,
+		&i.GuestName,
+		&i.GuestEmail,
+		&i.GuestPhone,
+		&i.PractitionerID,
+		&i.PreferredDate,
+		&i.Status,
+		&i.OfferTokenHash,
+		&i.OfferExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getBookingByID = `-- name: GetBookingByID :one
 SELECT id, location_id, slot_id, status, guest_name, guest_email, guest_phone, guest_notes, client_username, booked_at, cancelled_at, cancel_reason, cancel_token_hash, created_at, updated_at, deleted_at FROM bookings
 WHERE id = $1
@@ -570,6 +795,74 @@ func (q *Queries) GetBookingForHostOpByIDForUpdate(ctx context.Context, id uuid.
 	return i, err
 }
 
+const getHostBookingAnalyticsSummary = `-- name: GetHostBookingAnalyticsSummary :one
+WITH filtered AS (
+  SELECT
+    b.status,
+    b.booked_at,
+    s.start_at
+  FROM bookings b
+  JOIN appointment_slots s ON s.id = b.slot_id
+  JOIN locations l ON l.id = b.location_id
+  WHERE b.location_id = $1
+    AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND s.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND (
+      COALESCE($2::text, '') = ''
+      OR (s.start_at AT TIME ZONE l.timezone)::date >= $2::date
+    )
+    AND (
+      COALESCE($3::text, '') = ''
+      OR (s.start_at AT TIME ZONE l.timezone)::date <= $3::date
+    )
+)
+SELECT
+  COUNT(*)::int4 AS total_count,
+  COUNT(*) FILTER (WHERE status IN ('confirmed', 'completed'))::int4 AS filled_count,
+  COUNT(*) FILTER (WHERE status = 'cancelled')::int4 AS cancelled_count,
+  COUNT(*) FILTER (WHERE status = 'pending')::int4 AS pending_count,
+  COUNT(*) FILTER (WHERE status = 'no_show')::int4 AS no_show_count,
+  COALESCE(
+    AVG(
+      CASE
+        WHEN status = 'pending' THEN EXTRACT(EPOCH FROM (now() - booked_at)) / 60.0
+        ELSE NULL
+      END
+    )::float8,
+    0
+  ) AS pending_approval_avg_minutes
+FROM filtered
+`
+
+type GetHostBookingAnalyticsSummaryParams struct {
+	LocationID uuid.UUID   `json:"location_id"`
+	FromDate   pgtype.Text `json:"from_date"`
+	ToDate     pgtype.Text `json:"to_date"`
+}
+
+type GetHostBookingAnalyticsSummaryRow struct {
+	TotalCount                int32       `json:"total_count"`
+	FilledCount               int32       `json:"filled_count"`
+	CancelledCount            int32       `json:"cancelled_count"`
+	PendingCount              int32       `json:"pending_count"`
+	NoShowCount               int32       `json:"no_show_count"`
+	PendingApprovalAvgMinutes interface{} `json:"pending_approval_avg_minutes"`
+}
+
+func (q *Queries) GetHostBookingAnalyticsSummary(ctx context.Context, arg GetHostBookingAnalyticsSummaryParams) (GetHostBookingAnalyticsSummaryRow, error) {
+	row := q.db.QueryRow(ctx, getHostBookingAnalyticsSummary, arg.LocationID, arg.FromDate, arg.ToDate)
+	var i GetHostBookingAnalyticsSummaryRow
+	err := row.Scan(
+		&i.TotalCount,
+		&i.FilledCount,
+		&i.CancelledCount,
+		&i.PendingCount,
+		&i.NoShowCount,
+		&i.PendingApprovalAvgMinutes,
+	)
+	return i, err
+}
+
 const getHostServiceByID = `-- name: GetHostServiceByID :one
 SELECT id, location_id, name, description, duration_minutes, price_minor_units, currency, is_active, cancellation_min_hours_before_start, created_at, updated_at, deleted_at FROM services
 WHERE id = $1
@@ -708,6 +1001,64 @@ func (q *Queries) GetPractitionerByID(ctx context.Context, id uuid.UUID) (Practi
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getRebookContextByBookingID = `-- name: GetRebookContextByBookingID :one
+SELECT
+  b.id AS booking_id,
+  b.client_username,
+  b.guest_email,
+  l.id AS location_id,
+  l.slug AS location_slug,
+  l.name AS location_name,
+  sv.id AS service_id,
+  sv.name AS service_name,
+  s.practitioner_id,
+  l.is_active AS location_is_active,
+  sv.is_active AS service_is_active
+FROM bookings b
+JOIN locations l ON l.id = b.location_id
+JOIN appointment_slots s ON s.id = b.slot_id
+JOIN services sv ON sv.id = s.service_id
+WHERE b.id = $1
+  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND l.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND s.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND sv.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+LIMIT 1
+`
+
+type GetRebookContextByBookingIDRow struct {
+	BookingID        uuid.UUID   `json:"booking_id"`
+	ClientUsername   pgtype.Text `json:"client_username"`
+	GuestEmail       string      `json:"guest_email"`
+	LocationID       uuid.UUID   `json:"location_id"`
+	LocationSlug     string      `json:"location_slug"`
+	LocationName     string      `json:"location_name"`
+	ServiceID        uuid.UUID   `json:"service_id"`
+	ServiceName      string      `json:"service_name"`
+	PractitionerID   pgtype.UUID `json:"practitioner_id"`
+	LocationIsActive bool        `json:"location_is_active"`
+	ServiceIsActive  bool        `json:"service_is_active"`
+}
+
+func (q *Queries) GetRebookContextByBookingID(ctx context.Context, id uuid.UUID) (GetRebookContextByBookingIDRow, error) {
+	row := q.db.QueryRow(ctx, getRebookContextByBookingID, id)
+	var i GetRebookContextByBookingIDRow
+	err := row.Scan(
+		&i.BookingID,
+		&i.ClientUsername,
+		&i.GuestEmail,
+		&i.LocationID,
+		&i.LocationSlug,
+		&i.LocationName,
+		&i.ServiceID,
+		&i.ServiceName,
+		&i.PractitionerID,
+		&i.LocationIsActive,
+		&i.ServiceIsActive,
 	)
 	return i, err
 }
@@ -851,41 +1202,97 @@ func (q *Queries) ListAllHostLocations(ctx context.Context) ([]ListAllHostLocati
 }
 
 const listHostBookingsByLocation = `-- name: ListHostBookingsByLocation :many
+WITH unified AS (
+  SELECT
+    b.id AS booking_id,
+    b.status,
+    b.booked_at,
+    b.guest_name,
+    b.guest_email,
+    b.guest_phone,
+    b.cancel_reason,
+    l.id AS location_id,
+    l.slug AS location_slug,
+    l.name AS location_name,
+    s.id AS slot_id,
+    sv.name AS service_name,
+    COALESCE(p.display_name, '') AS practitioner_name,
+    COALESCE(r.name, '') AS room_name,
+    s.start_at,
+    s.end_at,
+    FALSE AS is_waitlist
+  FROM bookings b
+  JOIN appointment_slots s ON s.id = b.slot_id
+  JOIN services sv ON sv.id = s.service_id
+  LEFT JOIN practitioners p ON p.id = s.practitioner_id
+  LEFT JOIN rooms r ON r.id = s.room_id
+  JOIN locations l ON l.id = b.location_id
+  WHERE b.location_id = $1
+    AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+
+  UNION ALL
+
+  SELECT
+    w.id AS booking_id,
+    'pending'::varchar AS status,
+    w.created_at AS booked_at,
+    w.guest_name,
+    w.guest_email,
+    w.guest_phone,
+    NULL::varchar AS cancel_reason,
+    l.id AS location_id,
+    l.slug AS location_slug,
+    l.name AS location_name,
+    s.id AS slot_id,
+    sv.name AS service_name,
+    COALESCE(p.display_name, '') AS practitioner_name,
+    COALESCE(r.name, '') AS room_name,
+    s.start_at,
+    s.end_at,
+    TRUE AS is_waitlist
+  FROM waitlist_entries w
+  JOIN appointment_slots s ON s.id = w.slot_id
+  JOIN services sv ON sv.id = w.service_id
+  LEFT JOIN practitioners p ON p.id = COALESCE(w.practitioner_id, s.practitioner_id)
+  LEFT JOIN rooms r ON r.id = s.room_id
+  JOIN locations l ON l.id = w.location_id
+  WHERE w.location_id = $1
+    AND w.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND w.status = 'active'
+)
 SELECT
-  b.id AS booking_id,
-  b.status,
-  b.booked_at,
-  b.guest_name,
-  b.guest_email,
-  b.guest_phone,
-  b.cancel_reason,
-  s.id AS slot_id,
-  sv.name AS service_name,
-  COALESCE(p.display_name, '') AS practitioner_name,
-  COALESCE(r.name, '') AS room_name,
-  s.start_at,
-  s.end_at
-FROM bookings b
-JOIN appointment_slots s ON s.id = b.slot_id
-JOIN services sv ON sv.id = s.service_id
-LEFT JOIN practitioners p ON p.id = s.practitioner_id
-LEFT JOIN rooms r ON r.id = s.room_id
-JOIN locations l ON l.id = b.location_id
-WHERE b.location_id = $1
-  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
-  AND (
+  u.booking_id,
+  u.status,
+  u.booked_at,
+  u.guest_name,
+  u.guest_email,
+  u.guest_phone,
+  u.cancel_reason,
+  u.location_id,
+  u.location_slug,
+  u.location_name,
+  u.slot_id,
+  u.service_name,
+  u.practitioner_name,
+  u.room_name,
+  u.start_at,
+  u.end_at,
+  u.is_waitlist
+FROM unified u
+JOIN locations l ON l.id = u.location_id
+WHERE (
     COALESCE($4::text, '') = ''
-    OR b.status = $4
+    OR u.status = $4
   )
   AND (
     COALESCE($5::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date >= $5::date
+    OR (u.start_at AT TIME ZONE l.timezone)::date >= $5::date
   )
   AND (
     COALESCE($6::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date <= $6::date
+    OR (u.start_at AT TIME ZONE l.timezone)::date <= $6::date
   )
-ORDER BY s.start_at ASC, b.booked_at DESC
+ORDER BY u.start_at ASC, u.booked_at DESC
 LIMIT $2
 OFFSET $3
 `
@@ -907,12 +1314,16 @@ type ListHostBookingsByLocationRow struct {
 	GuestEmail       string      `json:"guest_email"`
 	GuestPhone       pgtype.Text `json:"guest_phone"`
 	CancelReason     pgtype.Text `json:"cancel_reason"`
+	LocationID       uuid.UUID   `json:"location_id"`
+	LocationSlug     string      `json:"location_slug"`
+	LocationName     string      `json:"location_name"`
 	SlotID           uuid.UUID   `json:"slot_id"`
 	ServiceName      string      `json:"service_name"`
 	PractitionerName string      `json:"practitioner_name"`
 	RoomName         string      `json:"room_name"`
 	StartAt          time.Time   `json:"start_at"`
 	EndAt            time.Time   `json:"end_at"`
+	IsWaitlist       bool        `json:"is_waitlist"`
 }
 
 func (q *Queries) ListHostBookingsByLocation(ctx context.Context, arg ListHostBookingsByLocationParams) ([]ListHostBookingsByLocationRow, error) {
@@ -939,12 +1350,16 @@ func (q *Queries) ListHostBookingsByLocation(ctx context.Context, arg ListHostBo
 			&i.GuestEmail,
 			&i.GuestPhone,
 			&i.CancelReason,
+			&i.LocationID,
+			&i.LocationSlug,
+			&i.LocationName,
 			&i.SlotID,
 			&i.ServiceName,
 			&i.PractitionerName,
 			&i.RoomName,
 			&i.StartAt,
 			&i.EndAt,
+			&i.IsWaitlist,
 		); err != nil {
 			return nil, err
 		}
@@ -1212,6 +1627,138 @@ func (q *Queries) ListHostSlotsByLocation(ctx context.Context, arg ListHostSlots
 	return items, nil
 }
 
+const listMyBookings = `-- name: ListMyBookings :many
+SELECT
+  b.id AS booking_id,
+  b.status,
+  b.booked_at,
+  b.guest_name,
+  b.guest_email,
+  b.guest_phone,
+  b.cancel_reason,
+  l.id AS location_id,
+  l.slug AS location_slug,
+  l.name AS location_name,
+  s.id AS slot_id,
+  sv.name AS service_name,
+  COALESCE(p.display_name, '') AS practitioner_name,
+  COALESCE(r.name, '') AS room_name,
+  s.start_at,
+  s.end_at,
+  EXISTS (
+    SELECT 1
+    FROM waitlist_entries w
+    WHERE w.location_id = b.location_id
+      AND w.service_id = s.service_id
+      AND lower(w.guest_email) = lower(b.guest_email)
+  ) AS is_waitlist
+FROM bookings b
+JOIN appointment_slots s ON s.id = b.slot_id
+JOIN services sv ON sv.id = s.service_id
+LEFT JOIN practitioners p ON p.id = s.practitioner_id
+LEFT JOIN rooms r ON r.id = s.room_id
+JOIN locations l ON l.id = b.location_id
+WHERE (
+    b.client_username = $1
+    OR (
+    COALESCE($4::text, '') <> ''
+    AND lower(b.guest_email) = lower($4)
+    )
+  )
+  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND (
+    COALESCE($5::text, '') = ''
+    OR b.status = $5
+  )
+  AND (
+    COALESCE($6::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date >= $6::date
+  )
+  AND (
+    COALESCE($7::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date <= $7::date
+  )
+ORDER BY s.start_at ASC, b.booked_at DESC
+LIMIT $2
+OFFSET $3
+`
+
+type ListMyBookingsParams struct {
+	ClientUsername   pgtype.Text `json:"client_username"`
+	Limit            int32       `json:"limit"`
+	Offset           int32       `json:"offset"`
+	FilterGuestEmail pgtype.Text `json:"filter_guest_email"`
+	FilterStatus     pgtype.Text `json:"filter_status"`
+	FromDate         pgtype.Text `json:"from_date"`
+	ToDate           pgtype.Text `json:"to_date"`
+}
+
+type ListMyBookingsRow struct {
+	BookingID        uuid.UUID   `json:"booking_id"`
+	Status           string      `json:"status"`
+	BookedAt         time.Time   `json:"booked_at"`
+	GuestName        string      `json:"guest_name"`
+	GuestEmail       string      `json:"guest_email"`
+	GuestPhone       pgtype.Text `json:"guest_phone"`
+	CancelReason     pgtype.Text `json:"cancel_reason"`
+	LocationID       uuid.UUID   `json:"location_id"`
+	LocationSlug     string      `json:"location_slug"`
+	LocationName     string      `json:"location_name"`
+	SlotID           uuid.UUID   `json:"slot_id"`
+	ServiceName      string      `json:"service_name"`
+	PractitionerName string      `json:"practitioner_name"`
+	RoomName         string      `json:"room_name"`
+	StartAt          time.Time   `json:"start_at"`
+	EndAt            time.Time   `json:"end_at"`
+	IsWaitlist       bool        `json:"is_waitlist"`
+}
+
+func (q *Queries) ListMyBookings(ctx context.Context, arg ListMyBookingsParams) ([]ListMyBookingsRow, error) {
+	rows, err := q.db.Query(ctx, listMyBookings,
+		arg.ClientUsername,
+		arg.Limit,
+		arg.Offset,
+		arg.FilterGuestEmail,
+		arg.FilterStatus,
+		arg.FromDate,
+		arg.ToDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListMyBookingsRow{}
+	for rows.Next() {
+		var i ListMyBookingsRow
+		if err := rows.Scan(
+			&i.BookingID,
+			&i.Status,
+			&i.BookedAt,
+			&i.GuestName,
+			&i.GuestEmail,
+			&i.GuestPhone,
+			&i.CancelReason,
+			&i.LocationID,
+			&i.LocationSlug,
+			&i.LocationName,
+			&i.SlotID,
+			&i.ServiceName,
+			&i.PractitionerName,
+			&i.RoomName,
+			&i.StartAt,
+			&i.EndAt,
+			&i.IsWaitlist,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPublicFilterPractitionersByLocationSlug = `-- name: ListPublicFilterPractitionersByLocationSlug :many
 SELECT p.id, p.display_name
 FROM practitioners p
@@ -1310,6 +1857,59 @@ func (q *Queries) ListPublicFilterServicesByLocationSlug(ctx context.Context, sl
 	for rows.Next() {
 		var i ListPublicFilterServicesByLocationSlugRow
 		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPublicLocations = `-- name: ListPublicLocations :many
+SELECT DISTINCT
+  l.id,
+  l.slug,
+  l.name,
+  l.timezone,
+  l.booking_requires_host_approval
+FROM locations l
+JOIN appointment_slots s ON s.location_id = l.id
+JOIN services sv ON sv.id = s.service_id
+WHERE l.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND l.is_active = true
+  AND s.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND s.start_at > now()
+  AND sv.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND sv.is_active = true
+ORDER BY l.name ASC
+`
+
+type ListPublicLocationsRow struct {
+	ID                          uuid.UUID `json:"id"`
+	Slug                        string    `json:"slug"`
+	Name                        string    `json:"name"`
+	Timezone                    string    `json:"timezone"`
+	BookingRequiresHostApproval bool      `json:"booking_requires_host_approval"`
+}
+
+func (q *Queries) ListPublicLocations(ctx context.Context) ([]ListPublicLocationsRow, error) {
+	rows, err := q.db.Query(ctx, listPublicLocations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListPublicLocationsRow{}
+	for rows.Next() {
+		var i ListPublicLocationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Slug,
+			&i.Name,
+			&i.Timezone,
+			&i.BookingRequiresHostApproval,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1445,6 +2045,41 @@ type MarkBookingCancelledParams struct {
 
 func (q *Queries) MarkBookingCancelled(ctx context.Context, arg MarkBookingCancelledParams) (Booking, error) {
 	row := q.db.QueryRow(ctx, markBookingCancelled, arg.ID, arg.CancelReason)
+	var i Booking
+	err := row.Scan(
+		&i.ID,
+		&i.LocationID,
+		&i.SlotID,
+		&i.Status,
+		&i.GuestName,
+		&i.GuestEmail,
+		&i.GuestPhone,
+		&i.GuestNotes,
+		&i.ClientUsername,
+		&i.BookedAt,
+		&i.CancelledAt,
+		&i.CancelReason,
+		&i.CancelTokenHash,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const markBookingNoShow = `-- name: MarkBookingNoShow :one
+UPDATE bookings
+SET
+  status = 'no_show',
+  updated_at = now()
+WHERE id = $1
+  AND status = 'confirmed'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+RETURNING id, location_id, slot_id, status, guest_name, guest_email, guest_phone, guest_notes, client_username, booked_at, cancelled_at, cancel_reason, cancel_token_hash, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) MarkBookingNoShow(ctx context.Context, id uuid.UUID) (Booking, error) {
+	row := q.db.QueryRow(ctx, markBookingNoShow, id)
 	var i Booking
 	err := row.Scan(
 		&i.ID,

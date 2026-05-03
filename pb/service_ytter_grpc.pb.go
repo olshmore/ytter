@@ -19,33 +19,42 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Ytter_CreateUser_FullMethodName                = "/pb.Ytter/CreateUser"
-	Ytter_VerifyEmail_FullMethodName               = "/pb.Ytter/VerifyEmail"
-	Ytter_LoginUser_FullMethodName                 = "/pb.Ytter/LoginUser"
-	Ytter_RefreshToken_FullMethodName              = "/pb.Ytter/RefreshToken"
-	Ytter_ListUsers_FullMethodName                 = "/pb.Ytter/ListUsers"
-	Ytter_UpdateUser_FullMethodName                = "/pb.Ytter/UpdateUser"
-	Ytter_InitiateGoogleAuth_FullMethodName        = "/pb.Ytter/InitiateGoogleAuth"
-	Ytter_GoogleAuthCallback_FullMethodName        = "/pb.Ytter/GoogleAuthCallback"
-	Ytter_ListPublicSlots_FullMethodName           = "/pb.Ytter/ListPublicSlots"
-	Ytter_GetPublicFilterOptions_FullMethodName    = "/pb.Ytter/GetPublicFilterOptions"
-	Ytter_CreatePublicBooking_FullMethodName       = "/pb.Ytter/CreatePublicBooking"
-	Ytter_CancelPublicBooking_FullMethodName       = "/pb.Ytter/CancelPublicBooking"
-	Ytter_ListHostLocations_FullMethodName         = "/pb.Ytter/ListHostLocations"
-	Ytter_CreateHostLocation_FullMethodName        = "/pb.Ytter/CreateHostLocation"
-	Ytter_GetHostLocation_FullMethodName           = "/pb.Ytter/GetHostLocation"
-	Ytter_GetHostLocationBySlug_FullMethodName     = "/pb.Ytter/GetHostLocationBySlug"
-	Ytter_UpdateHostLocation_FullMethodName        = "/pb.Ytter/UpdateHostLocation"
-	Ytter_ListHostLocationBookings_FullMethodName  = "/pb.Ytter/ListHostLocationBookings"
-	Ytter_ListHostLocationSlots_FullMethodName     = "/pb.Ytter/ListHostLocationSlots"
-	Ytter_ListHostLocationServices_FullMethodName  = "/pb.Ytter/ListHostLocationServices"
-	Ytter_CreateHostLocationService_FullMethodName = "/pb.Ytter/CreateHostLocationService"
-	Ytter_UpdateHostLocationService_FullMethodName = "/pb.Ytter/UpdateHostLocationService"
-	Ytter_CreateHostLocationSlot_FullMethodName    = "/pb.Ytter/CreateHostLocationSlot"
-	Ytter_UpdateHostLocationSlot_FullMethodName    = "/pb.Ytter/UpdateHostLocationSlot"
-	Ytter_HostApproveBooking_FullMethodName        = "/pb.Ytter/HostApproveBooking"
-	Ytter_HostRejectBooking_FullMethodName         = "/pb.Ytter/HostRejectBooking"
-	Ytter_HostCancelBooking_FullMethodName         = "/pb.Ytter/HostCancelBooking"
+	Ytter_CreateUser_FullMethodName                     = "/pb.Ytter/CreateUser"
+	Ytter_VerifyEmail_FullMethodName                    = "/pb.Ytter/VerifyEmail"
+	Ytter_LoginUser_FullMethodName                      = "/pb.Ytter/LoginUser"
+	Ytter_RefreshToken_FullMethodName                   = "/pb.Ytter/RefreshToken"
+	Ytter_ListUsers_FullMethodName                      = "/pb.Ytter/ListUsers"
+	Ytter_UpdateUser_FullMethodName                     = "/pb.Ytter/UpdateUser"
+	Ytter_InitiateGoogleAuth_FullMethodName             = "/pb.Ytter/InitiateGoogleAuth"
+	Ytter_GoogleAuthCallback_FullMethodName             = "/pb.Ytter/GoogleAuthCallback"
+	Ytter_ListPublicSlots_FullMethodName                = "/pb.Ytter/ListPublicSlots"
+	Ytter_ListPublicLocations_FullMethodName            = "/pb.Ytter/ListPublicLocations"
+	Ytter_GetPublicFilterOptions_FullMethodName         = "/pb.Ytter/GetPublicFilterOptions"
+	Ytter_CreatePublicBooking_FullMethodName            = "/pb.Ytter/CreatePublicBooking"
+	Ytter_CancelPublicBooking_FullMethodName            = "/pb.Ytter/CancelPublicBooking"
+	Ytter_JoinPublicWaitlist_FullMethodName             = "/pb.Ytter/JoinPublicWaitlist"
+	Ytter_ListHostLocations_FullMethodName              = "/pb.Ytter/ListHostLocations"
+	Ytter_GetHostSetupChecklist_FullMethodName          = "/pb.Ytter/GetHostSetupChecklist"
+	Ytter_CreateHostLocation_FullMethodName             = "/pb.Ytter/CreateHostLocation"
+	Ytter_GetHostLocation_FullMethodName                = "/pb.Ytter/GetHostLocation"
+	Ytter_GetHostLocationBySlug_FullMethodName          = "/pb.Ytter/GetHostLocationBySlug"
+	Ytter_UpdateHostLocation_FullMethodName             = "/pb.Ytter/UpdateHostLocation"
+	Ytter_ListHostLocationBookings_FullMethodName       = "/pb.Ytter/ListHostLocationBookings"
+	Ytter_GetMyBookingRebookContext_FullMethodName      = "/pb.Ytter/GetMyBookingRebookContext"
+	Ytter_ListMyBookings_FullMethodName                 = "/pb.Ytter/ListMyBookings"
+	Ytter_CancelMyBooking_FullMethodName                = "/pb.Ytter/CancelMyBooking"
+	Ytter_GetHostBookingAnalyticsSummary_FullMethodName = "/pb.Ytter/GetHostBookingAnalyticsSummary"
+	Ytter_ListHostLocationSlots_FullMethodName          = "/pb.Ytter/ListHostLocationSlots"
+	Ytter_ListHostLocationServices_FullMethodName       = "/pb.Ytter/ListHostLocationServices"
+	Ytter_CreateHostLocationService_FullMethodName      = "/pb.Ytter/CreateHostLocationService"
+	Ytter_UpdateHostLocationService_FullMethodName      = "/pb.Ytter/UpdateHostLocationService"
+	Ytter_CreateHostLocationSlot_FullMethodName         = "/pb.Ytter/CreateHostLocationSlot"
+	Ytter_CreateHostLocationSlotsBatch_FullMethodName   = "/pb.Ytter/CreateHostLocationSlotsBatch"
+	Ytter_UpdateHostLocationSlot_FullMethodName         = "/pb.Ytter/UpdateHostLocationSlot"
+	Ytter_HostApproveBooking_FullMethodName             = "/pb.Ytter/HostApproveBooking"
+	Ytter_HostRejectBooking_FullMethodName              = "/pb.Ytter/HostRejectBooking"
+	Ytter_HostCancelBooking_FullMethodName              = "/pb.Ytter/HostCancelBooking"
+	Ytter_HostSetBookingNoShow_FullMethodName           = "/pb.Ytter/HostSetBookingNoShow"
 )
 
 // YtterClient is the client API for Ytter service.
@@ -61,24 +70,33 @@ type YtterClient interface {
 	InitiateGoogleAuth(ctx context.Context, in *InitiateGoogleAuthRequest, opts ...grpc.CallOption) (*InitiateGoogleAuthResponse, error)
 	GoogleAuthCallback(ctx context.Context, in *GoogleAuthCallbackRequest, opts ...grpc.CallOption) (*GoogleAuthCallbackResponse, error)
 	ListPublicSlots(ctx context.Context, in *ListPublicSlotsRequest, opts ...grpc.CallOption) (*ListPublicSlotsResponse, error)
+	ListPublicLocations(ctx context.Context, in *ListPublicLocationsRequest, opts ...grpc.CallOption) (*ListPublicLocationsResponse, error)
 	GetPublicFilterOptions(ctx context.Context, in *GetPublicFilterOptionsRequest, opts ...grpc.CallOption) (*GetPublicFilterOptionsResponse, error)
 	CreatePublicBooking(ctx context.Context, in *CreatePublicBookingRequest, opts ...grpc.CallOption) (*CreatePublicBookingResponse, error)
 	CancelPublicBooking(ctx context.Context, in *CancelPublicBookingRequest, opts ...grpc.CallOption) (*CancelPublicBookingResponse, error)
+	JoinPublicWaitlist(ctx context.Context, in *JoinPublicWaitlistRequest, opts ...grpc.CallOption) (*JoinPublicWaitlistResponse, error)
 	ListHostLocations(ctx context.Context, in *ListHostLocationsRequest, opts ...grpc.CallOption) (*ListHostLocationsResponse, error)
+	GetHostSetupChecklist(ctx context.Context, in *GetHostSetupChecklistRequest, opts ...grpc.CallOption) (*GetHostSetupChecklistResponse, error)
 	CreateHostLocation(ctx context.Context, in *CreateHostLocationRequest, opts ...grpc.CallOption) (*CreateHostLocationResponse, error)
 	GetHostLocation(ctx context.Context, in *GetHostLocationRequest, opts ...grpc.CallOption) (*GetHostLocationResponse, error)
 	GetHostLocationBySlug(ctx context.Context, in *GetHostLocationBySlugRequest, opts ...grpc.CallOption) (*GetHostLocationBySlugResponse, error)
 	UpdateHostLocation(ctx context.Context, in *UpdateHostLocationRequest, opts ...grpc.CallOption) (*UpdateHostLocationResponse, error)
 	ListHostLocationBookings(ctx context.Context, in *ListHostLocationBookingsRequest, opts ...grpc.CallOption) (*ListHostLocationBookingsResponse, error)
+	GetMyBookingRebookContext(ctx context.Context, in *GetMyBookingRebookContextRequest, opts ...grpc.CallOption) (*GetMyBookingRebookContextResponse, error)
+	ListMyBookings(ctx context.Context, in *ListMyBookingsRequest, opts ...grpc.CallOption) (*ListMyBookingsResponse, error)
+	CancelMyBooking(ctx context.Context, in *CancelMyBookingRequest, opts ...grpc.CallOption) (*CancelMyBookingResponse, error)
+	GetHostBookingAnalyticsSummary(ctx context.Context, in *GetHostBookingAnalyticsSummaryRequest, opts ...grpc.CallOption) (*GetHostBookingAnalyticsSummaryResponse, error)
 	ListHostLocationSlots(ctx context.Context, in *ListHostLocationSlotsRequest, opts ...grpc.CallOption) (*ListHostLocationSlotsResponse, error)
 	ListHostLocationServices(ctx context.Context, in *ListHostLocationServicesRequest, opts ...grpc.CallOption) (*ListHostLocationServicesResponse, error)
 	CreateHostLocationService(ctx context.Context, in *CreateHostLocationServiceRequest, opts ...grpc.CallOption) (*CreateHostLocationServiceResponse, error)
 	UpdateHostLocationService(ctx context.Context, in *UpdateHostLocationServiceRequest, opts ...grpc.CallOption) (*UpdateHostLocationServiceResponse, error)
 	CreateHostLocationSlot(ctx context.Context, in *CreateHostLocationSlotRequest, opts ...grpc.CallOption) (*CreateHostLocationSlotResponse, error)
+	CreateHostLocationSlotsBatch(ctx context.Context, in *CreateHostLocationSlotsBatchRequest, opts ...grpc.CallOption) (*CreateHostLocationSlotsBatchResponse, error)
 	UpdateHostLocationSlot(ctx context.Context, in *UpdateHostLocationSlotRequest, opts ...grpc.CallOption) (*UpdateHostLocationSlotResponse, error)
 	HostApproveBooking(ctx context.Context, in *HostApproveBookingRequest, opts ...grpc.CallOption) (*HostApproveBookingResponse, error)
 	HostRejectBooking(ctx context.Context, in *HostRejectBookingRequest, opts ...grpc.CallOption) (*HostRejectBookingResponse, error)
 	HostCancelBooking(ctx context.Context, in *HostCancelBookingRequest, opts ...grpc.CallOption) (*HostCancelBookingResponse, error)
+	HostSetBookingNoShow(ctx context.Context, in *HostSetBookingNoShowRequest, opts ...grpc.CallOption) (*HostSetBookingNoShowResponse, error)
 }
 
 type ytterClient struct {
@@ -179,6 +197,16 @@ func (c *ytterClient) ListPublicSlots(ctx context.Context, in *ListPublicSlotsRe
 	return out, nil
 }
 
+func (c *ytterClient) ListPublicLocations(ctx context.Context, in *ListPublicLocationsRequest, opts ...grpc.CallOption) (*ListPublicLocationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPublicLocationsResponse)
+	err := c.cc.Invoke(ctx, Ytter_ListPublicLocations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ytterClient) GetPublicFilterOptions(ctx context.Context, in *GetPublicFilterOptionsRequest, opts ...grpc.CallOption) (*GetPublicFilterOptionsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPublicFilterOptionsResponse)
@@ -209,10 +237,30 @@ func (c *ytterClient) CancelPublicBooking(ctx context.Context, in *CancelPublicB
 	return out, nil
 }
 
+func (c *ytterClient) JoinPublicWaitlist(ctx context.Context, in *JoinPublicWaitlistRequest, opts ...grpc.CallOption) (*JoinPublicWaitlistResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(JoinPublicWaitlistResponse)
+	err := c.cc.Invoke(ctx, Ytter_JoinPublicWaitlist_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ytterClient) ListHostLocations(ctx context.Context, in *ListHostLocationsRequest, opts ...grpc.CallOption) (*ListHostLocationsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListHostLocationsResponse)
 	err := c.cc.Invoke(ctx, Ytter_ListHostLocations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) GetHostSetupChecklist(ctx context.Context, in *GetHostSetupChecklistRequest, opts ...grpc.CallOption) (*GetHostSetupChecklistResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetHostSetupChecklistResponse)
+	err := c.cc.Invoke(ctx, Ytter_GetHostSetupChecklist_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -269,6 +317,46 @@ func (c *ytterClient) ListHostLocationBookings(ctx context.Context, in *ListHost
 	return out, nil
 }
 
+func (c *ytterClient) GetMyBookingRebookContext(ctx context.Context, in *GetMyBookingRebookContextRequest, opts ...grpc.CallOption) (*GetMyBookingRebookContextResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMyBookingRebookContextResponse)
+	err := c.cc.Invoke(ctx, Ytter_GetMyBookingRebookContext_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) ListMyBookings(ctx context.Context, in *ListMyBookingsRequest, opts ...grpc.CallOption) (*ListMyBookingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListMyBookingsResponse)
+	err := c.cc.Invoke(ctx, Ytter_ListMyBookings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) CancelMyBooking(ctx context.Context, in *CancelMyBookingRequest, opts ...grpc.CallOption) (*CancelMyBookingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelMyBookingResponse)
+	err := c.cc.Invoke(ctx, Ytter_CancelMyBooking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) GetHostBookingAnalyticsSummary(ctx context.Context, in *GetHostBookingAnalyticsSummaryRequest, opts ...grpc.CallOption) (*GetHostBookingAnalyticsSummaryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetHostBookingAnalyticsSummaryResponse)
+	err := c.cc.Invoke(ctx, Ytter_GetHostBookingAnalyticsSummary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ytterClient) ListHostLocationSlots(ctx context.Context, in *ListHostLocationSlotsRequest, opts ...grpc.CallOption) (*ListHostLocationSlotsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListHostLocationSlotsResponse)
@@ -319,6 +407,16 @@ func (c *ytterClient) CreateHostLocationSlot(ctx context.Context, in *CreateHost
 	return out, nil
 }
 
+func (c *ytterClient) CreateHostLocationSlotsBatch(ctx context.Context, in *CreateHostLocationSlotsBatchRequest, opts ...grpc.CallOption) (*CreateHostLocationSlotsBatchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateHostLocationSlotsBatchResponse)
+	err := c.cc.Invoke(ctx, Ytter_CreateHostLocationSlotsBatch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ytterClient) UpdateHostLocationSlot(ctx context.Context, in *UpdateHostLocationSlotRequest, opts ...grpc.CallOption) (*UpdateHostLocationSlotResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateHostLocationSlotResponse)
@@ -359,6 +457,16 @@ func (c *ytterClient) HostCancelBooking(ctx context.Context, in *HostCancelBooki
 	return out, nil
 }
 
+func (c *ytterClient) HostSetBookingNoShow(ctx context.Context, in *HostSetBookingNoShowRequest, opts ...grpc.CallOption) (*HostSetBookingNoShowResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HostSetBookingNoShowResponse)
+	err := c.cc.Invoke(ctx, Ytter_HostSetBookingNoShow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // YtterServer is the server API for Ytter service.
 // All implementations must embed UnimplementedYtterServer
 // for forward compatibility.
@@ -372,24 +480,33 @@ type YtterServer interface {
 	InitiateGoogleAuth(context.Context, *InitiateGoogleAuthRequest) (*InitiateGoogleAuthResponse, error)
 	GoogleAuthCallback(context.Context, *GoogleAuthCallbackRequest) (*GoogleAuthCallbackResponse, error)
 	ListPublicSlots(context.Context, *ListPublicSlotsRequest) (*ListPublicSlotsResponse, error)
+	ListPublicLocations(context.Context, *ListPublicLocationsRequest) (*ListPublicLocationsResponse, error)
 	GetPublicFilterOptions(context.Context, *GetPublicFilterOptionsRequest) (*GetPublicFilterOptionsResponse, error)
 	CreatePublicBooking(context.Context, *CreatePublicBookingRequest) (*CreatePublicBookingResponse, error)
 	CancelPublicBooking(context.Context, *CancelPublicBookingRequest) (*CancelPublicBookingResponse, error)
+	JoinPublicWaitlist(context.Context, *JoinPublicWaitlistRequest) (*JoinPublicWaitlistResponse, error)
 	ListHostLocations(context.Context, *ListHostLocationsRequest) (*ListHostLocationsResponse, error)
+	GetHostSetupChecklist(context.Context, *GetHostSetupChecklistRequest) (*GetHostSetupChecklistResponse, error)
 	CreateHostLocation(context.Context, *CreateHostLocationRequest) (*CreateHostLocationResponse, error)
 	GetHostLocation(context.Context, *GetHostLocationRequest) (*GetHostLocationResponse, error)
 	GetHostLocationBySlug(context.Context, *GetHostLocationBySlugRequest) (*GetHostLocationBySlugResponse, error)
 	UpdateHostLocation(context.Context, *UpdateHostLocationRequest) (*UpdateHostLocationResponse, error)
 	ListHostLocationBookings(context.Context, *ListHostLocationBookingsRequest) (*ListHostLocationBookingsResponse, error)
+	GetMyBookingRebookContext(context.Context, *GetMyBookingRebookContextRequest) (*GetMyBookingRebookContextResponse, error)
+	ListMyBookings(context.Context, *ListMyBookingsRequest) (*ListMyBookingsResponse, error)
+	CancelMyBooking(context.Context, *CancelMyBookingRequest) (*CancelMyBookingResponse, error)
+	GetHostBookingAnalyticsSummary(context.Context, *GetHostBookingAnalyticsSummaryRequest) (*GetHostBookingAnalyticsSummaryResponse, error)
 	ListHostLocationSlots(context.Context, *ListHostLocationSlotsRequest) (*ListHostLocationSlotsResponse, error)
 	ListHostLocationServices(context.Context, *ListHostLocationServicesRequest) (*ListHostLocationServicesResponse, error)
 	CreateHostLocationService(context.Context, *CreateHostLocationServiceRequest) (*CreateHostLocationServiceResponse, error)
 	UpdateHostLocationService(context.Context, *UpdateHostLocationServiceRequest) (*UpdateHostLocationServiceResponse, error)
 	CreateHostLocationSlot(context.Context, *CreateHostLocationSlotRequest) (*CreateHostLocationSlotResponse, error)
+	CreateHostLocationSlotsBatch(context.Context, *CreateHostLocationSlotsBatchRequest) (*CreateHostLocationSlotsBatchResponse, error)
 	UpdateHostLocationSlot(context.Context, *UpdateHostLocationSlotRequest) (*UpdateHostLocationSlotResponse, error)
 	HostApproveBooking(context.Context, *HostApproveBookingRequest) (*HostApproveBookingResponse, error)
 	HostRejectBooking(context.Context, *HostRejectBookingRequest) (*HostRejectBookingResponse, error)
 	HostCancelBooking(context.Context, *HostCancelBookingRequest) (*HostCancelBookingResponse, error)
+	HostSetBookingNoShow(context.Context, *HostSetBookingNoShowRequest) (*HostSetBookingNoShowResponse, error)
 	mustEmbedUnimplementedYtterServer()
 }
 
@@ -427,6 +544,9 @@ func (UnimplementedYtterServer) GoogleAuthCallback(context.Context, *GoogleAuthC
 func (UnimplementedYtterServer) ListPublicSlots(context.Context, *ListPublicSlotsRequest) (*ListPublicSlotsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPublicSlots not implemented")
 }
+func (UnimplementedYtterServer) ListPublicLocations(context.Context, *ListPublicLocationsRequest) (*ListPublicLocationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPublicLocations not implemented")
+}
 func (UnimplementedYtterServer) GetPublicFilterOptions(context.Context, *GetPublicFilterOptionsRequest) (*GetPublicFilterOptionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPublicFilterOptions not implemented")
 }
@@ -436,8 +556,14 @@ func (UnimplementedYtterServer) CreatePublicBooking(context.Context, *CreatePubl
 func (UnimplementedYtterServer) CancelPublicBooking(context.Context, *CancelPublicBookingRequest) (*CancelPublicBookingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelPublicBooking not implemented")
 }
+func (UnimplementedYtterServer) JoinPublicWaitlist(context.Context, *JoinPublicWaitlistRequest) (*JoinPublicWaitlistResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JoinPublicWaitlist not implemented")
+}
 func (UnimplementedYtterServer) ListHostLocations(context.Context, *ListHostLocationsRequest) (*ListHostLocationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListHostLocations not implemented")
+}
+func (UnimplementedYtterServer) GetHostSetupChecklist(context.Context, *GetHostSetupChecklistRequest) (*GetHostSetupChecklistResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHostSetupChecklist not implemented")
 }
 func (UnimplementedYtterServer) CreateHostLocation(context.Context, *CreateHostLocationRequest) (*CreateHostLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateHostLocation not implemented")
@@ -454,6 +580,18 @@ func (UnimplementedYtterServer) UpdateHostLocation(context.Context, *UpdateHostL
 func (UnimplementedYtterServer) ListHostLocationBookings(context.Context, *ListHostLocationBookingsRequest) (*ListHostLocationBookingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListHostLocationBookings not implemented")
 }
+func (UnimplementedYtterServer) GetMyBookingRebookContext(context.Context, *GetMyBookingRebookContextRequest) (*GetMyBookingRebookContextResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyBookingRebookContext not implemented")
+}
+func (UnimplementedYtterServer) ListMyBookings(context.Context, *ListMyBookingsRequest) (*ListMyBookingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMyBookings not implemented")
+}
+func (UnimplementedYtterServer) CancelMyBooking(context.Context, *CancelMyBookingRequest) (*CancelMyBookingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelMyBooking not implemented")
+}
+func (UnimplementedYtterServer) GetHostBookingAnalyticsSummary(context.Context, *GetHostBookingAnalyticsSummaryRequest) (*GetHostBookingAnalyticsSummaryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHostBookingAnalyticsSummary not implemented")
+}
 func (UnimplementedYtterServer) ListHostLocationSlots(context.Context, *ListHostLocationSlotsRequest) (*ListHostLocationSlotsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListHostLocationSlots not implemented")
 }
@@ -469,6 +607,9 @@ func (UnimplementedYtterServer) UpdateHostLocationService(context.Context, *Upda
 func (UnimplementedYtterServer) CreateHostLocationSlot(context.Context, *CreateHostLocationSlotRequest) (*CreateHostLocationSlotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateHostLocationSlot not implemented")
 }
+func (UnimplementedYtterServer) CreateHostLocationSlotsBatch(context.Context, *CreateHostLocationSlotsBatchRequest) (*CreateHostLocationSlotsBatchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateHostLocationSlotsBatch not implemented")
+}
 func (UnimplementedYtterServer) UpdateHostLocationSlot(context.Context, *UpdateHostLocationSlotRequest) (*UpdateHostLocationSlotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateHostLocationSlot not implemented")
 }
@@ -480,6 +621,9 @@ func (UnimplementedYtterServer) HostRejectBooking(context.Context, *HostRejectBo
 }
 func (UnimplementedYtterServer) HostCancelBooking(context.Context, *HostCancelBookingRequest) (*HostCancelBookingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HostCancelBooking not implemented")
+}
+func (UnimplementedYtterServer) HostSetBookingNoShow(context.Context, *HostSetBookingNoShowRequest) (*HostSetBookingNoShowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HostSetBookingNoShow not implemented")
 }
 func (UnimplementedYtterServer) mustEmbedUnimplementedYtterServer() {}
 func (UnimplementedYtterServer) testEmbeddedByValue()               {}
@@ -664,6 +808,24 @@ func _Ytter_ListPublicSlots_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_ListPublicLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPublicLocationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).ListPublicLocations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_ListPublicLocations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).ListPublicLocations(ctx, req.(*ListPublicLocationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Ytter_GetPublicFilterOptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPublicFilterOptionsRequest)
 	if err := dec(in); err != nil {
@@ -718,6 +880,24 @@ func _Ytter_CancelPublicBooking_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_JoinPublicWaitlist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinPublicWaitlistRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).JoinPublicWaitlist(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_JoinPublicWaitlist_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).JoinPublicWaitlist(ctx, req.(*JoinPublicWaitlistRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Ytter_ListHostLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListHostLocationsRequest)
 	if err := dec(in); err != nil {
@@ -732,6 +912,24 @@ func _Ytter_ListHostLocations_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(YtterServer).ListHostLocations(ctx, req.(*ListHostLocationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_GetHostSetupChecklist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHostSetupChecklistRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).GetHostSetupChecklist(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_GetHostSetupChecklist_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).GetHostSetupChecklist(ctx, req.(*GetHostSetupChecklistRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -826,6 +1024,78 @@ func _Ytter_ListHostLocationBookings_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_GetMyBookingRebookContext_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyBookingRebookContextRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).GetMyBookingRebookContext(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_GetMyBookingRebookContext_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).GetMyBookingRebookContext(ctx, req.(*GetMyBookingRebookContextRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_ListMyBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMyBookingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).ListMyBookings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_ListMyBookings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).ListMyBookings(ctx, req.(*ListMyBookingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_CancelMyBooking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelMyBookingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).CancelMyBooking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_CancelMyBooking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).CancelMyBooking(ctx, req.(*CancelMyBookingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_GetHostBookingAnalyticsSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHostBookingAnalyticsSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).GetHostBookingAnalyticsSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_GetHostBookingAnalyticsSummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).GetHostBookingAnalyticsSummary(ctx, req.(*GetHostBookingAnalyticsSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Ytter_ListHostLocationSlots_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListHostLocationSlotsRequest)
 	if err := dec(in); err != nil {
@@ -916,6 +1186,24 @@ func _Ytter_CreateHostLocationSlot_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_CreateHostLocationSlotsBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateHostLocationSlotsBatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).CreateHostLocationSlotsBatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_CreateHostLocationSlotsBatch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).CreateHostLocationSlotsBatch(ctx, req.(*CreateHostLocationSlotsBatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Ytter_UpdateHostLocationSlot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateHostLocationSlotRequest)
 	if err := dec(in); err != nil {
@@ -988,6 +1276,24 @@ func _Ytter_HostCancelBooking_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_HostSetBookingNoShow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HostSetBookingNoShowRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).HostSetBookingNoShow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_HostSetBookingNoShow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).HostSetBookingNoShow(ctx, req.(*HostSetBookingNoShowRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Ytter_ServiceDesc is the grpc.ServiceDesc for Ytter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1032,6 +1338,10 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Ytter_ListPublicSlots_Handler,
 		},
 		{
+			MethodName: "ListPublicLocations",
+			Handler:    _Ytter_ListPublicLocations_Handler,
+		},
+		{
 			MethodName: "GetPublicFilterOptions",
 			Handler:    _Ytter_GetPublicFilterOptions_Handler,
 		},
@@ -1044,8 +1354,16 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Ytter_CancelPublicBooking_Handler,
 		},
 		{
+			MethodName: "JoinPublicWaitlist",
+			Handler:    _Ytter_JoinPublicWaitlist_Handler,
+		},
+		{
 			MethodName: "ListHostLocations",
 			Handler:    _Ytter_ListHostLocations_Handler,
+		},
+		{
+			MethodName: "GetHostSetupChecklist",
+			Handler:    _Ytter_GetHostSetupChecklist_Handler,
 		},
 		{
 			MethodName: "CreateHostLocation",
@@ -1068,6 +1386,22 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Ytter_ListHostLocationBookings_Handler,
 		},
 		{
+			MethodName: "GetMyBookingRebookContext",
+			Handler:    _Ytter_GetMyBookingRebookContext_Handler,
+		},
+		{
+			MethodName: "ListMyBookings",
+			Handler:    _Ytter_ListMyBookings_Handler,
+		},
+		{
+			MethodName: "CancelMyBooking",
+			Handler:    _Ytter_CancelMyBooking_Handler,
+		},
+		{
+			MethodName: "GetHostBookingAnalyticsSummary",
+			Handler:    _Ytter_GetHostBookingAnalyticsSummary_Handler,
+		},
+		{
 			MethodName: "ListHostLocationSlots",
 			Handler:    _Ytter_ListHostLocationSlots_Handler,
 		},
@@ -1088,6 +1422,10 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Ytter_CreateHostLocationSlot_Handler,
 		},
 		{
+			MethodName: "CreateHostLocationSlotsBatch",
+			Handler:    _Ytter_CreateHostLocationSlotsBatch_Handler,
+		},
+		{
 			MethodName: "UpdateHostLocationSlot",
 			Handler:    _Ytter_UpdateHostLocationSlot_Handler,
 		},
@@ -1102,6 +1440,10 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HostCancelBooking",
 			Handler:    _Ytter_HostCancelBooking_Handler,
+		},
+		{
+			MethodName: "HostSetBookingNoShow",
+			Handler:    _Ytter_HostSetBookingNoShow_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

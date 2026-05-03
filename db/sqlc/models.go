@@ -131,3 +131,21 @@ type VerificationEmail struct {
 	CreatedAt         time.Time `json:"created_at"`
 	TokenExpiry       time.Time `json:"token_expiry"`
 }
+
+type WaitlistEntry struct {
+	ID             uuid.UUID          `json:"id"`
+	LocationID     uuid.UUID          `json:"location_id"`
+	ServiceID      uuid.UUID          `json:"service_id"`
+	SlotID         uuid.UUID          `json:"slot_id"`
+	GuestName      string             `json:"guest_name"`
+	GuestEmail     string             `json:"guest_email"`
+	GuestPhone     pgtype.Text        `json:"guest_phone"`
+	PractitionerID pgtype.UUID        `json:"practitioner_id"`
+	PreferredDate  pgtype.Date        `json:"preferred_date"`
+	Status         string             `json:"status"`
+	OfferTokenHash pgtype.Text        `json:"offer_token_hash"`
+	OfferExpiresAt pgtype.Timestamptz `json:"offer_expires_at"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
+	DeletedAt      time.Time          `json:"deleted_at"`
+}

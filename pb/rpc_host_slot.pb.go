@@ -653,6 +653,267 @@ func (x *UpdateHostLocationSlotResponse) GetSlot() *HostSlotItem {
 	return nil
 }
 
+type CreateHostLocationSlotsBatchRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	LocationSlug    string   `protobuf:"bytes,1,opt,name=location_slug,json=locationSlug,proto3" json:"location_slug,omitempty"`
+	ServiceId       string   `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	PractitionerId  *string  `protobuf:"bytes,3,opt,name=practitioner_id,json=practitionerId,proto3,oneof" json:"practitioner_id,omitempty"`
+	RoomId          *string  `protobuf:"bytes,4,opt,name=room_id,json=roomId,proto3,oneof" json:"room_id,omitempty"`
+	DateFrom        string   `protobuf:"bytes,5,opt,name=date_from,json=dateFrom,proto3" json:"date_from,omitempty"`
+	DateTo          string   `protobuf:"bytes,6,opt,name=date_to,json=dateTo,proto3" json:"date_to,omitempty"`
+	Weekdays        []string `protobuf:"bytes,7,rep,name=weekdays,proto3" json:"weekdays,omitempty"`
+	DailyStartLocal string   `protobuf:"bytes,8,opt,name=daily_start_local,json=dailyStartLocal,proto3" json:"daily_start_local,omitempty"`
+	DailyEndLocal   string   `protobuf:"bytes,9,opt,name=daily_end_local,json=dailyEndLocal,proto3" json:"daily_end_local,omitempty"`
+	SlotMinutes     int32    `protobuf:"varint,10,opt,name=slot_minutes,json=slotMinutes,proto3" json:"slot_minutes,omitempty"`
+	Capacity        int32    `protobuf:"varint,11,opt,name=capacity,proto3" json:"capacity,omitempty"`
+	Status          string   `protobuf:"bytes,12,opt,name=status,proto3" json:"status,omitempty"`
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) Reset() {
+	*x = CreateHostLocationSlotsBatchRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_rpc_host_slot_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateHostLocationSlotsBatchRequest) ProtoMessage() {}
+
+func (x *CreateHostLocationSlotsBatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_host_slot_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateHostLocationSlotsBatchRequest.ProtoReflect.Descriptor instead.
+func (*CreateHostLocationSlotsBatchRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_host_slot_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetLocationSlug() string {
+	if x != nil {
+		return x.LocationSlug
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetPractitionerId() string {
+	if x != nil && x.PractitionerId != nil {
+		return *x.PractitionerId
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetRoomId() string {
+	if x != nil && x.RoomId != nil {
+		return *x.RoomId
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetDateFrom() string {
+	if x != nil {
+		return x.DateFrom
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetDateTo() string {
+	if x != nil {
+		return x.DateTo
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetWeekdays() []string {
+	if x != nil {
+		return x.Weekdays
+	}
+	return nil
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetDailyStartLocal() string {
+	if x != nil {
+		return x.DailyStartLocal
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetDailyEndLocal() string {
+	if x != nil {
+		return x.DailyEndLocal
+	}
+	return ""
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetSlotMinutes() int32 {
+	if x != nil {
+		return x.SlotMinutes
+	}
+	return 0
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetCapacity() int32 {
+	if x != nil {
+		return x.Capacity
+	}
+	return 0
+}
+
+func (x *CreateHostLocationSlotsBatchRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+type HostSlotBatchError struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Code    string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	At      string `protobuf:"bytes,3,opt,name=at,proto3" json:"at,omitempty"`
+}
+
+func (x *HostSlotBatchError) Reset() {
+	*x = HostSlotBatchError{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_rpc_host_slot_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *HostSlotBatchError) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HostSlotBatchError) ProtoMessage() {}
+
+func (x *HostSlotBatchError) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_host_slot_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HostSlotBatchError.ProtoReflect.Descriptor instead.
+func (*HostSlotBatchError) Descriptor() ([]byte, []int) {
+	return file_rpc_host_slot_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *HostSlotBatchError) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *HostSlotBatchError) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *HostSlotBatchError) GetAt() string {
+	if x != nil {
+		return x.At
+	}
+	return ""
+}
+
+type CreateHostLocationSlotsBatchResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CreatedCount int32                 `protobuf:"varint,1,opt,name=created_count,json=createdCount,proto3" json:"created_count,omitempty"`
+	SkippedCount int32                 `protobuf:"varint,2,opt,name=skipped_count,json=skippedCount,proto3" json:"skipped_count,omitempty"`
+	Errors       []*HostSlotBatchError `protobuf:"bytes,3,rep,name=errors,proto3" json:"errors,omitempty"`
+}
+
+func (x *CreateHostLocationSlotsBatchResponse) Reset() {
+	*x = CreateHostLocationSlotsBatchResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_rpc_host_slot_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateHostLocationSlotsBatchResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateHostLocationSlotsBatchResponse) ProtoMessage() {}
+
+func (x *CreateHostLocationSlotsBatchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_host_slot_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateHostLocationSlotsBatchResponse.ProtoReflect.Descriptor instead.
+func (*CreateHostLocationSlotsBatchResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_host_slot_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreateHostLocationSlotsBatchResponse) GetCreatedCount() int32 {
+	if x != nil {
+		return x.CreatedCount
+	}
+	return 0
+}
+
+func (x *CreateHostLocationSlotsBatchResponse) GetSkippedCount() int32 {
+	if x != nil {
+		return x.SkippedCount
+	}
+	return 0
+}
+
+func (x *CreateHostLocationSlotsBatchResponse) GetErrors() []*HostSlotBatchError {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
 var File_rpc_host_slot_proto protoreflect.FileDescriptor
 
 var file_rpc_host_slot_proto_rawDesc = []byte{
@@ -766,10 +1027,55 @@ var file_rpc_host_slot_proto_rawDesc = []byte{
 	0x65, 0x48, 0x6f, 0x73, 0x74, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x6c, 0x6f,
 	0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x24, 0x0a, 0x04, 0x73, 0x6c, 0x6f,
 	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x70, 0x62, 0x2e, 0x48, 0x6f, 0x73,
-	0x74, 0x53, 0x6c, 0x6f, 0x74, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x04, 0x73, 0x6c, 0x6f, 0x74, 0x42,
-	0x1e, 0x5a, 0x1c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x6c,
-	0x73, 0x68, 0x6d, 0x6f, 0x72, 0x65, 0x2f, 0x79, 0x74, 0x74, 0x65, 0x72, 0x2f, 0x70, 0x62, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x53, 0x6c, 0x6f, 0x74, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x04, 0x73, 0x6c, 0x6f, 0x74, 0x22,
+	0xd2, 0x03, 0x0a, 0x23, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x48, 0x6f, 0x73, 0x74, 0x4c, 0x6f,
+	0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x6c, 0x6f, 0x74, 0x73, 0x42, 0x61, 0x74, 0x63, 0x68,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x23, 0x0a, 0x0d, 0x6c, 0x6f, 0x63, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x5f, 0x73, 0x6c, 0x75, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c,
+	0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x6c, 0x75, 0x67, 0x12, 0x1d, 0x0a, 0x0a,
+	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x09, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12, 0x2c, 0x0a, 0x0f, 0x70,
+	0x72, 0x61, 0x63, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x0e, 0x70, 0x72, 0x61, 0x63, 0x74, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x65, 0x72, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12, 0x1c, 0x0a, 0x07, 0x72, 0x6f, 0x6f,
+	0x6d, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x48, 0x01, 0x52, 0x06, 0x72, 0x6f,
+	0x6f, 0x6d, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12, 0x1b, 0x0a, 0x09, 0x64, 0x61, 0x74, 0x65, 0x5f,
+	0x66, 0x72, 0x6f, 0x6d, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x64, 0x61, 0x74, 0x65,
+	0x46, 0x72, 0x6f, 0x6d, 0x12, 0x17, 0x0a, 0x07, 0x64, 0x61, 0x74, 0x65, 0x5f, 0x74, 0x6f, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x64, 0x61, 0x74, 0x65, 0x54, 0x6f, 0x12, 0x1a, 0x0a,
+	0x08, 0x77, 0x65, 0x65, 0x6b, 0x64, 0x61, 0x79, 0x73, 0x18, 0x07, 0x20, 0x03, 0x28, 0x09, 0x52,
+	0x08, 0x77, 0x65, 0x65, 0x6b, 0x64, 0x61, 0x79, 0x73, 0x12, 0x2a, 0x0a, 0x11, 0x64, 0x61, 0x69,
+	0x6c, 0x79, 0x5f, 0x73, 0x74, 0x61, 0x72, 0x74, 0x5f, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x18, 0x08,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x0f, 0x64, 0x61, 0x69, 0x6c, 0x79, 0x53, 0x74, 0x61, 0x72, 0x74,
+	0x4c, 0x6f, 0x63, 0x61, 0x6c, 0x12, 0x26, 0x0a, 0x0f, 0x64, 0x61, 0x69, 0x6c, 0x79, 0x5f, 0x65,
+	0x6e, 0x64, 0x5f, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x18, 0x09, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0d,
+	0x64, 0x61, 0x69, 0x6c, 0x79, 0x45, 0x6e, 0x64, 0x4c, 0x6f, 0x63, 0x61, 0x6c, 0x12, 0x21, 0x0a,
+	0x0c, 0x73, 0x6c, 0x6f, 0x74, 0x5f, 0x6d, 0x69, 0x6e, 0x75, 0x74, 0x65, 0x73, 0x18, 0x0a, 0x20,
+	0x01, 0x28, 0x05, 0x52, 0x0b, 0x73, 0x6c, 0x6f, 0x74, 0x4d, 0x69, 0x6e, 0x75, 0x74, 0x65, 0x73,
+	0x12, 0x1a, 0x0a, 0x08, 0x63, 0x61, 0x70, 0x61, 0x63, 0x69, 0x74, 0x79, 0x18, 0x0b, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x08, 0x63, 0x61, 0x70, 0x61, 0x63, 0x69, 0x74, 0x79, 0x12, 0x16, 0x0a, 0x06,
+	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x42, 0x12, 0x0a, 0x10, 0x5f, 0x70, 0x72, 0x61, 0x63, 0x74, 0x69, 0x74,
+	0x69, 0x6f, 0x6e, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x42, 0x0a, 0x0a, 0x08, 0x5f, 0x72, 0x6f, 0x6f,
+	0x6d, 0x5f, 0x69, 0x64, 0x22, 0x52, 0x0a, 0x12, 0x48, 0x6f, 0x73, 0x74, 0x53, 0x6c, 0x6f, 0x74,
+	0x42, 0x61, 0x74, 0x63, 0x68, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f,
+	0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x18,
+	0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x61, 0x74, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x61, 0x74, 0x22, 0xa0, 0x01, 0x0a, 0x24, 0x43, 0x72, 0x65,
+	0x61, 0x74, 0x65, 0x48, 0x6f, 0x73, 0x74, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53,
+	0x6c, 0x6f, 0x74, 0x73, 0x42, 0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x23, 0x0a, 0x0d, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x63, 0x6f, 0x75,
+	0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0c, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x64, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x23, 0x0a, 0x0d, 0x73, 0x6b, 0x69, 0x70, 0x70, 0x65,
+	0x64, 0x5f, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0c, 0x73,
+	0x6b, 0x69, 0x70, 0x70, 0x65, 0x64, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x2e, 0x0a, 0x06, 0x65,
+	0x72, 0x72, 0x6f, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x70, 0x62,
+	0x2e, 0x48, 0x6f, 0x73, 0x74, 0x53, 0x6c, 0x6f, 0x74, 0x42, 0x61, 0x74, 0x63, 0x68, 0x45, 0x72,
+	0x72, 0x6f, 0x72, 0x52, 0x06, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x42, 0x1e, 0x5a, 0x1c, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x6c, 0x73, 0x68, 0x6d, 0x6f,
+	0x72, 0x65, 0x2f, 0x79, 0x74, 0x74, 0x65, 0x72, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -784,25 +1090,29 @@ func file_rpc_host_slot_proto_rawDescGZIP() []byte {
 	return file_rpc_host_slot_proto_rawDescData
 }
 
-var file_rpc_host_slot_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_rpc_host_slot_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_rpc_host_slot_proto_goTypes = []interface{}{
-	(*HostSlotItem)(nil),                   // 0: pb.HostSlotItem
-	(*ListHostLocationSlotsRequest)(nil),   // 1: pb.ListHostLocationSlotsRequest
-	(*ListHostLocationSlotsResponse)(nil),  // 2: pb.ListHostLocationSlotsResponse
-	(*CreateHostLocationSlotRequest)(nil),  // 3: pb.CreateHostLocationSlotRequest
-	(*CreateHostLocationSlotResponse)(nil), // 4: pb.CreateHostLocationSlotResponse
-	(*UpdateHostLocationSlotRequest)(nil),  // 5: pb.UpdateHostLocationSlotRequest
-	(*UpdateHostLocationSlotResponse)(nil), // 6: pb.UpdateHostLocationSlotResponse
+	(*HostSlotItem)(nil),                         // 0: pb.HostSlotItem
+	(*ListHostLocationSlotsRequest)(nil),         // 1: pb.ListHostLocationSlotsRequest
+	(*ListHostLocationSlotsResponse)(nil),        // 2: pb.ListHostLocationSlotsResponse
+	(*CreateHostLocationSlotRequest)(nil),        // 3: pb.CreateHostLocationSlotRequest
+	(*CreateHostLocationSlotResponse)(nil),       // 4: pb.CreateHostLocationSlotResponse
+	(*UpdateHostLocationSlotRequest)(nil),        // 5: pb.UpdateHostLocationSlotRequest
+	(*UpdateHostLocationSlotResponse)(nil),       // 6: pb.UpdateHostLocationSlotResponse
+	(*CreateHostLocationSlotsBatchRequest)(nil),  // 7: pb.CreateHostLocationSlotsBatchRequest
+	(*HostSlotBatchError)(nil),                   // 8: pb.HostSlotBatchError
+	(*CreateHostLocationSlotsBatchResponse)(nil), // 9: pb.CreateHostLocationSlotsBatchResponse
 }
 var file_rpc_host_slot_proto_depIdxs = []int32{
 	0, // 0: pb.ListHostLocationSlotsResponse.items:type_name -> pb.HostSlotItem
 	0, // 1: pb.CreateHostLocationSlotResponse.slot:type_name -> pb.HostSlotItem
 	0, // 2: pb.UpdateHostLocationSlotResponse.slot:type_name -> pb.HostSlotItem
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	8, // 3: pb.CreateHostLocationSlotsBatchResponse.errors:type_name -> pb.HostSlotBatchError
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_rpc_host_slot_proto_init() }
@@ -895,16 +1205,53 @@ func file_rpc_host_slot_proto_init() {
 				return nil
 			}
 		}
+		file_rpc_host_slot_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateHostLocationSlotsBatchRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_rpc_host_slot_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*HostSlotBatchError); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_rpc_host_slot_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateHostLocationSlotsBatchResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_rpc_host_slot_proto_msgTypes[3].OneofWrappers = []interface{}{}
 	file_rpc_host_slot_proto_msgTypes[5].OneofWrappers = []interface{}{}
+	file_rpc_host_slot_proto_msgTypes[7].OneofWrappers = []interface{}{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_rpc_host_slot_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
