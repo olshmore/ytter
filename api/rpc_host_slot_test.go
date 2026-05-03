@@ -117,3 +117,104 @@ func TestCreateHostLocationSlot_OK(t *testing.T) {
 	require.Equal(t, "Alice", res.Slot.PractitionerName)
 	require.Equal(t, "Room A", res.Slot.RoomName)
 }
+
+func TestCreateHostLocationSlotsBatch_OK(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	locationID := uuid.New()
+	serviceID := uuid.New()
+	store.EXPECT().
+		GetLocationBySlug(gomock.Any(), "qa-clinic").
+		Return(db.Location{
+			ID:            locationID,
+			OwnerUsername: "hostuser",
+			Slug:          "qa-clinic",
+			Name:          "QA Clinic",
+			IsActive:      true,
+		}, nil)
+	store.EXPECT().
+		GetServiceByID(gomock.Any(), serviceID).
+		Return(db.Service{
+			ID:         serviceID,
+			LocationID: locationID,
+			Name:       "Massage",
+		}, nil)
+	store.EXPECT().
+		CreateHostLocationSlot(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(_ context.Context, arg db.CreateHostLocationSlotParams) (db.AppointmentSlot, error) {
+			require.Equal(t, locationID, arg.LocationID)
+			require.Equal(t, serviceID, arg.ServiceID)
+			require.Equal(t, int32(2), arg.Capacity)
+			require.Equal(t, "available", arg.Status)
+			return db.AppointmentSlot{
+				ID:         uuid.New(),
+				LocationID: arg.LocationID,
+				ServiceID:  arg.ServiceID,
+				StartAt:    arg.StartAt,
+				EndAt:      arg.EndAt,
+				Capacity:   arg.Capacity,
+				Status:     arg.Status,
+			}, nil
+		})
+
+	res, err := server.CreateHostLocationSlotsBatch(ctx, &pb.CreateHostLocationSlotsBatchRequest{
+		LocationSlug:    "qa-clinic",
+		ServiceId:       serviceID.String(),
+		DateFrom:        "2026-05-04",
+		DateTo:          "2026-05-04",
+		DailyStartLocal: "09:00",
+		DailyEndLocal:   "09:30",
+		SlotMinutes:     30,
+		Capacity:        2,
+		Weekdays:        []string{"mon"},
+	})
+	require.NoError(t, err)
+	require.EqualValues(t, 1, res.CreatedCount)
+	require.EqualValues(t, 0, res.SkippedCount)
+	require.Empty(t, res.Errors)
+}
+
+func TestCreateHostLocationSlotsBatch_InvalidDailyRange(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	locationID := uuid.New()
+	serviceID := uuid.New()
+	store.EXPECT().
+		GetLocationBySlug(gomock.Any(), "qa-clinic").
+		Return(db.Location{
+			ID:            locationID,
+			OwnerUsername: "hostuser",
+			Slug:          "qa-clinic",
+			Name:          "QA Clinic",
+			IsActive:      true,
+		}, nil)
+	store.EXPECT().
+		GetServiceByID(gomock.Any(), serviceID).
+		Return(db.Service{
+			ID:         serviceID,
+			LocationID: locationID,
+			Name:       "Massage",
+		}, nil)
+
+	_, err := server.CreateHostLocationSlotsBatch(ctx, &pb.CreateHostLocationSlotsBatchRequest{
+		LocationSlug:    "qa-clinic",
+		ServiceId:       serviceID.String(),
+		DateFrom:        "2026-05-04",
+		DateTo:          "2026-05-04",
+		DailyStartLocal: "10:00",
+		DailyEndLocal:   "09:00",
+		SlotMinutes:     30,
+		Capacity:        1,
+		Weekdays:        []string{"mon"},
+	})
+	require.Error(t, err)
+	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}

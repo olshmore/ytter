@@ -7,6 +7,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	mockdb "github.com/olshmore/ytter/db/mock"
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/pb"
@@ -73,6 +75,32 @@ func TestCreatePublicBooking_StatusPassThrough(t *testing.T) {
 	}
 }
 
+func TestListPublicLocations_FutureInventoryOnly(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	activeID := uuid.New()
+	store.EXPECT().
+		ListPublicLocations(gomock.Any()).
+		Return([]db.ListPublicLocationsRow{
+			{
+				ID:                          activeID,
+				Slug:                        "active-clinic",
+				Name:                        "Active Clinic",
+				Timezone:                    "Europe/London",
+				BookingRequiresHostApproval: false,
+			},
+		}, nil)
+
+	res, err := server.ListPublicLocations(context.Background(), &pb.ListPublicLocationsRequest{})
+	require.NoError(t, err)
+	require.Len(t, res.Items, 1)
+	require.Equal(t, activeID.String(), res.Items[0].Id)
+	require.Equal(t, "active-clinic", res.Items[0].Slug)
+}
+
 func TestCreatePublicBooking_InvalidLocationID(t *testing.T) {
 	storeCtrl := gomock.NewController(t)
 	defer storeCtrl.Finish()
@@ -87,4 +115,236 @@ func TestCreatePublicBooking_InvalidLocationID(t *testing.T) {
 	})
 	require.Error(t, err)
 	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestListPublicSlots_MissingLocationSlug(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	_, err := server.ListPublicSlots(context.Background(), &pb.ListPublicSlotsRequest{})
+	require.Error(t, err)
+	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestListPublicSlots_EmptyButLocationExists(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	locationID := uuid.New()
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{}, nil)
+	store.EXPECT().
+		GetLocationBySlug(gomock.Any(), "qa-clinic").
+		Return(db.Location{
+			ID:                          locationID,
+			Slug:                        "qa-clinic",
+			Name:                        "QA Clinic",
+			Timezone:                    "Europe/London",
+			IsActive:                    true,
+			BookingRequiresHostApproval: true,
+		}, nil)
+
+	res, err := server.ListPublicSlots(context.Background(), &pb.ListPublicSlotsRequest{
+		LocationSlug: "qa-clinic",
+	})
+	require.NoError(t, err)
+	require.Equal(t, locationID.String(), res.Location.Id)
+	require.Equal(t, "qa-clinic", res.Location.Slug)
+	require.True(t, res.Location.BookingRequiresHostApproval)
+	require.Empty(t, res.Items)
+	require.EqualValues(t, 0, res.TotalCount)
+}
+
+func TestListPublicSlots_FiltersAndAvailability(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	locationID := uuid.New()
+	serviceID := uuid.New()
+	practitionerID := uuid.New()
+	roomID := uuid.New()
+	start := time.Now().UTC().Add(2 * time.Hour).Truncate(time.Second)
+
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{
+			{
+				SlotID:                                   uuid.New(),
+				StartAt:                                  start,
+				EndAt:                                    start.Add(30 * time.Minute),
+				SlotStatus:                               "available",
+				Capacity:                                 2,
+				BookedCount:                              1,
+				ServiceID:                                serviceID,
+				ServiceName:                              "Massage",
+				DurationMinutes:                          30,
+				PriceMinorUnits:                          5000,
+				Currency:                                 "GBP",
+				EffectiveCancellationMinHoursBeforeStart: 24,
+				PractitionerID:                           pgtype.UUID{Bytes: practitionerID, Valid: true},
+				PractitionerDisplayName:                  pgtype.Text{String: "Alice", Valid: true},
+				RoomID:                                   pgtype.UUID{Bytes: roomID, Valid: true},
+				RoomName:                                 pgtype.Text{String: "Room A", Valid: true},
+				LocationID:                               locationID,
+				LocationSlug:                             "qa-clinic",
+				LocationName:                             "QA Clinic",
+				LocationTimezone:                         "Europe/London",
+				BookingRequiresHostApproval:              false,
+			},
+		}, nil)
+
+	res, err := server.ListPublicSlots(context.Background(), &pb.ListPublicSlotsRequest{
+		LocationSlug:   "qa-clinic",
+		Search:         "massage",
+		ServiceId:      serviceID.String(),
+		PractitionerId: practitionerID.String(),
+		RoomId:         roomID.String(),
+		Date:           start.Format("2006-01-02"),
+		TimeSlot:       "morning",
+		OnlyAvailable:  true,
+		Limit:          20,
+		Offset:         0,
+	})
+	require.NoError(t, err)
+	require.Len(t, res.Items, 1)
+	require.EqualValues(t, 1, res.TotalCount)
+	require.EqualValues(t, 1, res.AvailableCount)
+	require.True(t, res.Items[0].IsBookable)
+	require.EqualValues(t, 2, res.Items[0].Capacity)
+	require.EqualValues(t, 1, res.Items[0].BookedCount)
+	require.EqualValues(t, 1, res.Items[0].SpacesLeft)
+}
+
+func TestListPublicSlots_ExcludesPastEvenWhenOnlyAvailableFalse(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	locationID := uuid.New()
+	serviceID := uuid.New()
+	now := time.Now().UTC().Truncate(time.Second)
+
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{
+			{
+				SlotID:                      uuid.New(),
+				StartAt:                     now.Add(-2 * time.Hour),
+				EndAt:                       now.Add(-90 * time.Minute),
+				SlotStatus:                  "booked",
+				Capacity:                    1,
+				BookedCount:                 1,
+				ServiceID:                   serviceID,
+				ServiceName:                 "Massage",
+				DurationMinutes:             30,
+				PriceMinorUnits:             5000,
+				Currency:                    "GBP",
+				LocationID:                  locationID,
+				LocationSlug:                "qa-clinic",
+				LocationName:                "QA Clinic",
+				LocationTimezone:            "Europe/London",
+				BookingRequiresHostApproval: false,
+			},
+			{
+				SlotID:                      uuid.New(),
+				StartAt:                     now.Add(2 * time.Hour),
+				EndAt:                       now.Add(150 * time.Minute),
+				SlotStatus:                  "booked",
+				Capacity:                    1,
+				BookedCount:                 1,
+				ServiceID:                   serviceID,
+				ServiceName:                 "Massage",
+				DurationMinutes:             30,
+				PriceMinorUnits:             5000,
+				Currency:                    "GBP",
+				LocationID:                  locationID,
+				LocationSlug:                "qa-clinic",
+				LocationName:                "QA Clinic",
+				LocationTimezone:            "Europe/London",
+				BookingRequiresHostApproval: false,
+			},
+		}, nil)
+
+	res, err := server.ListPublicSlots(context.Background(), &pb.ListPublicSlotsRequest{
+		LocationSlug:  "qa-clinic",
+		OnlyAvailable: false,
+		Limit:         20,
+		Offset:        0,
+		TimeSlot:      "any",
+	})
+	require.NoError(t, err)
+	require.Len(t, res.Items, 1)
+	require.EqualValues(t, 1, res.TotalCount)
+	require.Equal(t, "booked", res.Items[0].AvailabilityStatus)
+}
+
+func TestGetPublicFilterOptions_OK(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	serviceID := uuid.New()
+	practitionerID := uuid.New()
+	roomID := uuid.New()
+	store.EXPECT().
+		ListPublicFilterServicesByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicFilterServicesByLocationSlugRow{{ID: serviceID, Name: "Massage"}}, nil)
+	store.EXPECT().
+		ListPublicFilterPractitionersByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicFilterPractitionersByLocationSlugRow{{ID: practitionerID, DisplayName: "Alice"}}, nil)
+	store.EXPECT().
+		ListPublicFilterRoomsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicFilterRoomsByLocationSlugRow{{ID: roomID, Name: "Room A"}}, nil)
+
+	res, err := server.GetPublicFilterOptions(context.Background(), &pb.GetPublicFilterOptionsRequest{
+		LocationSlug: "qa-clinic",
+	})
+	require.NoError(t, err)
+	require.Len(t, res.Services, 1)
+	require.Len(t, res.Practitioners, 1)
+	require.Len(t, res.Rooms, 1)
+	require.Equal(t, []string{"any", "morning", "afternoon", "evening"}, res.TimeSlots)
+}
+
+func TestCancelPublicBooking_InvalidToken(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	_, err := server.CancelPublicBooking(context.Background(), &pb.CancelPublicBookingRequest{
+		BookingId:   uuid.NewString(),
+		CancelToken: " ",
+	})
+	require.Error(t, err)
+	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestListPublicSlots_NotFoundWhenLocationMissing(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "missing-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{}, nil)
+	store.EXPECT().
+		GetLocationBySlug(gomock.Any(), "missing-clinic").
+		Return(db.Location{}, pgx.ErrNoRows)
+
+	_, err := server.ListPublicSlots(context.Background(), &pb.ListPublicSlotsRequest{
+		LocationSlug: "missing-clinic",
+	})
+	require.Error(t, err)
+	require.Equal(t, codes.NotFound, status.Code(err))
 }

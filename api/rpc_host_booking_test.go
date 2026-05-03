@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	mockdb "github.com/olshmore/ytter/db/mock"
 	db "github.com/olshmore/ytter/db/sqlc"
@@ -117,6 +118,55 @@ func TestHostApproveBooking_InvalidUUID(t *testing.T) {
 
 	_, err := server.HostApproveBooking(ctx, &pb.HostApproveBookingRequest{BookingId: "x"})
 	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestHostSetBookingNoShow_InvalidUUID(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	_, err := server.HostSetBookingNoShow(ctx, &pb.HostSetBookingNoShowRequest{BookingId: "x", NoShow: true})
+	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestHostSetBookingNoShow_OK(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	bookingID := uuid.New()
+	locID := uuid.New()
+	slotID := uuid.New()
+	now := time.Now().UTC()
+	store.EXPECT().
+		HostSetBookingNoShowTx(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(_ context.Context, arg db.HostSetBookingNoShowTxParams) (db.HostSetBookingNoShowTxResult, error) {
+			require.Equal(t, bookingID, arg.BookingID)
+			require.True(t, arg.NoShow)
+			return db.HostSetBookingNoShowTxResult{
+				Booking: db.Booking{
+					ID:         bookingID,
+					LocationID: locID,
+					SlotID:     slotID,
+					Status:     "no_show",
+					GuestName:  "Jane",
+					GuestEmail: "jane@example.com",
+					BookedAt:   now,
+				},
+			}, nil
+		})
+
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	res, err := server.HostSetBookingNoShow(ctx, &pb.HostSetBookingNoShowRequest{
+		BookingId: bookingID.String(),
+		NoShow:    true,
+	})
+	require.NoError(t, err)
+	require.Equal(t, "no_show", res.Booking.Status)
+	require.Equal(t, bookingID.String(), res.Booking.Id)
 }
 
 func TestCreateHostLocation_InvalidSlug(t *testing.T) {
@@ -273,4 +323,137 @@ func TestUpdateHostLocation_BookingApprovalSetting(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.True(t, res.Location.BookingRequiresHostApproval)
+}
+
+func TestGetHostSetupChecklist_ReadyForBooking(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	locationID := uuid.New()
+	now := time.Now().UTC()
+
+	store.EXPECT().
+		ListHostLocationsByOwner(gomock.Any(), "hostuser").
+		Return([]db.ListHostLocationsByOwnerRow{
+			{
+				ID:            locationID,
+				OwnerUsername: "hostuser",
+				Slug:          "qa-clinic",
+				Name:          "QA Clinic",
+				Timezone:      "Europe/London",
+				IsActive:      true,
+			},
+		}, nil)
+	store.EXPECT().
+		GetLocationByID(gomock.Any(), locationID).
+		Return(db.Location{
+			ID:            locationID,
+			OwnerUsername: "hostuser",
+			Slug:          "qa-clinic",
+			Name:          "QA Clinic",
+			Timezone:      "Europe/London",
+			IsActive:      true,
+		}, nil)
+	store.EXPECT().
+		CountHostServicesByLocation(gomock.Any(), gomock.Any()).
+		Return(int32(2), nil)
+	store.EXPECT().
+		ListHostSlotsByLocation(gomock.Any(), gomock.Any()).
+		Return([]db.ListHostSlotsByLocationRow{
+			{
+				ID:          uuid.New(),
+				LocationID:  locationID,
+				ServiceID:   uuid.New(),
+				StartAt:     now.Add(2 * time.Hour),
+				EndAt:       now.Add(3 * time.Hour),
+				Capacity:    2,
+				BookedCount: 1,
+				Status:      "available",
+			},
+		}, nil)
+
+	res, err := server.GetHostSetupChecklist(ctx, &pb.GetHostSetupChecklistRequest{})
+	require.NoError(t, err)
+	require.True(t, res.HasLocation)
+	require.True(t, res.HasService)
+	require.True(t, res.HasFutureSlot)
+	require.True(t, res.ReadyForBooking)
+	require.EqualValues(t, 3, res.ProgressDoneCount)
+	require.Equal(t, "qa-clinic", res.SampleLocationSlug)
+}
+
+func TestGetHostBookingAnalyticsSummary_OK(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	locationID := uuid.New()
+	store.EXPECT().
+		GetLocationBySlug(gomock.Any(), "qa-clinic").
+		Return(db.Location{ID: locationID, OwnerUsername: "hostuser", Slug: "qa-clinic", Name: "QA Clinic", IsActive: true}, nil)
+	store.EXPECT().
+		GetHostBookingAnalyticsSummary(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(_ context.Context, arg db.GetHostBookingAnalyticsSummaryParams) (db.GetHostBookingAnalyticsSummaryRow, error) {
+			require.Equal(t, locationID, arg.LocationID)
+			require.Equal(t, "2026-05-01", arg.FromDate.String)
+			require.Equal(t, "2026-05-31", arg.ToDate.String)
+			return db.GetHostBookingAnalyticsSummaryRow{
+				TotalCount:                10,
+				FilledCount:               7,
+				CancelledCount:            2,
+				PendingCount:              1,
+				NoShowCount:               1,
+				PendingApprovalAvgMinutes: []byte("15.5"),
+			}, nil
+		})
+
+	res, err := server.GetHostBookingAnalyticsSummary(ctx, &pb.GetHostBookingAnalyticsSummaryRequest{
+		LocationSlug: "qa-clinic",
+		FromDate:     "2026-05-01",
+		ToDate:       "2026-05-31",
+	})
+	require.NoError(t, err)
+	require.Equal(t, "qa-clinic", res.LocationSlug)
+	require.InDelta(t, 0.7, res.FillRate, 0.0001)
+	require.InDelta(t, 0.2, res.CancellationRate, 0.0001)
+	// no_show_proxy_rate is no_show_count / total_count (pending excluded).
+	require.InDelta(t, 0.1, res.NoShowProxyRate, 0.0001)
+	require.InDelta(t, 15.5, res.PendingApprovalAvgMinutes, 0.0001)
+}
+
+func TestGetHostBookingAnalyticsSummary_InvalidFromDate(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	_, err := server.GetHostBookingAnalyticsSummary(ctx, &pb.GetHostBookingAnalyticsSummaryRequest{
+		LocationSlug: "qa-clinic",
+		FromDate:     "2026/05/01",
+		ToDate:       "2026-05-31",
+	})
+	require.Error(t, err)
+	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestGetHostSetupChecklist_LocationLoadFailure(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+	ctx := newContextWithBearerToken(t, server.tokenMaker, "hostuser", []utils.Role{utils.RoleHost}, time.Minute)
+
+	store.EXPECT().
+		ListHostLocationsByOwner(gomock.Any(), "hostuser").
+		Return(nil, pgx.ErrNoRows)
+
+	_, err := server.GetHostSetupChecklist(ctx, &pb.GetHostSetupChecklistRequest{})
+	require.Error(t, err)
+	require.Equal(t, codes.Internal, status.Code(err))
 }
