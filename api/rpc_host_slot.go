@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -359,6 +360,148 @@ func (server *Server) UpdateHostLocationSlot(ctx context.Context, req *pb.Update
 	return &pb.UpdateHostLocationSlotResponse{
 		Slot: hostSlotItemFromModel(slot, serviceName, practitionerName, roomName),
 	}, nil
+}
+
+func (server *Server) CreateHostLocationSlotsBatch(ctx context.Context, req *pb.CreateHostLocationSlotsBatchRequest) (*pb.CreateHostLocationSlotsBatchResponse, error) {
+	payload, err := server.MustGetAuthPayload(ctx, []utils.Role{utils.RoleHost, utils.RoleAdmin})
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
+
+	locationSlug := strings.TrimSpace(req.GetLocationSlug())
+	if locationSlug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "location_slug is required")
+	}
+	loc, err := server.store.GetLocationBySlug(ctx, locationSlug)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "location not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to load location")
+	}
+	if !access.HostMayAccessLocation(payload, loc.OwnerUsername) {
+		return nil, status.Errorf(codes.PermissionDenied, "permission denied")
+	}
+
+	serviceID, err := uuid.Parse(strings.TrimSpace(req.GetServiceId()))
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid service_id")
+	}
+	serviceName, err := server.assertServiceInLocation(ctx, serviceID, loc.ID)
+	if err != nil {
+		_ = serviceName
+		return nil, err
+	}
+	practitionerID, _, err := server.optionalPractitionerForLocation(ctx, req.PractitionerId, loc.ID)
+	if err != nil {
+		return nil, err
+	}
+	roomID, _, err := server.optionalRoomForLocation(ctx, req.RoomId, loc.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	dateFrom, err := time.Parse("2006-01-02", strings.TrimSpace(req.GetDateFrom()))
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid date_from")
+	}
+	dateTo, err := time.Parse("2006-01-02", strings.TrimSpace(req.GetDateTo()))
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid date_to")
+	}
+	if dateTo.Before(dateFrom) {
+		return nil, status.Errorf(codes.InvalidArgument, "date_to must be on/after date_from")
+	}
+	if req.GetSlotMinutes() <= 0 || req.GetCapacity() <= 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "slot_minutes and capacity must be > 0")
+	}
+	statusText := strings.TrimSpace(req.GetStatus())
+	if statusText == "" {
+		statusText = "available"
+	}
+	if !validHostSlotStatus(statusText) {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid status")
+	}
+
+	startDur, err := parseHHMMDuration(req.GetDailyStartLocal())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid daily_start_local")
+	}
+	endDur, err := parseHHMMDuration(req.GetDailyEndLocal())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid daily_end_local")
+	}
+	if endDur <= startDur {
+		return nil, status.Errorf(codes.InvalidArgument, "daily_end_local must be after daily_start_local")
+	}
+
+	weekdaySet := map[string]struct{}{}
+	for _, day := range req.GetWeekdays() {
+		weekdaySet[strings.ToLower(strings.TrimSpace(day))] = struct{}{}
+	}
+	if len(weekdaySet) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "weekdays is required")
+	}
+
+	createdCount := int32(0)
+	skippedCount := int32(0)
+	errorsOut := make([]*pb.HostSlotBatchError, 0)
+	step := time.Duration(req.GetSlotMinutes()) * time.Minute
+
+	for d := dateFrom; !d.After(dateTo); d = d.AddDate(0, 0, 1) {
+		dayKey := strings.ToLower(d.Weekday().String()[:3])
+		if _, ok := weekdaySet[dayKey]; !ok {
+			continue
+		}
+		dayStart := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC).Add(startDur)
+		dayEnd := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC).Add(endDur)
+		for st := dayStart; st.Add(step).Equal(dayEnd) || st.Add(step).Before(dayEnd); st = st.Add(step) {
+			et := st.Add(step)
+			_, err := server.store.CreateHostLocationSlot(ctx, db.CreateHostLocationSlotParams{
+				LocationID:     loc.ID,
+				ServiceID:      serviceID,
+				PractitionerID: practitionerID,
+				RoomID:         roomID,
+				StartAt:        st,
+				EndAt:          et,
+				Capacity:       req.GetCapacity(),
+				Status:         statusText,
+			})
+			if err != nil {
+				skippedCount++
+				code := "SLOT_CREATE_FAILED"
+				var pgErr *pgconn.PgError
+				if errors.As(err, &pgErr) && pgErr.Code == db.CheckViolation {
+					code = "SLOT_OVERLAP"
+				}
+				errorsOut = append(errorsOut, &pb.HostSlotBatchError{
+					Code:    code,
+					Message: err.Error(),
+					At:      st.Format(time.RFC3339),
+				})
+				continue
+			}
+			createdCount++
+		}
+	}
+
+	return &pb.CreateHostLocationSlotsBatchResponse{
+		CreatedCount: createdCount,
+		SkippedCount: skippedCount,
+		Errors:       errorsOut,
+	}, nil
+}
+
+func parseHHMMDuration(v string) (time.Duration, error) {
+	parts := strings.Split(strings.TrimSpace(v), ":")
+	if len(parts) != 2 {
+		return 0, fmt.Errorf("invalid")
+	}
+	h, err := time.Parse("15:04", fmt.Sprintf("%s:%s", parts[0], parts[1]))
+	if err != nil {
+		return 0, err
+	}
+	return time.Duration(h.Hour())*time.Hour + time.Duration(h.Minute())*time.Minute, nil
 }
 
 func hostSlotItemFromModel(slot db.AppointmentSlot, serviceName, practitionerName, roomName string) *pb.HostSlotItem {

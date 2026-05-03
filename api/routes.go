@@ -35,10 +35,19 @@ const (
 	RouteHostApproveBooking       = pb.Ytter_HostApproveBooking_FullMethodName
 	RouteHostRejectBooking        = pb.Ytter_HostRejectBooking_FullMethodName
 	RouteHostCancelBooking        = pb.Ytter_HostCancelBooking_FullMethodName
+	RouteHostSetBookingNoShow     = pb.Ytter_HostSetBookingNoShow_FullMethodName
+	RouteGetHostSetupChecklist    = pb.Ytter_GetHostSetupChecklist_FullMethodName
+	RouteGetMyBookingRebookContext = pb.Ytter_GetMyBookingRebookContext_FullMethodName
+	RouteListMyBookings = pb.Ytter_ListMyBookings_FullMethodName
+	RouteCancelMyBooking = pb.Ytter_CancelMyBooking_FullMethodName
+	RouteGetHostBookingAnalyticsSummary = pb.Ytter_GetHostBookingAnalyticsSummary_FullMethodName
 	RouteListPublicSlots          = pb.Ytter_ListPublicSlots_FullMethodName
+	RouteListPublicLocations      = pb.Ytter_ListPublicLocations_FullMethodName
 	RouteGetPublicFilterOptions   = pb.Ytter_GetPublicFilterOptions_FullMethodName
 	RouteCreatePublicBooking      = pb.Ytter_CreatePublicBooking_FullMethodName
 	RouteCancelPublicBooking      = pb.Ytter_CancelPublicBooking_FullMethodName
+	RouteJoinPublicWaitlist       = pb.Ytter_JoinPublicWaitlist_FullMethodName
+	RouteCreateHostLocationSlotsBatch = pb.Ytter_CreateHostLocationSlotsBatch_FullMethodName
 )
 
 // ConfigureRoleBasedAccess sets up GRPC role-based access control
@@ -58,9 +67,11 @@ func ConfigureRoleBasedAccess() RoleConfig {
 		RouteInitiateGoogleAuth, // Google OAuth initiation
 		RouteGoogleAuthCallback, // Google OAuth callback
 		RouteListPublicSlots,        // public slot discovery
+		RouteListPublicLocations,    // public location discovery
 		RouteGetPublicFilterOptions, // public filter options
 		RouteCreatePublicBooking,    // guest booking creation
 		RouteCancelPublicBooking,    // guest booking cancellation
+		RouteJoinPublicWaitlist,     // guest waitlist join
 	}
 
 	// ============================================================================
@@ -98,12 +109,20 @@ func ConfigureRoleBasedAccess() RoleConfig {
 		RouteHostApproveBooking,
 		RouteHostRejectBooking,
 		RouteHostCancelBooking,
+		RouteHostSetBookingNoShow,
+		RouteGetHostSetupChecklist,
+		RouteGetHostBookingAnalyticsSummary,
+		RouteCreateHostLocationSlotsBatch,
 	)
 
 	// ============================================================================
-	// AUTHENTICATED: HOST/CLIENT
-	// RequireHostRole / RequireClientRole for explicit role checks
+	// AUTHENTICATED: CLIENT OR ADMIN
 	// ============================================================================
+	config.RequireAuth([]utils.Role{utils.RoleClient, utils.RoleAdmin},
+		RouteGetMyBookingRebookContext,
+		RouteListMyBookings,
+		RouteCancelMyBooking,
+	)
 
 	return config
 }

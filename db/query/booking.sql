@@ -56,6 +56,24 @@ WHERE l.slug = $1
   AND sv.is_active = true
 ORDER BY s.start_at ASC;
 
+-- name: ListPublicLocations :many
+SELECT DISTINCT
+  l.id,
+  l.slug,
+  l.name,
+  l.timezone,
+  l.booking_requires_host_approval
+FROM locations l
+JOIN appointment_slots s ON s.location_id = l.id
+JOIN services sv ON sv.id = s.service_id
+WHERE l.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND l.is_active = true
+  AND s.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND s.start_at > now()
+  AND sv.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND sv.is_active = true
+ORDER BY l.name ASC;
+
 -- name: ListPublicFilterServicesByLocationSlug :many
 SELECT sv.id, sv.name
 FROM services sv
@@ -153,6 +171,26 @@ WHERE id = $1
   AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
 RETURNING *;
 
+-- name: MarkBookingNoShow :one
+UPDATE bookings
+SET
+  status = 'no_show',
+  updated_at = now()
+WHERE id = $1
+  AND status = 'confirmed'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+RETURNING *;
+
+-- name: ClearBookingNoShow :one
+UPDATE bookings
+SET
+  status = 'confirmed',
+  updated_at = now()
+WHERE id = $1
+  AND status = 'no_show'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+RETURNING *;
+
 -- name: GetBookingForHostOpByIDForUpdate :one
 SELECT
   b.id,
@@ -237,61 +275,137 @@ WHERE id = $1
 RETURNING *;
 
 -- name: CountHostBookingsByLocation :one
+WITH unified AS (
+  SELECT
+    b.status,
+    s.start_at,
+    l.timezone
+  FROM bookings b
+  JOIN appointment_slots s ON s.id = b.slot_id
+  JOIN locations l ON l.id = b.location_id
+  WHERE b.location_id = $1
+    AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+
+  UNION ALL
+
+  SELECT
+    'pending'::varchar AS status,
+    s.start_at,
+    l.timezone
+  FROM waitlist_entries w
+  JOIN appointment_slots s ON s.id = w.slot_id
+  JOIN locations l ON l.id = w.location_id
+  WHERE w.location_id = $1
+    AND w.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND w.status = 'active'
+)
 SELECT COUNT(*)::int4 AS count
-FROM bookings b
-JOIN appointment_slots s ON s.id = b.slot_id
-JOIN locations l ON l.id = b.location_id
-WHERE b.location_id = $1
-  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
-  AND (
+FROM unified u
+WHERE (
     COALESCE(sqlc.narg(filter_status)::text, '') = ''
-    OR b.status = sqlc.narg(filter_status)
+    OR u.status = sqlc.narg(filter_status)
   )
   AND (
     COALESCE(sqlc.narg(from_date)::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date >= sqlc.narg(from_date)::date
+    OR (u.start_at AT TIME ZONE u.timezone)::date >= sqlc.narg(from_date)::date
   )
   AND (
     COALESCE(sqlc.narg(to_date)::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date <= sqlc.narg(to_date)::date
+    OR (u.start_at AT TIME ZONE u.timezone)::date <= sqlc.narg(to_date)::date
   );
 
 -- name: ListHostBookingsByLocation :many
+WITH unified AS (
+  SELECT
+    b.id AS booking_id,
+    b.status,
+    b.booked_at,
+    b.guest_name,
+    b.guest_email,
+    b.guest_phone,
+    b.cancel_reason,
+    l.id AS location_id,
+    l.slug AS location_slug,
+    l.name AS location_name,
+    s.id AS slot_id,
+    sv.name AS service_name,
+    COALESCE(p.display_name, '') AS practitioner_name,
+    COALESCE(r.name, '') AS room_name,
+    s.start_at,
+    s.end_at,
+    FALSE AS is_waitlist
+  FROM bookings b
+  JOIN appointment_slots s ON s.id = b.slot_id
+  JOIN services sv ON sv.id = s.service_id
+  LEFT JOIN practitioners p ON p.id = s.practitioner_id
+  LEFT JOIN rooms r ON r.id = s.room_id
+  JOIN locations l ON l.id = b.location_id
+  WHERE b.location_id = $1
+    AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+
+  UNION ALL
+
+  SELECT
+    w.id AS booking_id,
+    'pending'::varchar AS status,
+    w.created_at AS booked_at,
+    w.guest_name,
+    w.guest_email,
+    w.guest_phone,
+    NULL::varchar AS cancel_reason,
+    l.id AS location_id,
+    l.slug AS location_slug,
+    l.name AS location_name,
+    s.id AS slot_id,
+    sv.name AS service_name,
+    COALESCE(p.display_name, '') AS practitioner_name,
+    COALESCE(r.name, '') AS room_name,
+    s.start_at,
+    s.end_at,
+    TRUE AS is_waitlist
+  FROM waitlist_entries w
+  JOIN appointment_slots s ON s.id = w.slot_id
+  JOIN services sv ON sv.id = w.service_id
+  LEFT JOIN practitioners p ON p.id = COALESCE(w.practitioner_id, s.practitioner_id)
+  LEFT JOIN rooms r ON r.id = s.room_id
+  JOIN locations l ON l.id = w.location_id
+  WHERE w.location_id = $1
+    AND w.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND w.status = 'active'
+)
 SELECT
-  b.id AS booking_id,
-  b.status,
-  b.booked_at,
-  b.guest_name,
-  b.guest_email,
-  b.guest_phone,
-  b.cancel_reason,
-  s.id AS slot_id,
-  sv.name AS service_name,
-  COALESCE(p.display_name, '') AS practitioner_name,
-  COALESCE(r.name, '') AS room_name,
-  s.start_at,
-  s.end_at
-FROM bookings b
-JOIN appointment_slots s ON s.id = b.slot_id
-JOIN services sv ON sv.id = s.service_id
-LEFT JOIN practitioners p ON p.id = s.practitioner_id
-LEFT JOIN rooms r ON r.id = s.room_id
-JOIN locations l ON l.id = b.location_id
-WHERE b.location_id = $1
-  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
-  AND (
+  u.booking_id,
+  u.status,
+  u.booked_at,
+  u.guest_name,
+  u.guest_email,
+  u.guest_phone,
+  u.cancel_reason,
+  u.location_id,
+  u.location_slug,
+  u.location_name,
+  u.slot_id,
+  u.service_name,
+  u.practitioner_name,
+  u.room_name,
+  u.start_at,
+  u.end_at,
+  u.is_waitlist
+FROM unified u
+JOIN locations l ON l.id = u.location_id
+WHERE (
     COALESCE(sqlc.narg(filter_status)::text, '') = ''
-    OR b.status = sqlc.narg(filter_status)
+    OR u.status = sqlc.narg(filter_status)
   )
   AND (
     COALESCE(sqlc.narg(from_date)::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date >= sqlc.narg(from_date)::date
+    OR (u.start_at AT TIME ZONE l.timezone)::date >= sqlc.narg(from_date)::date
   )
   AND (
     COALESCE(sqlc.narg(to_date)::text, '') = ''
-    OR (s.start_at AT TIME ZONE l.timezone)::date <= sqlc.narg(to_date)::date
+    OR (u.start_at AT TIME ZONE l.timezone)::date <= sqlc.narg(to_date)::date
   )
-ORDER BY s.start_at ASC, b.booked_at DESC
+ORDER BY u.start_at ASC, u.booked_at DESC
 LIMIT $2
 OFFSET $3;
 
@@ -500,3 +614,180 @@ WHERE s.location_id = $1
 ORDER BY s.start_at ASC
 LIMIT $2
 OFFSET $3;
+
+-- name: GetRebookContextByBookingID :one
+SELECT
+  b.id AS booking_id,
+  b.client_username,
+  b.guest_email,
+  l.id AS location_id,
+  l.slug AS location_slug,
+  l.name AS location_name,
+  sv.id AS service_id,
+  sv.name AS service_name,
+  s.practitioner_id,
+  l.is_active AS location_is_active,
+  sv.is_active AS service_is_active
+FROM bookings b
+JOIN locations l ON l.id = b.location_id
+JOIN appointment_slots s ON s.id = b.slot_id
+JOIN services sv ON sv.id = s.service_id
+WHERE b.id = $1
+  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND l.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND s.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND sv.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+LIMIT 1;
+
+-- name: CountMyBookings :one
+SELECT COUNT(*)::int4 AS count
+FROM bookings b
+JOIN appointment_slots s ON s.id = b.slot_id
+JOIN locations l ON l.id = b.location_id
+WHERE (
+    b.client_username = $1
+    OR (
+    COALESCE(sqlc.narg(filter_guest_email)::text, '') <> ''
+    AND lower(b.guest_email) = lower(sqlc.narg(filter_guest_email))
+    )
+  )
+  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND (
+    COALESCE(sqlc.narg(filter_status)::text, '') = ''
+    OR b.status = sqlc.narg(filter_status)
+  )
+  AND (
+    COALESCE(sqlc.narg(from_date)::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date >= sqlc.narg(from_date)::date
+  )
+  AND (
+    COALESCE(sqlc.narg(to_date)::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date <= sqlc.narg(to_date)::date
+  );
+
+-- name: ListMyBookings :many
+SELECT
+  b.id AS booking_id,
+  b.status,
+  b.booked_at,
+  b.guest_name,
+  b.guest_email,
+  b.guest_phone,
+  b.cancel_reason,
+  l.id AS location_id,
+  l.slug AS location_slug,
+  l.name AS location_name,
+  s.id AS slot_id,
+  sv.name AS service_name,
+  COALESCE(p.display_name, '') AS practitioner_name,
+  COALESCE(r.name, '') AS room_name,
+  s.start_at,
+  s.end_at,
+  EXISTS (
+    SELECT 1
+    FROM waitlist_entries w
+    WHERE w.location_id = b.location_id
+      AND w.service_id = s.service_id
+      AND lower(w.guest_email) = lower(b.guest_email)
+  ) AS is_waitlist
+FROM bookings b
+JOIN appointment_slots s ON s.id = b.slot_id
+JOIN services sv ON sv.id = s.service_id
+LEFT JOIN practitioners p ON p.id = s.practitioner_id
+LEFT JOIN rooms r ON r.id = s.room_id
+JOIN locations l ON l.id = b.location_id
+WHERE (
+    b.client_username = $1
+    OR (
+    COALESCE(sqlc.narg(filter_guest_email)::text, '') <> ''
+    AND lower(b.guest_email) = lower(sqlc.narg(filter_guest_email))
+    )
+  )
+  AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+  AND (
+    COALESCE(sqlc.narg(filter_status)::text, '') = ''
+    OR b.status = sqlc.narg(filter_status)
+  )
+  AND (
+    COALESCE(sqlc.narg(from_date)::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date >= sqlc.narg(from_date)::date
+  )
+  AND (
+    COALESCE(sqlc.narg(to_date)::text, '') = ''
+    OR (s.start_at AT TIME ZONE l.timezone)::date <= sqlc.narg(to_date)::date
+  )
+ORDER BY s.start_at ASC, b.booked_at DESC
+LIMIT $2
+OFFSET $3;
+
+-- name: GetActiveWaitlistEntryByIdentity :one
+SELECT *
+FROM waitlist_entries
+WHERE location_id = $1
+  AND service_id = $2
+  AND slot_id = $3
+  AND lower(guest_email) = lower(sqlc.arg(guest_email))
+  AND status = 'active'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+LIMIT 1;
+
+-- name: CreateWaitlistEntry :one
+INSERT INTO waitlist_entries (
+  location_id,
+  service_id,
+  slot_id,
+  guest_name,
+  guest_email,
+  guest_phone,
+  practitioner_id,
+  preferred_date,
+  status
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, 'active'
+)
+RETURNING *;
+
+-- name: CountActiveWaitlistEntriesForSlot :one
+SELECT COUNT(*)::int4 AS count
+FROM waitlist_entries
+WHERE slot_id = $1
+  AND status = 'active'
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz;
+
+-- name: GetHostBookingAnalyticsSummary :one
+WITH filtered AS (
+  SELECT
+    b.status,
+    b.booked_at,
+    s.start_at
+  FROM bookings b
+  JOIN appointment_slots s ON s.id = b.slot_id
+  JOIN locations l ON l.id = b.location_id
+  WHERE b.location_id = $1
+    AND b.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND s.deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+    AND (
+      COALESCE(sqlc.narg(from_date)::text, '') = ''
+      OR (s.start_at AT TIME ZONE l.timezone)::date >= sqlc.narg(from_date)::date
+    )
+    AND (
+      COALESCE(sqlc.narg(to_date)::text, '') = ''
+      OR (s.start_at AT TIME ZONE l.timezone)::date <= sqlc.narg(to_date)::date
+    )
+)
+SELECT
+  COUNT(*)::int4 AS total_count,
+  COUNT(*) FILTER (WHERE status IN ('confirmed', 'completed'))::int4 AS filled_count,
+  COUNT(*) FILTER (WHERE status = 'cancelled')::int4 AS cancelled_count,
+  COUNT(*) FILTER (WHERE status = 'pending')::int4 AS pending_count,
+  COUNT(*) FILTER (WHERE status = 'no_show')::int4 AS no_show_count,
+  COALESCE(
+    AVG(
+      CASE
+        WHEN status = 'pending' THEN EXTRACT(EPOCH FROM (now() - booked_at)) / 60.0
+        ELSE NULL
+      END
+    )::float8,
+    0
+  ) AS pending_approval_avg_minutes
+FROM filtered;

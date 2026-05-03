@@ -70,6 +70,12 @@ message HostBookingSlotSummary {
   string end_at = 6;
 }
 
+message BookingLocationSummary {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+}
+
 message HostBookingListItem {
   string booking_id = 1;
   string status = 2;
@@ -79,6 +85,8 @@ message HostBookingListItem {
   string guest_phone = 6;
   HostBookingSlotSummary slot = 7;
   string cancel_reason = 8;
+  BookingLocationSummary location = 9;
+  bool is_waitlist = 10;
 }
 
 message ListHostLocationBookingsRequest {
@@ -129,3 +137,86 @@ message HostCancelBookingRequest {
 }
 
 message HostCancelBookingResponse {}
+
+message HostSetBookingNoShowRequest {
+  string booking_id = 1;
+  bool no_show = 2;
+}
+
+message HostSetBookingNoShowResponse {
+  HostBookingDetail booking = 1;
+}
+
+message GetHostSetupChecklistRequest {}
+
+message GetHostSetupChecklistResponse {
+  bool has_location = 1;
+  bool has_service = 2;
+  bool has_future_slot = 3;
+  int32 progress_done_count = 4;
+  bool ready_for_booking = 5;
+  string sample_location_slug = 6;
+}
+
+message GetMyBookingRebookContextRequest {
+  string booking_id = 1;
+}
+
+message RebookContextLocation {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+}
+
+message RebookContextService {
+  string id = 1;
+  string name = 2;
+}
+
+message GetMyBookingRebookContextResponse {
+  string source_booking_id = 1;
+  RebookContextLocation location = 2;
+  RebookContextService service = 3;
+  string preferred_practitioner_id = 4;
+  bool is_rebookable = 5;
+  string reason_code = 6;
+}
+
+message GetHostBookingAnalyticsSummaryRequest {
+  string location_slug = 1;
+  string from_date = 2;
+  string to_date = 3;
+}
+
+message GetHostBookingAnalyticsSummaryResponse {
+  string location_slug = 1;
+  string from_date = 2;
+  string to_date = 3;
+  double fill_rate = 4;
+  double cancellation_rate = 5;
+  double pending_approval_avg_minutes = 6;
+  double no_show_proxy_rate = 7;
+  string generated_at = 8;
+}
+
+message ListMyBookingsRequest {
+  string status = 1;
+  string from_date = 2;
+  string to_date = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message ListMyBookingsResponse {
+  repeated HostBookingListItem items = 1;
+  int32 total_count = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message CancelMyBookingRequest {
+  string booking_id = 1;
+  string cancel_reason = 2;
+}
+
+message CancelMyBookingResponse {}

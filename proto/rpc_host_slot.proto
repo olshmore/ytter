@@ -69,3 +69,30 @@ message UpdateHostLocationSlotRequest {
 message UpdateHostLocationSlotResponse {
   HostSlotItem slot = 1;
 }
+
+message CreateHostLocationSlotsBatchRequest {
+  string location_slug = 1;
+  string service_id = 2;
+  optional string practitioner_id = 3;
+  optional string room_id = 4;
+  string date_from = 5;
+  string date_to = 6;
+  repeated string weekdays = 7;
+  string daily_start_local = 8;
+  string daily_end_local = 9;
+  int32 slot_minutes = 10;
+  int32 capacity = 11;
+  string status = 12;
+}
+
+message HostSlotBatchError {
+  string code = 1;
+  string message = 2;
+  string at = 3;
+}
+
+message CreateHostLocationSlotsBatchResponse {
+  int32 created_count = 1;
+  int32 skipped_count = 2;
+  repeated HostSlotBatchError errors = 3;
+}

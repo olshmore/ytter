@@ -15,6 +15,8 @@ type Store interface {
 	HostApproveBookingTx(ctx context.Context, arg HostApproveBookingTxParams) (HostApproveBookingTxResult, error)
 	HostRejectBookingTx(ctx context.Context, arg HostRejectBookingTxParams) (HostRejectBookingTxResult, error)
 	HostCancelBookingTx(ctx context.Context, arg HostCancelBookingTxParams) (HostCancelBookingTxResult, error)
+	HostSetBookingNoShowTx(ctx context.Context, arg HostSetBookingNoShowTxParams) (HostSetBookingNoShowTxResult, error)
+	CancelMyBookingTx(ctx context.Context, arg CancelMyBookingTxParams) (CancelMyBookingTxResult, error)
 }
 
 type SQLStore struct {

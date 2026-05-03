@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -351,6 +352,7 @@ func (server *Server) ListHostLocationBookings(ctx context.Context, req *pb.List
 			GuestEmail: row.GuestEmail,
 			GuestPhone: phone,
 			CancelReason: cancelReason,
+			IsWaitlist: row.IsWaitlist,
 			Slot: &pb.HostBookingSlotSummary{
 				SlotId:            row.SlotID.String(),
 				ServiceName:       row.ServiceName,
@@ -429,6 +431,26 @@ func (server *Server) HostCancelBooking(ctx context.Context, req *pb.HostCancelB
 	return &pb.HostCancelBookingResponse{}, nil
 }
 
+func (server *Server) HostSetBookingNoShow(ctx context.Context, req *pb.HostSetBookingNoShowRequest) (*pb.HostSetBookingNoShowResponse, error) {
+	payload, err := server.MustGetAuthPayload(ctx, []utils.Role{utils.RoleHost, utils.RoleAdmin})
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
+	bookingID, err := uuid.Parse(strings.TrimSpace(req.GetBookingId()))
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid booking_id")
+	}
+	res, err := server.store.HostSetBookingNoShowTx(ctx, db.HostSetBookingNoShowTxParams{
+		BookingID: bookingID,
+		NoShow:    req.GetNoShow(),
+		Actor:     payload,
+	})
+	if err != nil {
+		return nil, mapHostBookingTxError(err)
+	}
+	return &pb.HostSetBookingNoShowResponse{Booking: hostBookingDetailFromDB(res.Booking)}, nil
+}
+
 func mapHostBookingTxError(err error) error {
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
@@ -437,7 +459,8 @@ func mapHostBookingTxError(err error) error {
 		return status.Errorf(codes.PermissionDenied, "permission denied")
 	case errors.Is(err, db.ErrHostBookingApproveState),
 		errors.Is(err, db.ErrHostBookingRejectState),
-		errors.Is(err, db.ErrHostBookingCancelState):
+		errors.Is(err, db.ErrHostBookingCancelState),
+		errors.Is(err, db.ErrHostBookingNoShowState):
 		return status.Errorf(codes.FailedPrecondition, "booking state does not allow this operation")
 	default:
 		return status.Errorf(codes.Internal, "operation failed")
@@ -482,4 +505,193 @@ func optionalDatePGText(s string) pgtype.Text {
 		return pgtype.Text{}
 	}
 	return pgtype.Text{String: s, Valid: true}
+}
+
+func (server *Server) GetHostSetupChecklist(ctx context.Context, _ *pb.GetHostSetupChecklistRequest) (*pb.GetHostSetupChecklistResponse, error) {
+	payload, err := server.MustGetAuthPayload(ctx, []utils.Role{utils.RoleHost, utils.RoleAdmin})
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
+
+	locations, err := server.hostAccessibleLocations(ctx, payload)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to load locations")
+	}
+	if len(locations) == 0 {
+		return &pb.GetHostSetupChecklistResponse{}, nil
+	}
+
+	sample := locations[0]
+	hasLocation := true
+	hasService := false
+	hasFutureSlot := false
+	today := time.Now().Format("2006-01-02")
+
+	for _, loc := range locations {
+		serviceCount, err := server.store.CountHostServicesByLocation(ctx, db.CountHostServicesByLocationParams{
+			LocationID:     loc.ID,
+			FilterIsActive: pgtype.Bool{Bool: true, Valid: true},
+		})
+		if err == nil && serviceCount > 0 {
+			hasService = true
+		}
+
+		slots, err := server.store.ListHostSlotsByLocation(ctx, db.ListHostSlotsByLocationParams{
+			LocationID:   loc.ID,
+			Limit:        50,
+			Offset:       0,
+			FilterStatus: pgtype.Text{String: "available", Valid: true},
+			FromDate:     pgtype.Text{String: today, Valid: true},
+		})
+		if err == nil {
+			now := time.Now()
+			for _, slot := range slots {
+				if slot.Capacity > slot.BookedCount && slot.StartAt.After(now) {
+					hasFutureSlot = true
+					break
+				}
+			}
+		}
+
+		if hasService && hasFutureSlot {
+			sample = loc
+			break
+		}
+	}
+
+	progress := int32(0)
+	for _, done := range []bool{hasLocation, hasService, hasFutureSlot} {
+		if done {
+			progress++
+		}
+	}
+
+	return &pb.GetHostSetupChecklistResponse{
+		HasLocation:        hasLocation,
+		HasService:         hasService,
+		HasFutureSlot:      hasFutureSlot,
+		ProgressDoneCount:  progress,
+		ReadyForBooking:    progress == 3,
+		SampleLocationSlug: sample.Slug,
+	}, nil
+}
+
+func (server *Server) GetHostBookingAnalyticsSummary(ctx context.Context, req *pb.GetHostBookingAnalyticsSummaryRequest) (*pb.GetHostBookingAnalyticsSummaryResponse, error) {
+	payload, err := server.MustGetAuthPayload(ctx, []utils.Role{utils.RoleHost, utils.RoleAdmin})
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
+
+	locationSlug := strings.TrimSpace(req.GetLocationSlug())
+	if locationSlug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "location_slug is required")
+	}
+	fromDate := strings.TrimSpace(req.GetFromDate())
+	toDate := strings.TrimSpace(req.GetToDate())
+	if fromDate == "" || toDate == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "from_date and to_date are required")
+	}
+	if _, err := time.Parse("2006-01-02", fromDate); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid from_date")
+	}
+	if _, err := time.Parse("2006-01-02", toDate); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid to_date")
+	}
+
+	loc, err := server.store.GetLocationBySlug(ctx, locationSlug)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "location not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to load location")
+	}
+	if !access.HostMayAccessLocation(payload, loc.OwnerUsername) {
+		return nil, status.Errorf(codes.PermissionDenied, "permission denied")
+	}
+
+	summary, err := server.store.GetHostBookingAnalyticsSummary(ctx, db.GetHostBookingAnalyticsSummaryParams{
+		LocationID: loc.ID,
+		FromDate:   pgtype.Text{String: fromDate, Valid: true},
+		ToDate:     pgtype.Text{String: toDate, Valid: true},
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to build analytics summary")
+	}
+
+	total := float64(summary.TotalCount)
+	fillRate := 0.0
+	cancellationRate := 0.0
+	noShowProxy := 0.0
+	if total > 0 {
+		fillRate = float64(summary.FilledCount) / total
+		cancellationRate = float64(summary.CancelledCount) / total
+		noShowProxy = float64(summary.NoShowCount) / total
+	}
+
+	return &pb.GetHostBookingAnalyticsSummaryResponse{
+		LocationSlug:              locationSlug,
+		FromDate:                  fromDate,
+		ToDate:                    toDate,
+		FillRate:                  fillRate,
+		CancellationRate:          cancellationRate,
+		PendingApprovalAvgMinutes: numericToFloat64(summary.PendingApprovalAvgMinutes),
+		NoShowProxyRate:           noShowProxy,
+		GeneratedAt:               time.Now().UTC().Format(time.RFC3339),
+	}, nil
+}
+
+func numericToFloat64(v interface{}) float64 {
+	switch t := v.(type) {
+	case float64:
+		return t
+	case float32:
+		return float64(t)
+	case int64:
+		return float64(t)
+	case int32:
+		return float64(t)
+	case []byte:
+		parsed, err := strconv.ParseFloat(string(t), 64)
+		if err != nil {
+			return 0
+		}
+		return parsed
+	case string:
+		parsed, err := strconv.ParseFloat(t, 64)
+		if err != nil {
+			return 0
+		}
+		return parsed
+	default:
+		return 0
+	}
+}
+
+func (server *Server) hostAccessibleLocations(ctx context.Context, payload *token.Payload) ([]db.Location, error) {
+	if userHasAdminRole(payload) {
+		rows, err := server.store.ListAllHostLocations(ctx)
+		if err != nil {
+			return nil, err
+		}
+		out := make([]db.Location, 0, len(rows))
+		for _, row := range rows {
+			loc, err := server.store.GetLocationByID(ctx, row.ID)
+			if err == nil {
+				out = append(out, loc)
+			}
+		}
+		return out, nil
+	}
+	rows, err := server.store.ListHostLocationsByOwner(ctx, payload.Username)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]db.Location, 0, len(rows))
+	for _, row := range rows {
+		loc, err := server.store.GetLocationByID(ctx, row.ID)
+		if err == nil {
+			out = append(out, loc)
+		}
+	}
+	return out, nil
 }

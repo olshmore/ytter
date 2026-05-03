@@ -12,10 +12,31 @@ import (
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/internal/booking/canceltoken"
 	"github.com/olshmore/ytter/pb"
+	"github.com/olshmore/ytter/pkg/utils"
 	"github.com/olshmore/ytter/pkg/validator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
+
+func (server *Server) ListPublicLocations(ctx context.Context, _ *pb.ListPublicLocationsRequest) (*pb.ListPublicLocationsResponse, error) {
+	rows, err := server.store.ListPublicLocations(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list public locations")
+	}
+
+	items := make([]*pb.PublicLocationItem, 0, len(rows))
+	for _, row := range rows {
+		items = append(items, &pb.PublicLocationItem{
+			Id:                          row.ID.String(),
+			Slug:                        row.Slug,
+			Name:                        row.Name,
+			Timezone:                    row.Timezone,
+			BookingRequiresHostApproval: row.BookingRequiresHostApproval,
+		})
+	}
+
+	return &pb.ListPublicLocationsResponse{Items: items}, nil
+}
 
 func (server *Server) ListPublicSlots(ctx context.Context, req *pb.ListPublicSlotsRequest) (*pb.ListPublicSlotsResponse, error) {
 	locationSlug := strings.TrimSpace(req.GetLocationSlug())
@@ -66,9 +87,13 @@ func (server *Server) ListPublicSlots(ctx context.Context, req *pb.ListPublicSlo
 	onlyAvailable := req.GetOnlyAvailable()
 	limit := normalizeLimit(req.GetLimit())
 	offset := normalizeOffset(req.GetOffset())
+	now := time.Now()
 
 	filtered := make([]db.ListPublicSlotsByLocationSlugRow, 0, len(rows))
 	for _, row := range rows {
+		if !row.StartAt.After(now) {
+			continue
+		}
 		if search != "" {
 			h := strings.ToLower(row.ServiceName + " " + row.PractitionerDisplayName.String + " " + row.RoomName.String)
 			if !strings.Contains(h, search) {
@@ -90,7 +115,7 @@ func (server *Server) ListPublicSlots(ctx context.Context, req *pb.ListPublicSlo
 		if timeSlot != "any" && !matchesTimeBucket(row.StartAt, timeSlot) {
 			continue
 		}
-		isBookable := row.SlotStatus == "available" && row.BookedCount < row.Capacity && row.StartAt.After(time.Now())
+		isBookable := row.SlotStatus == "available" && row.BookedCount < row.Capacity && row.StartAt.After(now)
 		if onlyAvailable && !isBookable {
 			continue
 		}
@@ -100,7 +125,7 @@ func (server *Server) ListPublicSlots(ctx context.Context, req *pb.ListPublicSlo
 	totalCount := len(filtered)
 	availableCount := 0
 	for _, row := range filtered {
-		if row.SlotStatus == "available" && row.BookedCount < row.Capacity && row.StartAt.After(time.Now()) {
+		if row.SlotStatus == "available" && row.BookedCount < row.Capacity && row.StartAt.After(now) {
 			availableCount++
 		}
 	}
@@ -109,7 +134,11 @@ func (server *Server) ListPublicSlots(ctx context.Context, req *pb.ListPublicSlo
 	end := minInt(int(offset+limit), totalCount)
 	items := make([]*pb.PublicSlotsItem, 0, end-start)
 	for _, row := range filtered[start:end] {
-		isBookable := row.SlotStatus == "available" && row.BookedCount < row.Capacity && row.StartAt.After(time.Now())
+		isBookable := row.SlotStatus == "available" && row.BookedCount < row.Capacity && row.StartAt.After(now)
+		spacesLeft := row.Capacity - row.BookedCount
+		if spacesLeft < 0 {
+			spacesLeft = 0
+		}
 		items = append(items, &pb.PublicSlotsItem{
 			SlotId: row.SlotID.String(),
 			Service: &pb.PublicSlotsService{
@@ -133,6 +162,9 @@ func (server *Server) ListPublicSlots(ctx context.Context, req *pb.ListPublicSlo
 			EndAt:              row.EndAt.Format(time.RFC3339),
 			AvailabilityStatus: row.SlotStatus,
 			IsBookable:         isBookable,
+			Capacity:           row.Capacity,
+			BookedCount:        row.BookedCount,
+			SpacesLeft:         spacesLeft,
 		})
 	}
 
@@ -211,6 +243,13 @@ func (server *Server) CreatePublicBooking(ctx context.Context, req *pb.CreatePub
 		return nil, status.Errorf(codes.InvalidArgument, "invalid slot_id")
 	}
 
+	clientUsername := ""
+	if payload, authErr := server.extractAuthPayload(ctx); authErr == nil {
+		if hasPermission(payload.Roles, []utils.Role{utils.RoleClient, utils.RoleAdmin}) {
+			clientUsername = payload.Username
+		}
+	}
+
 	rawToken := uuid.NewString()
 	result, err := server.store.CreatePublicBookingTx(ctx, db.CreatePublicBookingTxParams{
 		LocationID:      locationID,
@@ -220,12 +259,13 @@ func (server *Server) CreatePublicBooking(ctx context.Context, req *pb.CreatePub
 		GuestPhone:      strings.TrimSpace(req.GetGuestPhone()),
 		GuestNotes:      strings.TrimSpace(req.GetGuestNotes()),
 		CancelTokenHash: canceltoken.Hash(rawToken),
+		ClientUsername:  clientUsername,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "slot unavailable or invalid booking state")
 	}
 
-	clientUsername := ""
+	clientUsername = ""
 	if result.Booking.ClientUsername.Valid {
 		clientUsername = result.Booking.ClientUsername.String
 	}

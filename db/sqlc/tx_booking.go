@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/olshmore/ytter/internal/booking/access"
 	"github.com/olshmore/ytter/internal/booking/policy"
@@ -14,10 +16,13 @@ import (
 )
 
 var (
-	ErrHostBookingAccessDenied = errors.New("host booking access denied")
-	ErrHostBookingApproveState = errors.New("host booking approve invalid state")
-	ErrHostBookingRejectState  = errors.New("host booking reject invalid state")
-	ErrHostBookingCancelState  = errors.New("host booking cancel invalid state")
+	ErrHostBookingAccessDenied   = errors.New("host booking access denied")
+	ErrHostBookingApproveState   = errors.New("host booking approve invalid state")
+	ErrHostBookingRejectState    = errors.New("host booking reject invalid state")
+	ErrHostBookingCancelState    = errors.New("host booking cancel invalid state")
+	ErrHostBookingNoShowState    = errors.New("host booking no-show invalid state")
+	ErrClientBookingAccessDenied = errors.New("client booking access denied")
+	ErrClientBookingCancelState  = errors.New("client booking cancel invalid state")
 )
 
 type CreatePublicBookingTxParams struct {
@@ -28,6 +33,7 @@ type CreatePublicBookingTxParams struct {
 	GuestPhone      string
 	GuestNotes      string
 	CancelTokenHash string
+	ClientUsername  string
 }
 
 type CreatePublicBookingTxResult struct {
@@ -83,7 +89,7 @@ func (store *SQLStore) CreatePublicBookingTx(ctx context.Context, arg CreatePubl
 			GuestPhone:      guestPhone,
 			GuestNotes:      guestNotes,
 			CancelTokenHash: arg.CancelTokenHash,
-			ClientUsername:  pgtype.Text{},
+			ClientUsername:  nullablePGText(arg.ClientUsername),
 		})
 		if err != nil {
 			return err
@@ -103,6 +109,13 @@ func (store *SQLStore) CreatePublicBookingTx(ctx context.Context, arg CreatePubl
 	})
 
 	return result, err
+}
+
+func nullablePGText(v string) pgtype.Text {
+	if strings.TrimSpace(v) == "" {
+		return pgtype.Text{}
+	}
+	return pgtype.Text{String: strings.TrimSpace(v), Valid: true}
 }
 
 type CancelPublicBookingTxParams struct {
@@ -322,6 +335,129 @@ func (store *SQLStore) HostCancelBookingTx(ctx context.Context, arg HostCancelBo
 		if err != nil {
 			return err
 		}
+		nextBooked := row.BookedCount - 1
+		if nextBooked < 0 {
+			nextBooked = 0
+		}
+		nextStatus := "available"
+		if nextBooked >= row.Capacity {
+			nextStatus = "booked"
+		}
+		_, err = q.UpdateSlotCounters(ctx, UpdateSlotCountersParams{
+			ID:          row.SlotID,
+			BookedCount: nextBooked,
+			Status:      nextStatus,
+		})
+		return err
+	})
+	return result, err
+}
+
+type HostSetBookingNoShowTxParams struct {
+	BookingID uuid.UUID
+	NoShow    bool
+	Actor     *token.Payload
+}
+
+type HostSetBookingNoShowTxResult struct {
+	Booking Booking
+}
+
+func (store *SQLStore) HostSetBookingNoShowTx(ctx context.Context, arg HostSetBookingNoShowTxParams) (HostSetBookingNoShowTxResult, error) {
+	var result HostSetBookingNoShowTxResult
+	err := store.execTx(ctx, func(q *Queries) error {
+		row, err := q.GetBookingForHostOpByIDForUpdate(ctx, arg.BookingID)
+		if err != nil {
+			return err
+		}
+		if !access.HostMayAccessLocation(arg.Actor, row.OwnerUsername) {
+			return ErrHostBookingAccessDenied
+		}
+		if arg.NoShow {
+			if row.Status != "confirmed" {
+				return ErrHostBookingNoShowState
+			}
+			b, err := q.MarkBookingNoShow(ctx, arg.BookingID)
+			if err != nil {
+				if errors.Is(err, pgx.ErrNoRows) {
+					return ErrHostBookingNoShowState
+				}
+				return err
+			}
+			result.Booking = b
+			return nil
+		}
+		if row.Status != "no_show" {
+			return ErrHostBookingNoShowState
+		}
+		b, err := q.ClearBookingNoShow(ctx, arg.BookingID)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return ErrHostBookingNoShowState
+			}
+			return err
+		}
+		result.Booking = b
+		return nil
+	})
+	return result, err
+}
+
+type CancelMyBookingTxParams struct {
+	BookingID    uuid.UUID
+	Actor        *token.Payload
+	ActorEmail   string
+	CancelReason string
+	Now          time.Time
+}
+
+type CancelMyBookingTxResult struct {
+	Booking Booking
+}
+
+func (store *SQLStore) CancelMyBookingTx(ctx context.Context, arg CancelMyBookingTxParams) (CancelMyBookingTxResult, error) {
+	var result CancelMyBookingTxResult
+	err := store.execTx(ctx, func(q *Queries) error {
+		row, err := q.GetBookingForCancelByIDForUpdate(ctx, arg.BookingID)
+		if err != nil {
+			return err
+		}
+		usernameMatch := row.ClientUsername.Valid && row.ClientUsername.String == arg.Actor.Username
+		emailMatch := strings.TrimSpace(arg.ActorEmail) != "" && strings.EqualFold(strings.TrimSpace(row.GuestEmail), strings.TrimSpace(arg.ActorEmail))
+		if !usernameMatch && !emailMatch {
+			return ErrClientBookingAccessDenied
+		}
+		if row.Status != "pending" && row.Status != "confirmed" {
+			return ErrClientBookingCancelState
+		}
+
+		var serviceHours *int32
+		if row.ServiceCancellationMinHoursBeforeStart.Valid {
+			v := row.ServiceCancellationMinHoursBeforeStart.Int32
+			serviceHours = &v
+		}
+		var locationHours *int32
+		if row.LocationCancellationMinHoursBeforeStart.Valid {
+			v := row.LocationCancellationMinHoursBeforeStart.Int32
+			locationHours = &v
+		}
+		effective := policy.EffectiveCancellationMinHours(serviceHours, locationHours)
+		if !policy.WithinCustomerCancelWindow(arg.Now, row.StartAt, effective) {
+			return fmt.Errorf("outside cancellation window")
+		}
+
+		cancelReason := pgtype.Text{}
+		if arg.CancelReason != "" {
+			cancelReason = pgtype.Text{String: arg.CancelReason, Valid: true}
+		}
+		result.Booking, err = q.MarkBookingCancelled(ctx, MarkBookingCancelledParams{
+			ID:           arg.BookingID,
+			CancelReason: cancelReason,
+		})
+		if err != nil {
+			return err
+		}
+
 		nextBooked := row.BookedCount - 1
 		if nextBooked < 0 {
 			nextBooked = 0

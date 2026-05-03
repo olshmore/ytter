@@ -12,6 +12,20 @@ message PublicSlotsLocation {
   bool booking_requires_host_approval = 5;
 }
 
+message PublicLocationItem {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  string timezone = 4;
+  bool booking_requires_host_approval = 5;
+}
+
+message ListPublicLocationsRequest {}
+
+message ListPublicLocationsResponse {
+  repeated PublicLocationItem items = 1;
+}
+
 message PublicSlotsService {
   string id = 1;
   string name = 2;
@@ -41,6 +55,9 @@ message PublicSlotsItem {
   string end_at = 6;
   string availability_status = 7;
   bool is_bookable = 8;
+  int32 capacity = 9;
+  int32 booked_count = 10;
+  int32 spaces_left = 11;
 }
 
 message ListPublicSlotsRequest {
@@ -124,3 +141,20 @@ message CancelPublicBookingRequest {
 }
 
 message CancelPublicBookingResponse {}
+
+message JoinPublicWaitlistRequest {
+  string location_id = 1;
+  string service_id = 2;
+  string slot_id = 3;
+  string guest_name = 4;
+  string guest_email = 5;
+  string guest_phone = 6;
+  string practitioner_id = 7;
+  string preferred_date = 8;
+}
+
+message JoinPublicWaitlistResponse {
+  string waitlist_entry_id = 1;
+  string status = 2;
+  int32 position_hint = 3;
+}
