@@ -170,7 +170,7 @@ func TestListPublicSlots_FiltersAndAvailability(t *testing.T) {
 	serviceID := uuid.New()
 	practitionerID := uuid.New()
 	roomID := uuid.New()
-	start := time.Now().UTC().Add(2 * time.Hour).Truncate(time.Second)
+	start := time.Now().UTC().AddDate(0, 0, 1).Truncate(24 * time.Hour).Add(9 * time.Hour)
 
 	store.EXPECT().
 		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
