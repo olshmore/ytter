@@ -264,6 +264,15 @@ func (server *Server) CreatePublicBooking(ctx context.Context, req *pb.CreatePub
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "slot unavailable or invalid booking state")
 	}
+	server.emitBookingEmailEvent(ctx, result.Booking.ID.String(), "created")
+	if server.taskDistributor != nil {
+		if slot, slotErr := server.store.GetHostSlotByID(ctx, db.GetHostSlotByIDParams{
+			ID:         result.Booking.SlotID,
+			LocationID: result.Booking.LocationID,
+		}); slotErr == nil {
+			server.scheduleBookingReminderEmail(ctx, result.Booking.ID.String(), slot.StartAt)
+		}
+	}
 
 	clientUsername = ""
 	if result.Booking.ClientUsername.Valid {
@@ -305,6 +314,7 @@ func (server *Server) CancelPublicBooking(ctx context.Context, req *pb.CancelPub
 		}
 		return nil, status.Errorf(codes.FailedPrecondition, "booking cannot be cancelled")
 	}
+	server.emitBookingEmailEvent(ctx, bookingID.String(), "cancelled")
 	return &pb.CancelPublicBookingResponse{}, nil
 }
 

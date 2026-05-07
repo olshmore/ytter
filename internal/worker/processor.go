@@ -23,6 +23,14 @@ type TaskProcessor interface {
 		ctx context.Context,
 		task *asynq.Task,
 	) error
+	ProcessTaskSendBookingEmail(
+		ctx context.Context,
+		task *asynq.Task,
+	) error
+	ProcessTaskSendBookingReminderEmail(
+		ctx context.Context,
+		task *asynq.Task,
+	) error
 }
 
 type RedisTaskProcessor struct {
@@ -62,6 +70,8 @@ func (processor *RedisTaskProcessor) Start() error {
 	mux := asynq.NewServeMux()
 
 	mux.HandleFunc(TaskSendVerificationEmail, processor.ProcessTaskSendVerificationEmail)
+	mux.HandleFunc(TaskSendBookingEmail, processor.ProcessTaskSendBookingEmail)
+	mux.HandleFunc(TaskSendBookingReminderEmail, processor.ProcessTaskSendBookingReminderEmail)
 
 	return processor.server.Start(mux)
 }

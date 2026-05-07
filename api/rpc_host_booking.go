@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/internal/booking/access"
@@ -47,13 +47,13 @@ func (server *Server) ListHostLocations(ctx context.Context, _ *pb.ListHostLocat
 		items := make([]*pb.HostLocationItem, 0, len(all))
 		for _, loc := range all {
 			items = append(items, &pb.HostLocationItem{
-				Id:                          loc.ID.String(),
-				OwnerUsername:               loc.OwnerUsername,
-				Slug:                        loc.Slug,
-				Name:                        loc.Name,
-				Timezone:                    loc.Timezone,
-				IsActive:                    loc.IsActive,
-				BookingRequiresHostApproval: loc.BookingRequiresHostApproval,
+				Id:                              loc.ID.String(),
+				OwnerUsername:                   loc.OwnerUsername,
+				Slug:                            loc.Slug,
+				Name:                            loc.Name,
+				Timezone:                        loc.Timezone,
+				IsActive:                        loc.IsActive,
+				BookingRequiresHostApproval:     loc.BookingRequiresHostApproval,
 				CancellationMinHoursBeforeStart: loc.EffectiveCancellationMinHoursBeforeStart,
 			})
 		}
@@ -67,13 +67,13 @@ func (server *Server) ListHostLocations(ctx context.Context, _ *pb.ListHostLocat
 	items := make([]*pb.HostLocationItem, 0, len(rows))
 	for _, loc := range rows {
 		items = append(items, &pb.HostLocationItem{
-			Id:                          loc.ID.String(),
-			OwnerUsername:               loc.OwnerUsername,
-			Slug:                        loc.Slug,
-			Name:                        loc.Name,
-			Timezone:                    loc.Timezone,
-			IsActive:                    loc.IsActive,
-			BookingRequiresHostApproval: loc.BookingRequiresHostApproval,
+			Id:                              loc.ID.String(),
+			OwnerUsername:                   loc.OwnerUsername,
+			Slug:                            loc.Slug,
+			Name:                            loc.Name,
+			Timezone:                        loc.Timezone,
+			IsActive:                        loc.IsActive,
+			BookingRequiresHostApproval:     loc.BookingRequiresHostApproval,
 			CancellationMinHoursBeforeStart: loc.EffectiveCancellationMinHoursBeforeStart,
 		})
 	}
@@ -345,21 +345,21 @@ func (server *Server) ListHostLocationBookings(ctx context.Context, req *pb.List
 			cancelReason = row.CancelReason.String
 		}
 		items = append(items, &pb.HostBookingListItem{
-			BookingId:  row.BookingID.String(),
-			Status:     row.Status,
-			BookedAt:   row.BookedAt.Format(time.RFC3339),
-			GuestName:  row.GuestName,
-			GuestEmail: row.GuestEmail,
-			GuestPhone: phone,
+			BookingId:    row.BookingID.String(),
+			Status:       row.Status,
+			BookedAt:     row.BookedAt.Format(time.RFC3339),
+			GuestName:    row.GuestName,
+			GuestEmail:   row.GuestEmail,
+			GuestPhone:   phone,
 			CancelReason: cancelReason,
-			IsWaitlist: row.IsWaitlist,
+			IsWaitlist:   row.IsWaitlist,
 			Slot: &pb.HostBookingSlotSummary{
-				SlotId:            row.SlotID.String(),
-				ServiceName:       row.ServiceName,
-				PractitionerName:  row.PractitionerName,
-				RoomName:          row.RoomName,
-				StartAt:           row.StartAt.Format(time.RFC3339),
-				EndAt:             row.EndAt.Format(time.RFC3339),
+				SlotId:           row.SlotID.String(),
+				ServiceName:      row.ServiceName,
+				PractitionerName: row.PractitionerName,
+				RoomName:         row.RoomName,
+				StartAt:          row.StartAt.Format(time.RFC3339),
+				EndAt:            row.EndAt.Format(time.RFC3339),
 			},
 		})
 	}
@@ -388,6 +388,7 @@ func (server *Server) HostApproveBooking(ctx context.Context, req *pb.HostApprov
 	if err != nil {
 		return nil, mapHostBookingTxError(err)
 	}
+	server.emitBookingEmailEvent(ctx, bookingID.String(), "updated")
 	return &pb.HostApproveBookingResponse{Booking: hostBookingDetailFromDB(res.Booking)}, nil
 }
 
@@ -408,6 +409,7 @@ func (server *Server) HostRejectBooking(ctx context.Context, req *pb.HostRejectB
 	if err != nil {
 		return nil, mapHostBookingTxError(err)
 	}
+	server.emitBookingEmailEvent(ctx, bookingID.String(), "cancelled")
 	return &pb.HostRejectBookingResponse{}, nil
 }
 
@@ -428,6 +430,7 @@ func (server *Server) HostCancelBooking(ctx context.Context, req *pb.HostCancelB
 	if err != nil {
 		return nil, mapHostBookingTxError(err)
 	}
+	server.emitBookingEmailEvent(ctx, bookingID.String(), "cancelled")
 	return &pb.HostCancelBookingResponse{}, nil
 }
 
@@ -448,6 +451,7 @@ func (server *Server) HostSetBookingNoShow(ctx context.Context, req *pb.HostSetB
 	if err != nil {
 		return nil, mapHostBookingTxError(err)
 	}
+	server.emitBookingEmailEvent(ctx, bookingID.String(), "updated")
 	return &pb.HostSetBookingNoShowResponse{Booking: hostBookingDetailFromDB(res.Booking)}, nil
 }
 

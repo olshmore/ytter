@@ -54,3 +54,41 @@ func (mr *MockTaskDistributorMockRecorder) DistributeTaskSendVerificationEmail(a
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskSendVerificationEmail", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskSendVerificationEmail), varargs...)
 }
+
+// DistributeTaskSendBookingEmail mocks base method.
+func (m *MockTaskDistributor) DistributeTaskSendBookingEmail(arg0 context.Context, arg1 *worker.PayloadSendBookingEmail, arg2 ...asynq.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DistributeTaskSendBookingEmail", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DistributeTaskSendBookingEmail indicates an expected call of DistributeTaskSendBookingEmail.
+func (mr *MockTaskDistributorMockRecorder) DistributeTaskSendBookingEmail(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskSendBookingEmail", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskSendBookingEmail), varargs...)
+}
+
+// DistributeTaskSendBookingReminderEmail mocks base method.
+func (m *MockTaskDistributor) DistributeTaskSendBookingReminderEmail(arg0 context.Context, arg1 *worker.PayloadSendBookingReminderEmail, arg2 ...asynq.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DistributeTaskSendBookingReminderEmail", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DistributeTaskSendBookingReminderEmail indicates an expected call of DistributeTaskSendBookingReminderEmail.
+func (mr *MockTaskDistributorMockRecorder) DistributeTaskSendBookingReminderEmail(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskSendBookingReminderEmail", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskSendBookingReminderEmail), varargs...)
+}

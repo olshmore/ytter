@@ -89,7 +89,7 @@ func (server *Server) ListMyBookings(ctx context.Context, req *pb.ListMyBookings
 			GuestEmail:   row.GuestEmail,
 			GuestPhone:   phone,
 			CancelReason: cancelReason,
-			IsWaitlist: row.IsWaitlist,
+			IsWaitlist:   row.IsWaitlist,
 			Location: &pb.BookingLocationSummary{
 				Id:   row.LocationID.String(),
 				Slug: row.LocationSlug,
@@ -143,6 +143,7 @@ func (server *Server) CancelMyBooking(ctx context.Context, req *pb.CancelMyBooki
 			return nil, status.Errorf(codes.Internal, "failed to cancel booking")
 		}
 	}
+	server.emitBookingEmailEvent(ctx, bookingID.String(), "cancelled")
 
 	return &pb.CancelMyBookingResponse{}, nil
 }
