@@ -178,6 +178,16 @@ service Ytter {
       tags: "booking";
     };
   };
+  rpc GetPublicCalendarAvailability (GetPublicCalendarAvailabilityRequest) returns (GetPublicCalendarAvailabilityResponse) {
+    option (google.api.http) = {
+      get: "/v1/public/locations/{location_slug}/availability/calendar"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get public calendar availability";
+      description: "Public month calendar availability summary with day-level states.";
+      tags: "booking";
+    };
+  };
   rpc ListPublicLocations (ListPublicLocationsRequest) returns (ListPublicLocationsResponse) {
     option (google.api.http) = {
       get: "/v1/public/locations"

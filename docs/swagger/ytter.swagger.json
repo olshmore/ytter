@@ -1376,6 +1376,56 @@
         ]
       }
     },
+    "/v1/public/locations/{locationSlug}/availability/calendar": {
+      "get": {
+        "summary": "Get public calendar availability",
+        "description": "Public month calendar availability summary with day-level states.",
+        "operationId": "Ytter_GetPublicCalendarAvailability",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetPublicCalendarAvailabilityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "serviceId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "timezone",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "booking"
+        ]
+      }
+    },
     "/v1/public/locations/{locationSlug}/filter_options": {
       "get": {
         "summary": "Get public filter options",
@@ -2108,6 +2158,30 @@
         }
       }
     },
+    "pbGetPublicCalendarAvailabilityResponse": {
+      "type": "object",
+      "properties": {
+        "locationSlug": {
+          "type": "string"
+        },
+        "serviceId": {
+          "type": "string"
+        },
+        "month": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "days": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbPublicCalendarAvailabilityDay"
+          }
+        }
+      }
+    },
     "pbGetPublicFilterOptionsResponse": {
       "type": "object",
       "properties": {
@@ -2647,6 +2721,21 @@
         "refreshTokenExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "pbPublicCalendarAvailabilityDay": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string"
+        },
+        "availableCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "state": {
+          "type": "string"
         }
       }
     },

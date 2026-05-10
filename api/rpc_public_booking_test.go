@@ -348,3 +348,184 @@ func TestListPublicSlots_NotFoundWhenLocationMissing(t *testing.T) {
 	require.Error(t, err)
 	require.Equal(t, codes.NotFound, status.Code(err))
 }
+
+func TestGetPublicCalendarAvailability_MonthSummary(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	now := time.Now().UTC()
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
+	month := monthStart.Format("2006-01")
+
+	serviceID := uuid.New()
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{
+			{
+				StartAt:          monthStart.AddDate(0, 0, 2).Add(9 * time.Hour),
+				EndAt:            monthStart.AddDate(0, 0, 2).Add(10 * time.Hour),
+				SlotStatus:       "available",
+				Capacity:         2,
+				BookedCount:      1,
+				ServiceID:        serviceID,
+				LocationTimezone: "UTC",
+			},
+			{
+				StartAt:          monthStart.AddDate(0, 0, 2).Add(12 * time.Hour),
+				EndAt:            monthStart.AddDate(0, 0, 2).Add(13 * time.Hour),
+				SlotStatus:       "available",
+				Capacity:         1,
+				BookedCount:      0,
+				ServiceID:        serviceID,
+				LocationTimezone: "UTC",
+			},
+		}, nil)
+
+	res, err := server.GetPublicCalendarAvailability(context.Background(), &pb.GetPublicCalendarAvailabilityRequest{
+		LocationSlug: "qa-clinic",
+		Month:        month,
+		ServiceId:    serviceID.String(),
+	})
+	require.NoError(t, err)
+	require.Equal(t, "qa-clinic", res.LocationSlug)
+	require.Equal(t, month, res.Month)
+	require.NotEmpty(t, res.Days)
+	targetDay := monthStart.AddDate(0, 0, 2).Format("2006-01-02")
+	dayMap := make(map[string]*pb.PublicCalendarAvailabilityDay, len(res.Days))
+	for _, day := range res.Days {
+		dayMap[day.Date] = day
+	}
+	require.Contains(t, dayMap, targetDay)
+	require.Equal(t, int32(2), dayMap[targetDay].AvailableCount)
+	require.Equal(t, "available", dayMap[targetDay].State)
+}
+
+func TestGetPublicCalendarAvailability_InvalidMonth(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	_, err := server.GetPublicCalendarAvailability(context.Background(), &pb.GetPublicCalendarAvailabilityRequest{
+		LocationSlug: "qa-clinic",
+		Month:        "2026/05",
+	})
+	require.Error(t, err)
+	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestGetPublicCalendarAvailability_ServiceFilter(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	now := time.Now().UTC()
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
+	month := monthStart.Format("2006-01")
+
+	selectedServiceID := uuid.New()
+	otherServiceID := uuid.New()
+	targetDay := monthStart.AddDate(0, 0, 3)
+
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{
+			{
+				StartAt:          targetDay.Add(9 * time.Hour),
+				EndAt:            targetDay.Add(10 * time.Hour),
+				SlotStatus:       "available",
+				Capacity:         1,
+				BookedCount:      0,
+				ServiceID:        selectedServiceID,
+				LocationTimezone: "UTC",
+			},
+			{
+				StartAt:          targetDay.Add(11 * time.Hour),
+				EndAt:            targetDay.Add(12 * time.Hour),
+				SlotStatus:       "available",
+				Capacity:         1,
+				BookedCount:      0,
+				ServiceID:        otherServiceID,
+				LocationTimezone: "UTC",
+			},
+		}, nil)
+
+	res, err := server.GetPublicCalendarAvailability(context.Background(), &pb.GetPublicCalendarAvailabilityRequest{
+		LocationSlug: "qa-clinic",
+		Month:        month,
+		ServiceId:    selectedServiceID.String(),
+	})
+	require.NoError(t, err)
+
+	dayMap := make(map[string]*pb.PublicCalendarAvailabilityDay, len(res.Days))
+	for _, day := range res.Days {
+		dayMap[day.Date] = day
+	}
+	require.Equal(t, int32(1), dayMap[targetDay.Format("2006-01-02")].AvailableCount)
+}
+
+func TestGetPublicCalendarAvailability_InvalidTimezone(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{}, nil)
+
+	_, err := server.GetPublicCalendarAvailability(context.Background(), &pb.GetPublicCalendarAvailabilityRequest{
+		LocationSlug: "qa-clinic",
+		Month:        "2026-05",
+		Timezone:     "Mars/Olympus",
+	})
+	require.Error(t, err)
+	require.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestGetPublicCalendarAvailability_NotFoundWhenLocationMissing(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "missing-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{}, nil)
+	store.EXPECT().
+		GetLocationBySlug(gomock.Any(), "missing-clinic").
+		Return(db.Location{}, pgx.ErrNoRows)
+
+	_, err := server.GetPublicCalendarAvailability(context.Background(), &pb.GetPublicCalendarAvailabilityRequest{
+		LocationSlug: "missing-clinic",
+		Month:        "2026-05",
+	})
+	require.Error(t, err)
+	require.Equal(t, codes.NotFound, status.Code(err))
+}
+
+func TestGetPublicCalendarAvailability_PastStateForPastMonth(t *testing.T) {
+	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
+	store := mockdb.NewMockStore(storeCtrl)
+	server := newTestServer(t, store, nil)
+
+	now := time.Now().UTC()
+	pastMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, -1, 0).Format("2006-01")
+
+	store.EXPECT().
+		ListPublicSlotsByLocationSlug(gomock.Any(), "qa-clinic").
+		Return([]db.ListPublicSlotsByLocationSlugRow{}, nil)
+
+	res, err := server.GetPublicCalendarAvailability(context.Background(), &pb.GetPublicCalendarAvailabilityRequest{
+		LocationSlug: "qa-clinic",
+		Month:        pastMonth,
+		Timezone:     "UTC",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, res.Days)
+	require.Equal(t, "past", res.Days[0].State)
+}

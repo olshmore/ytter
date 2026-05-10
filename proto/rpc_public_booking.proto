@@ -82,6 +82,27 @@ message ListPublicSlotsResponse {
   int32 offset = 6;
 }
 
+message PublicCalendarAvailabilityDay {
+  string date = 1;
+  int32 available_count = 2;
+  string state = 3;
+}
+
+message GetPublicCalendarAvailabilityRequest {
+  string location_slug = 1;
+  string month = 2;
+  string service_id = 3;
+  string timezone = 4;
+}
+
+message GetPublicCalendarAvailabilityResponse {
+  string location_slug = 1;
+  string service_id = 2;
+  string month = 3;
+  string timezone = 4;
+  repeated PublicCalendarAvailabilityDay days = 5;
+}
+
 message PublicFilterService {
   string id = 1;
   string name = 2;

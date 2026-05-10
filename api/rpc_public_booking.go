@@ -185,6 +185,108 @@ func (server *Server) ListPublicSlots(ctx context.Context, req *pb.ListPublicSlo
 	}, nil
 }
 
+func (server *Server) GetPublicCalendarAvailability(ctx context.Context, req *pb.GetPublicCalendarAvailabilityRequest) (*pb.GetPublicCalendarAvailabilityResponse, error) {
+	locationSlug := strings.TrimSpace(req.GetLocationSlug())
+	if locationSlug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "location_slug is required")
+	}
+
+	month := strings.TrimSpace(req.GetMonth())
+	if month == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "month is required")
+	}
+	monthStartUTC, err := time.Parse("2006-01", month)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "month must be in YYYY-MM format")
+	}
+
+	serviceID := strings.TrimSpace(req.GetServiceId())
+	if serviceID != "" {
+		if _, err := uuid.Parse(serviceID); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid service_id")
+		}
+	}
+
+	rows, err := server.store.ListPublicSlotsByLocationSlug(ctx, locationSlug)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list public slots")
+	}
+
+	locationTimezone := strings.TrimSpace(req.GetTimezone())
+	if locationTimezone == "" {
+		if len(rows) > 0 {
+			locationTimezone = rows[0].LocationTimezone
+		} else {
+			loc, err := server.store.GetLocationBySlug(ctx, locationSlug)
+			if err != nil {
+				if errors.Is(err, pgx.ErrNoRows) {
+					return nil, status.Errorf(codes.NotFound, "location not found")
+				}
+				return nil, status.Errorf(codes.Internal, "failed to load location")
+			}
+			if !loc.IsActive {
+				return nil, status.Errorf(codes.NotFound, "location not found")
+			}
+			locationTimezone = loc.Timezone
+		}
+	}
+
+	tzLoc, err := time.LoadLocation(locationTimezone)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid timezone")
+	}
+
+	monthStart := time.Date(monthStartUTC.Year(), monthStartUTC.Month(), 1, 0, 0, 0, 0, tzLoc)
+	monthEnd := monthStart.AddDate(0, 1, 0)
+	now := time.Now()
+	today := time.Now().In(tzLoc)
+	todayStart := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, tzLoc)
+
+	availablePerDay := map[string]int32{}
+	for _, row := range rows {
+		if serviceID != "" && row.ServiceID.String() != serviceID {
+			continue
+		}
+		if row.SlotStatus != "available" || row.BookedCount >= row.Capacity || !row.StartAt.After(now) {
+			continue
+		}
+
+		slotAt := row.StartAt.In(tzLoc)
+		if slotAt.Before(monthStart) || !slotAt.Before(monthEnd) {
+			continue
+		}
+
+		day := slotAt.Format("2006-01-02")
+		availablePerDay[day]++
+	}
+
+	days := make([]*pb.PublicCalendarAvailabilityDay, 0, 31)
+	for day := monthStart; day.Before(monthEnd); day = day.AddDate(0, 0, 1) {
+		dayKey := day.Format("2006-01-02")
+		count := availablePerDay[dayKey]
+		state := "no_slots"
+		if day.Before(todayStart) {
+			state = "past"
+		} else if count > 0 {
+			state = "available"
+		}
+
+		days = append(days, &pb.PublicCalendarAvailabilityDay{
+			Date:           dayKey,
+			AvailableCount: count,
+			State:          state,
+		})
+	}
+
+	return &pb.GetPublicCalendarAvailabilityResponse{
+		LocationSlug: locationSlug,
+		ServiceId:    serviceID,
+		Month:        monthStart.Format("2006-01"),
+		Timezone:     tzLoc.String(),
+		Days:         days,
+	}, nil
+}
+
 func (server *Server) GetPublicFilterOptions(ctx context.Context, req *pb.GetPublicFilterOptionsRequest) (*pb.GetPublicFilterOptionsResponse, error) {
 	locationSlug := strings.TrimSpace(req.GetLocationSlug())
 	if locationSlug == "" {

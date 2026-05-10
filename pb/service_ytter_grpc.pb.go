@@ -28,6 +28,7 @@ const (
 	Ytter_InitiateGoogleAuth_FullMethodName             = "/pb.Ytter/InitiateGoogleAuth"
 	Ytter_GoogleAuthCallback_FullMethodName             = "/pb.Ytter/GoogleAuthCallback"
 	Ytter_ListPublicSlots_FullMethodName                = "/pb.Ytter/ListPublicSlots"
+	Ytter_GetPublicCalendarAvailability_FullMethodName  = "/pb.Ytter/GetPublicCalendarAvailability"
 	Ytter_ListPublicLocations_FullMethodName            = "/pb.Ytter/ListPublicLocations"
 	Ytter_GetPublicFilterOptions_FullMethodName         = "/pb.Ytter/GetPublicFilterOptions"
 	Ytter_CreatePublicBooking_FullMethodName            = "/pb.Ytter/CreatePublicBooking"
@@ -70,6 +71,7 @@ type YtterClient interface {
 	InitiateGoogleAuth(ctx context.Context, in *InitiateGoogleAuthRequest, opts ...grpc.CallOption) (*InitiateGoogleAuthResponse, error)
 	GoogleAuthCallback(ctx context.Context, in *GoogleAuthCallbackRequest, opts ...grpc.CallOption) (*GoogleAuthCallbackResponse, error)
 	ListPublicSlots(ctx context.Context, in *ListPublicSlotsRequest, opts ...grpc.CallOption) (*ListPublicSlotsResponse, error)
+	GetPublicCalendarAvailability(ctx context.Context, in *GetPublicCalendarAvailabilityRequest, opts ...grpc.CallOption) (*GetPublicCalendarAvailabilityResponse, error)
 	ListPublicLocations(ctx context.Context, in *ListPublicLocationsRequest, opts ...grpc.CallOption) (*ListPublicLocationsResponse, error)
 	GetPublicFilterOptions(ctx context.Context, in *GetPublicFilterOptionsRequest, opts ...grpc.CallOption) (*GetPublicFilterOptionsResponse, error)
 	CreatePublicBooking(ctx context.Context, in *CreatePublicBookingRequest, opts ...grpc.CallOption) (*CreatePublicBookingResponse, error)
@@ -191,6 +193,16 @@ func (c *ytterClient) ListPublicSlots(ctx context.Context, in *ListPublicSlotsRe
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListPublicSlotsResponse)
 	err := c.cc.Invoke(ctx, Ytter_ListPublicSlots_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) GetPublicCalendarAvailability(ctx context.Context, in *GetPublicCalendarAvailabilityRequest, opts ...grpc.CallOption) (*GetPublicCalendarAvailabilityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPublicCalendarAvailabilityResponse)
+	err := c.cc.Invoke(ctx, Ytter_GetPublicCalendarAvailability_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -480,6 +492,7 @@ type YtterServer interface {
 	InitiateGoogleAuth(context.Context, *InitiateGoogleAuthRequest) (*InitiateGoogleAuthResponse, error)
 	GoogleAuthCallback(context.Context, *GoogleAuthCallbackRequest) (*GoogleAuthCallbackResponse, error)
 	ListPublicSlots(context.Context, *ListPublicSlotsRequest) (*ListPublicSlotsResponse, error)
+	GetPublicCalendarAvailability(context.Context, *GetPublicCalendarAvailabilityRequest) (*GetPublicCalendarAvailabilityResponse, error)
 	ListPublicLocations(context.Context, *ListPublicLocationsRequest) (*ListPublicLocationsResponse, error)
 	GetPublicFilterOptions(context.Context, *GetPublicFilterOptionsRequest) (*GetPublicFilterOptionsResponse, error)
 	CreatePublicBooking(context.Context, *CreatePublicBookingRequest) (*CreatePublicBookingResponse, error)
@@ -543,6 +556,9 @@ func (UnimplementedYtterServer) GoogleAuthCallback(context.Context, *GoogleAuthC
 }
 func (UnimplementedYtterServer) ListPublicSlots(context.Context, *ListPublicSlotsRequest) (*ListPublicSlotsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPublicSlots not implemented")
+}
+func (UnimplementedYtterServer) GetPublicCalendarAvailability(context.Context, *GetPublicCalendarAvailabilityRequest) (*GetPublicCalendarAvailabilityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPublicCalendarAvailability not implemented")
 }
 func (UnimplementedYtterServer) ListPublicLocations(context.Context, *ListPublicLocationsRequest) (*ListPublicLocationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPublicLocations not implemented")
@@ -804,6 +820,24 @@ func _Ytter_ListPublicSlots_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(YtterServer).ListPublicSlots(ctx, req.(*ListPublicSlotsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_GetPublicCalendarAvailability_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPublicCalendarAvailabilityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).GetPublicCalendarAvailability(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_GetPublicCalendarAvailability_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).GetPublicCalendarAvailability(ctx, req.(*GetPublicCalendarAvailabilityRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1336,6 +1370,10 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListPublicSlots",
 			Handler:    _Ytter_ListPublicSlots_Handler,
+		},
+		{
+			MethodName: "GetPublicCalendarAvailability",
+			Handler:    _Ytter_GetPublicCalendarAvailability_Handler,
 		},
 		{
 			MethodName: "ListPublicLocations",

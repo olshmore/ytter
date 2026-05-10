@@ -12,42 +12,43 @@ import (
 
 // Route method names from generated proto code
 const (
-	RouteCreateUser         = pb.Ytter_CreateUser_FullMethodName
-	RouteVerifyEmail        = pb.Ytter_VerifyEmail_FullMethodName
-	RouteLoginUser          = pb.Ytter_LoginUser_FullMethodName
-	RouteRefreshToken       = pb.Ytter_RefreshToken_FullMethodName
-	RouteListUsers          = pb.Ytter_ListUsers_FullMethodName
-	RouteUpdateUser         = pb.Ytter_UpdateUser_FullMethodName
-	RouteInitiateGoogleAuth = pb.Ytter_InitiateGoogleAuth_FullMethodName
-	RouteGoogleAuthCallback = pb.Ytter_GoogleAuthCallback_FullMethodName
-	RouteListHostLocations        = pb.Ytter_ListHostLocations_FullMethodName
-	RouteCreateHostLocation       = pb.Ytter_CreateHostLocation_FullMethodName
-	RouteGetHostLocation          = pb.Ytter_GetHostLocation_FullMethodName
-	RouteGetHostLocationBySlug    = pb.Ytter_GetHostLocationBySlug_FullMethodName
-	RouteUpdateHostLocation       = pb.Ytter_UpdateHostLocation_FullMethodName
-	RouteListHostLocationBookings = pb.Ytter_ListHostLocationBookings_FullMethodName
-	RouteListHostLocationServices = pb.Ytter_ListHostLocationServices_FullMethodName
-	RouteCreateHostLocationService = pb.Ytter_CreateHostLocationService_FullMethodName
-	RouteUpdateHostLocationService = pb.Ytter_UpdateHostLocationService_FullMethodName
-	RouteListHostLocationSlots    = pb.Ytter_ListHostLocationSlots_FullMethodName
-	RouteCreateHostLocationSlot   = pb.Ytter_CreateHostLocationSlot_FullMethodName
-	RouteUpdateHostLocationSlot   = pb.Ytter_UpdateHostLocationSlot_FullMethodName
-	RouteHostApproveBooking       = pb.Ytter_HostApproveBooking_FullMethodName
-	RouteHostRejectBooking        = pb.Ytter_HostRejectBooking_FullMethodName
-	RouteHostCancelBooking        = pb.Ytter_HostCancelBooking_FullMethodName
-	RouteHostSetBookingNoShow     = pb.Ytter_HostSetBookingNoShow_FullMethodName
-	RouteGetHostSetupChecklist    = pb.Ytter_GetHostSetupChecklist_FullMethodName
-	RouteGetMyBookingRebookContext = pb.Ytter_GetMyBookingRebookContext_FullMethodName
-	RouteListMyBookings = pb.Ytter_ListMyBookings_FullMethodName
-	RouteCancelMyBooking = pb.Ytter_CancelMyBooking_FullMethodName
+	RouteCreateUser                     = pb.Ytter_CreateUser_FullMethodName
+	RouteVerifyEmail                    = pb.Ytter_VerifyEmail_FullMethodName
+	RouteLoginUser                      = pb.Ytter_LoginUser_FullMethodName
+	RouteRefreshToken                   = pb.Ytter_RefreshToken_FullMethodName
+	RouteListUsers                      = pb.Ytter_ListUsers_FullMethodName
+	RouteUpdateUser                     = pb.Ytter_UpdateUser_FullMethodName
+	RouteInitiateGoogleAuth             = pb.Ytter_InitiateGoogleAuth_FullMethodName
+	RouteGoogleAuthCallback             = pb.Ytter_GoogleAuthCallback_FullMethodName
+	RouteListHostLocations              = pb.Ytter_ListHostLocations_FullMethodName
+	RouteCreateHostLocation             = pb.Ytter_CreateHostLocation_FullMethodName
+	RouteGetHostLocation                = pb.Ytter_GetHostLocation_FullMethodName
+	RouteGetHostLocationBySlug          = pb.Ytter_GetHostLocationBySlug_FullMethodName
+	RouteUpdateHostLocation             = pb.Ytter_UpdateHostLocation_FullMethodName
+	RouteListHostLocationBookings       = pb.Ytter_ListHostLocationBookings_FullMethodName
+	RouteListHostLocationServices       = pb.Ytter_ListHostLocationServices_FullMethodName
+	RouteCreateHostLocationService      = pb.Ytter_CreateHostLocationService_FullMethodName
+	RouteUpdateHostLocationService      = pb.Ytter_UpdateHostLocationService_FullMethodName
+	RouteListHostLocationSlots          = pb.Ytter_ListHostLocationSlots_FullMethodName
+	RouteCreateHostLocationSlot         = pb.Ytter_CreateHostLocationSlot_FullMethodName
+	RouteUpdateHostLocationSlot         = pb.Ytter_UpdateHostLocationSlot_FullMethodName
+	RouteHostApproveBooking             = pb.Ytter_HostApproveBooking_FullMethodName
+	RouteHostRejectBooking              = pb.Ytter_HostRejectBooking_FullMethodName
+	RouteHostCancelBooking              = pb.Ytter_HostCancelBooking_FullMethodName
+	RouteHostSetBookingNoShow           = pb.Ytter_HostSetBookingNoShow_FullMethodName
+	RouteGetHostSetupChecklist          = pb.Ytter_GetHostSetupChecklist_FullMethodName
+	RouteGetMyBookingRebookContext      = pb.Ytter_GetMyBookingRebookContext_FullMethodName
+	RouteListMyBookings                 = pb.Ytter_ListMyBookings_FullMethodName
+	RouteCancelMyBooking                = pb.Ytter_CancelMyBooking_FullMethodName
 	RouteGetHostBookingAnalyticsSummary = pb.Ytter_GetHostBookingAnalyticsSummary_FullMethodName
-	RouteListPublicSlots          = pb.Ytter_ListPublicSlots_FullMethodName
-	RouteListPublicLocations      = pb.Ytter_ListPublicLocations_FullMethodName
-	RouteGetPublicFilterOptions   = pb.Ytter_GetPublicFilterOptions_FullMethodName
-	RouteCreatePublicBooking      = pb.Ytter_CreatePublicBooking_FullMethodName
-	RouteCancelPublicBooking      = pb.Ytter_CancelPublicBooking_FullMethodName
-	RouteJoinPublicWaitlist       = pb.Ytter_JoinPublicWaitlist_FullMethodName
-	RouteCreateHostLocationSlotsBatch = pb.Ytter_CreateHostLocationSlotsBatch_FullMethodName
+	RouteListPublicSlots                = pb.Ytter_ListPublicSlots_FullMethodName
+	RouteGetPublicCalendarAvailability  = pb.Ytter_GetPublicCalendarAvailability_FullMethodName
+	RouteListPublicLocations            = pb.Ytter_ListPublicLocations_FullMethodName
+	RouteGetPublicFilterOptions         = pb.Ytter_GetPublicFilterOptions_FullMethodName
+	RouteCreatePublicBooking            = pb.Ytter_CreatePublicBooking_FullMethodName
+	RouteCancelPublicBooking            = pb.Ytter_CancelPublicBooking_FullMethodName
+	RouteJoinPublicWaitlist             = pb.Ytter_JoinPublicWaitlist_FullMethodName
+	RouteCreateHostLocationSlotsBatch   = pb.Ytter_CreateHostLocationSlotsBatch_FullMethodName
 )
 
 // ConfigureRoleBasedAccess sets up GRPC role-based access control
@@ -60,18 +61,19 @@ func ConfigureRoleBasedAccess() RoleConfig {
 	// ============================================================================
 	// No configuration needed - routes not listed here are public by default
 	_ = []string{
-		RouteCreateUser,         // registration
-		RouteLoginUser,          // login
-		RouteVerifyEmail,        // email verification
-		RouteRefreshToken,       // token refresh
-		RouteInitiateGoogleAuth, // Google OAuth initiation
-		RouteGoogleAuthCallback, // Google OAuth callback
-		RouteListPublicSlots,        // public slot discovery
-		RouteListPublicLocations,    // public location discovery
-		RouteGetPublicFilterOptions, // public filter options
-		RouteCreatePublicBooking,    // guest booking creation
-		RouteCancelPublicBooking,    // guest booking cancellation
-		RouteJoinPublicWaitlist,     // guest waitlist join
+		RouteCreateUser,                    // registration
+		RouteLoginUser,                     // login
+		RouteVerifyEmail,                   // email verification
+		RouteRefreshToken,                  // token refresh
+		RouteInitiateGoogleAuth,            // Google OAuth initiation
+		RouteGoogleAuthCallback,            // Google OAuth callback
+		RouteListPublicSlots,               // public slot discovery
+		RouteGetPublicCalendarAvailability, // public calendar availability
+		RouteListPublicLocations,           // public location discovery
+		RouteGetPublicFilterOptions,        // public filter options
+		RouteCreatePublicBooking,           // guest booking creation
+		RouteCancelPublicBooking,           // guest booking cancellation
+		RouteJoinPublicWaitlist,            // guest waitlist join
 	}
 
 	// ============================================================================
