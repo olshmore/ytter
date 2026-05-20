@@ -17,17 +17,31 @@ deploy_app() {
   kubectl apply -f "$EKS/service.yaml"
 }
 
+addon_rollout_failed() {
+  local ns=$1
+  echo "rollout failed in namespace $ns:" >&2
+  kubectl get pods -n "$ns" -o wide >&2 || true
+  kubectl get events -n "$ns" --sort-by=.lastTimestamp 2>/dev/null | tail -20 >&2 || true
+}
+
+wait_rollout() {
+  local ns=$1 deployment=$2 timeout=${3:-600s}
+  if ! kubectl rollout status "deployment/$deployment" -n "$ns" --timeout="$timeout"; then
+    addon_rollout_failed "$ns"
+    return 1
+  fi
+}
+
 install_addons() {
   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/aws/deploy.yaml
   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.1/cert-manager.yaml
 
   kubectl wait --for=condition=Established crd/clusterissuers.cert-manager.io --timeout=180s
-  kubectl wait --namespace cert-manager \
-    --for=condition=Available deployment/cert-manager \
-    --timeout=300s
-  kubectl wait --namespace cert-manager \
-    --for=condition=Available deployment/cert-manager-webhook \
-    --timeout=300s
+
+  wait_rollout ingress-nginx ingress-nginx-controller 600s
+  wait_rollout cert-manager cert-manager-cainjector 600s
+  wait_rollout cert-manager cert-manager-webhook 600s
+  wait_rollout cert-manager cert-manager 600s
 }
 
 deploy_ingress() {
