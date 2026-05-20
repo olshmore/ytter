@@ -179,3 +179,30 @@ message JoinPublicWaitlistResponse {
   string status = 2;
   int32 position_hint = 3;
 }
+
+message PublicBookingAssistantSuggestRequest {
+  string prompt = 1;
+  string location_slug = 2;
+  string service_id = 3;
+  string practitioner_id = 4;
+  string room_id = 5;
+  string date = 6;
+}
+
+message PublicBookingAssistantSlotSuggestion {
+  string slot_id = 1;
+  string start_at = 2;
+  string end_at = 3;
+  string service_name = 4;
+  double confidence_hint = 5;
+}
+
+message PublicBookingAssistantSuggestResponse {
+  string intent = 1;
+  map<string, string> entities = 2;
+  string clarifying_question = 3;
+  repeated PublicBookingAssistantSlotSuggestion slot_suggestions = 4;
+  double confidence = 5;
+  string model = 6;
+  string trace_id = 7;
+}

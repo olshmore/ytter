@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package pb;
+
+import "rpc_host_slot.proto";
+
+option go_package = "github.com/olshmore/ytter/pb";
+
+message HostSlotAssistantPreviewRequest {
+  string location_slug = 1;
+  string prompt = 2;
+}
+
+message HostSlotAssistantPlanOperation {
+  string start_at = 1;
+  string end_at = 2;
+  string service_name = 3;
+  string resource_label = 4;
+  // valid | warning | error
+  string status = 5;
+  string note = 6;
+}
+
+message HostSlotAssistantPreviewResponse {
+  string plan_id = 1;
+  repeated HostSlotAssistantPlanOperation plan_operations = 2;
+  repeated string validation_errors = 3;
+  bool requires_confirmation = 4;
+  double confidence = 5;
+  string model = 6;
+  string trace_id = 7;
+  // Inclusive calendar bounds (YYYY-MM-DD) from the generated plan
+  string plan_date_from = 8;
+  string plan_date_to = 9;
+  int32 total_slot_count = 10;
+}
+
+message HostSlotAssistantPublishRequest {
+  string location_slug = 1;
+  string plan_id = 2;
+  bool confirmed = 3;
+  string idempotency_key = 4;
+}
+
+message HostSlotAssistantPublishResponse {
+  int32 created_count = 1;
+  int32 skipped_count = 2;
+  repeated HostSlotBatchError errors = 3;
+  string trace_id = 4;
+}

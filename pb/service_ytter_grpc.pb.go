@@ -34,6 +34,7 @@ const (
 	Ytter_CreatePublicBooking_FullMethodName            = "/pb.Ytter/CreatePublicBooking"
 	Ytter_CancelPublicBooking_FullMethodName            = "/pb.Ytter/CancelPublicBooking"
 	Ytter_JoinPublicWaitlist_FullMethodName             = "/pb.Ytter/JoinPublicWaitlist"
+	Ytter_PublicBookingAssistantSuggest_FullMethodName  = "/pb.Ytter/PublicBookingAssistantSuggest"
 	Ytter_ListHostLocations_FullMethodName              = "/pb.Ytter/ListHostLocations"
 	Ytter_GetHostSetupChecklist_FullMethodName          = "/pb.Ytter/GetHostSetupChecklist"
 	Ytter_CreateHostLocation_FullMethodName             = "/pb.Ytter/CreateHostLocation"
@@ -51,6 +52,8 @@ const (
 	Ytter_UpdateHostLocationService_FullMethodName      = "/pb.Ytter/UpdateHostLocationService"
 	Ytter_CreateHostLocationSlot_FullMethodName         = "/pb.Ytter/CreateHostLocationSlot"
 	Ytter_CreateHostLocationSlotsBatch_FullMethodName   = "/pb.Ytter/CreateHostLocationSlotsBatch"
+	Ytter_HostSlotAssistantPreview_FullMethodName       = "/pb.Ytter/HostSlotAssistantPreview"
+	Ytter_HostSlotAssistantPublish_FullMethodName       = "/pb.Ytter/HostSlotAssistantPublish"
 	Ytter_UpdateHostLocationSlot_FullMethodName         = "/pb.Ytter/UpdateHostLocationSlot"
 	Ytter_HostApproveBooking_FullMethodName             = "/pb.Ytter/HostApproveBooking"
 	Ytter_HostRejectBooking_FullMethodName              = "/pb.Ytter/HostRejectBooking"
@@ -77,6 +80,7 @@ type YtterClient interface {
 	CreatePublicBooking(ctx context.Context, in *CreatePublicBookingRequest, opts ...grpc.CallOption) (*CreatePublicBookingResponse, error)
 	CancelPublicBooking(ctx context.Context, in *CancelPublicBookingRequest, opts ...grpc.CallOption) (*CancelPublicBookingResponse, error)
 	JoinPublicWaitlist(ctx context.Context, in *JoinPublicWaitlistRequest, opts ...grpc.CallOption) (*JoinPublicWaitlistResponse, error)
+	PublicBookingAssistantSuggest(ctx context.Context, in *PublicBookingAssistantSuggestRequest, opts ...grpc.CallOption) (*PublicBookingAssistantSuggestResponse, error)
 	ListHostLocations(ctx context.Context, in *ListHostLocationsRequest, opts ...grpc.CallOption) (*ListHostLocationsResponse, error)
 	GetHostSetupChecklist(ctx context.Context, in *GetHostSetupChecklistRequest, opts ...grpc.CallOption) (*GetHostSetupChecklistResponse, error)
 	CreateHostLocation(ctx context.Context, in *CreateHostLocationRequest, opts ...grpc.CallOption) (*CreateHostLocationResponse, error)
@@ -94,6 +98,8 @@ type YtterClient interface {
 	UpdateHostLocationService(ctx context.Context, in *UpdateHostLocationServiceRequest, opts ...grpc.CallOption) (*UpdateHostLocationServiceResponse, error)
 	CreateHostLocationSlot(ctx context.Context, in *CreateHostLocationSlotRequest, opts ...grpc.CallOption) (*CreateHostLocationSlotResponse, error)
 	CreateHostLocationSlotsBatch(ctx context.Context, in *CreateHostLocationSlotsBatchRequest, opts ...grpc.CallOption) (*CreateHostLocationSlotsBatchResponse, error)
+	HostSlotAssistantPreview(ctx context.Context, in *HostSlotAssistantPreviewRequest, opts ...grpc.CallOption) (*HostSlotAssistantPreviewResponse, error)
+	HostSlotAssistantPublish(ctx context.Context, in *HostSlotAssistantPublishRequest, opts ...grpc.CallOption) (*HostSlotAssistantPublishResponse, error)
 	UpdateHostLocationSlot(ctx context.Context, in *UpdateHostLocationSlotRequest, opts ...grpc.CallOption) (*UpdateHostLocationSlotResponse, error)
 	HostApproveBooking(ctx context.Context, in *HostApproveBookingRequest, opts ...grpc.CallOption) (*HostApproveBookingResponse, error)
 	HostRejectBooking(ctx context.Context, in *HostRejectBookingRequest, opts ...grpc.CallOption) (*HostRejectBookingResponse, error)
@@ -253,6 +259,16 @@ func (c *ytterClient) JoinPublicWaitlist(ctx context.Context, in *JoinPublicWait
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(JoinPublicWaitlistResponse)
 	err := c.cc.Invoke(ctx, Ytter_JoinPublicWaitlist_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) PublicBookingAssistantSuggest(ctx context.Context, in *PublicBookingAssistantSuggestRequest, opts ...grpc.CallOption) (*PublicBookingAssistantSuggestResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublicBookingAssistantSuggestResponse)
+	err := c.cc.Invoke(ctx, Ytter_PublicBookingAssistantSuggest_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -429,6 +445,26 @@ func (c *ytterClient) CreateHostLocationSlotsBatch(ctx context.Context, in *Crea
 	return out, nil
 }
 
+func (c *ytterClient) HostSlotAssistantPreview(ctx context.Context, in *HostSlotAssistantPreviewRequest, opts ...grpc.CallOption) (*HostSlotAssistantPreviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HostSlotAssistantPreviewResponse)
+	err := c.cc.Invoke(ctx, Ytter_HostSlotAssistantPreview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) HostSlotAssistantPublish(ctx context.Context, in *HostSlotAssistantPublishRequest, opts ...grpc.CallOption) (*HostSlotAssistantPublishResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HostSlotAssistantPublishResponse)
+	err := c.cc.Invoke(ctx, Ytter_HostSlotAssistantPublish_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ytterClient) UpdateHostLocationSlot(ctx context.Context, in *UpdateHostLocationSlotRequest, opts ...grpc.CallOption) (*UpdateHostLocationSlotResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateHostLocationSlotResponse)
@@ -498,6 +534,7 @@ type YtterServer interface {
 	CreatePublicBooking(context.Context, *CreatePublicBookingRequest) (*CreatePublicBookingResponse, error)
 	CancelPublicBooking(context.Context, *CancelPublicBookingRequest) (*CancelPublicBookingResponse, error)
 	JoinPublicWaitlist(context.Context, *JoinPublicWaitlistRequest) (*JoinPublicWaitlistResponse, error)
+	PublicBookingAssistantSuggest(context.Context, *PublicBookingAssistantSuggestRequest) (*PublicBookingAssistantSuggestResponse, error)
 	ListHostLocations(context.Context, *ListHostLocationsRequest) (*ListHostLocationsResponse, error)
 	GetHostSetupChecklist(context.Context, *GetHostSetupChecklistRequest) (*GetHostSetupChecklistResponse, error)
 	CreateHostLocation(context.Context, *CreateHostLocationRequest) (*CreateHostLocationResponse, error)
@@ -515,6 +552,8 @@ type YtterServer interface {
 	UpdateHostLocationService(context.Context, *UpdateHostLocationServiceRequest) (*UpdateHostLocationServiceResponse, error)
 	CreateHostLocationSlot(context.Context, *CreateHostLocationSlotRequest) (*CreateHostLocationSlotResponse, error)
 	CreateHostLocationSlotsBatch(context.Context, *CreateHostLocationSlotsBatchRequest) (*CreateHostLocationSlotsBatchResponse, error)
+	HostSlotAssistantPreview(context.Context, *HostSlotAssistantPreviewRequest) (*HostSlotAssistantPreviewResponse, error)
+	HostSlotAssistantPublish(context.Context, *HostSlotAssistantPublishRequest) (*HostSlotAssistantPublishResponse, error)
 	UpdateHostLocationSlot(context.Context, *UpdateHostLocationSlotRequest) (*UpdateHostLocationSlotResponse, error)
 	HostApproveBooking(context.Context, *HostApproveBookingRequest) (*HostApproveBookingResponse, error)
 	HostRejectBooking(context.Context, *HostRejectBookingRequest) (*HostRejectBookingResponse, error)
@@ -575,6 +614,9 @@ func (UnimplementedYtterServer) CancelPublicBooking(context.Context, *CancelPubl
 func (UnimplementedYtterServer) JoinPublicWaitlist(context.Context, *JoinPublicWaitlistRequest) (*JoinPublicWaitlistResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinPublicWaitlist not implemented")
 }
+func (UnimplementedYtterServer) PublicBookingAssistantSuggest(context.Context, *PublicBookingAssistantSuggestRequest) (*PublicBookingAssistantSuggestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublicBookingAssistantSuggest not implemented")
+}
 func (UnimplementedYtterServer) ListHostLocations(context.Context, *ListHostLocationsRequest) (*ListHostLocationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListHostLocations not implemented")
 }
@@ -625,6 +667,12 @@ func (UnimplementedYtterServer) CreateHostLocationSlot(context.Context, *CreateH
 }
 func (UnimplementedYtterServer) CreateHostLocationSlotsBatch(context.Context, *CreateHostLocationSlotsBatchRequest) (*CreateHostLocationSlotsBatchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateHostLocationSlotsBatch not implemented")
+}
+func (UnimplementedYtterServer) HostSlotAssistantPreview(context.Context, *HostSlotAssistantPreviewRequest) (*HostSlotAssistantPreviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HostSlotAssistantPreview not implemented")
+}
+func (UnimplementedYtterServer) HostSlotAssistantPublish(context.Context, *HostSlotAssistantPublishRequest) (*HostSlotAssistantPublishResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HostSlotAssistantPublish not implemented")
 }
 func (UnimplementedYtterServer) UpdateHostLocationSlot(context.Context, *UpdateHostLocationSlotRequest) (*UpdateHostLocationSlotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateHostLocationSlot not implemented")
@@ -928,6 +976,24 @@ func _Ytter_JoinPublicWaitlist_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(YtterServer).JoinPublicWaitlist(ctx, req.(*JoinPublicWaitlistRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_PublicBookingAssistantSuggest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublicBookingAssistantSuggestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).PublicBookingAssistantSuggest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_PublicBookingAssistantSuggest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).PublicBookingAssistantSuggest(ctx, req.(*PublicBookingAssistantSuggestRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1238,6 +1304,42 @@ func _Ytter_CreateHostLocationSlotsBatch_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_HostSlotAssistantPreview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HostSlotAssistantPreviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).HostSlotAssistantPreview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_HostSlotAssistantPreview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).HostSlotAssistantPreview(ctx, req.(*HostSlotAssistantPreviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_HostSlotAssistantPublish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HostSlotAssistantPublishRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).HostSlotAssistantPublish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_HostSlotAssistantPublish_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).HostSlotAssistantPublish(ctx, req.(*HostSlotAssistantPublishRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Ytter_UpdateHostLocationSlot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateHostLocationSlotRequest)
 	if err := dec(in); err != nil {
@@ -1396,6 +1498,10 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Ytter_JoinPublicWaitlist_Handler,
 		},
 		{
+			MethodName: "PublicBookingAssistantSuggest",
+			Handler:    _Ytter_PublicBookingAssistantSuggest_Handler,
+		},
+		{
 			MethodName: "ListHostLocations",
 			Handler:    _Ytter_ListHostLocations_Handler,
 		},
@@ -1462,6 +1568,14 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateHostLocationSlotsBatch",
 			Handler:    _Ytter_CreateHostLocationSlotsBatch_Handler,
+		},
+		{
+			MethodName: "HostSlotAssistantPreview",
+			Handler:    _Ytter_HostSlotAssistantPreview_Handler,
+		},
+		{
+			MethodName: "HostSlotAssistantPublish",
+			Handler:    _Ytter_HostSlotAssistantPublish_Handler,
 		},
 		{
 			MethodName: "UpdateHostLocationSlot",

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	db "github.com/olshmore/ytter/db/sqlc"
+	"github.com/olshmore/ytter/internal/ai"
 	"github.com/olshmore/ytter/internal/worker"
 	"github.com/olshmore/ytter/pb"
 	"github.com/olshmore/ytter/pkg/config"
@@ -16,6 +17,8 @@ type Server struct {
 	store           db.Store
 	tokenMaker      token.Maker
 	taskDistributor worker.TaskDistributor
+	aiGateway       ai.Gateway
+	hostSlotPlans   *hostSlotPlanStore
 }
 
 func NewServer(config config.Config, store db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
@@ -29,7 +32,14 @@ func NewServer(config config.Config, store db.Store, taskDistributor worker.Task
 		store:           store,
 		tokenMaker:      tokenMaker,
 		taskDistributor: taskDistributor,
+		aiGateway:       ai.NewGatewayFromConfig(config),
+		hostSlotPlans:   newHostSlotPlanStore(),
 	}
 
 	return server, nil
+}
+
+// AIGateway returns the configured AI gateway for the server.
+func (s *Server) AIGateway() ai.Gateway {
+	return s.aiGateway
 }

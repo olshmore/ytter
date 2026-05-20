@@ -79,6 +79,14 @@ func TestConfigureRoleBasedAccess(t *testing.T) {
 	hostRoles, exists = config[RouteUpdateHostLocationSlot]
 	require.True(t, exists)
 	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteHostSlotAssistantPreview]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
+
+	hostRoles, exists = config[RouteHostSlotAssistantPublish]
+	require.True(t, exists)
+	require.ElementsMatch(t, []utils.Role{utils.RoleHost, utils.RoleAdmin}, hostRoles)
 }
 
 func TestHTTPPathToGRPCMethodMap(t *testing.T) {

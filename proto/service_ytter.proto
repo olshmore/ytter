@@ -15,6 +15,7 @@ import "rpc_google_auth.proto";
 import "rpc_public_booking.proto";
 import "rpc_host_booking.proto";
 import "rpc_host_slot.proto";
+import "rpc_host_ai.proto";
 import "rpc_host_service.proto";
 
 option go_package = "github.com/olshmore/ytter/pb";
@@ -238,6 +239,17 @@ service Ytter {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Join public waitlist";
       description: "Join waitlist for an unavailable slot.";
+      tags: "booking";
+    };
+  };
+  rpc PublicBookingAssistantSuggest (PublicBookingAssistantSuggestRequest) returns (PublicBookingAssistantSuggestResponse) {
+    option (google.api.http) = {
+      post: "/v1/public/ai/booking-assistant/suggest"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Guest booking assistant suggest";
+      description: "Parse natural-language booking intent and suggest real available slots for a location.";
       tags: "booking";
     };
   };
@@ -512,6 +524,40 @@ service Ytter {
       summary: "Batch create location slots";
       description: "Create multiple slots for one location from recurring pattern.";
       tags: "host_slot";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc HostSlotAssistantPreview (HostSlotAssistantPreviewRequest) returns (HostSlotAssistantPreviewResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/ai/slot-assistant/preview"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Host slot assistant preview";
+      description: "Parse natural-language slot plan and return reviewable operations before publish.";
+      tags: "host_ai";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc HostSlotAssistantPublish (HostSlotAssistantPublishRequest) returns (HostSlotAssistantPublishResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/ai/slot-assistant/publish"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Host slot assistant publish";
+      description: "Re-validate and execute a stored slot assistant plan.";
+      tags: "host_ai";
       security: {
         security_requirement: {
           key: "Bearer";

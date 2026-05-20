@@ -48,7 +48,10 @@ const (
 	RouteCreatePublicBooking            = pb.Ytter_CreatePublicBooking_FullMethodName
 	RouteCancelPublicBooking            = pb.Ytter_CancelPublicBooking_FullMethodName
 	RouteJoinPublicWaitlist             = pb.Ytter_JoinPublicWaitlist_FullMethodName
+	RoutePublicBookingAssistantSuggest  = pb.Ytter_PublicBookingAssistantSuggest_FullMethodName
 	RouteCreateHostLocationSlotsBatch   = pb.Ytter_CreateHostLocationSlotsBatch_FullMethodName
+	RouteHostSlotAssistantPreview       = pb.Ytter_HostSlotAssistantPreview_FullMethodName
+	RouteHostSlotAssistantPublish       = pb.Ytter_HostSlotAssistantPublish_FullMethodName
 )
 
 // ConfigureRoleBasedAccess sets up GRPC role-based access control
@@ -74,6 +77,7 @@ func ConfigureRoleBasedAccess() RoleConfig {
 		RouteCreatePublicBooking,           // guest booking creation
 		RouteCancelPublicBooking,           // guest booking cancellation
 		RouteJoinPublicWaitlist,            // guest waitlist join
+		RoutePublicBookingAssistantSuggest, // guest NL booking assistant
 	}
 
 	// ============================================================================
@@ -115,6 +119,8 @@ func ConfigureRoleBasedAccess() RoleConfig {
 		RouteGetHostSetupChecklist,
 		RouteGetHostBookingAnalyticsSummary,
 		RouteCreateHostLocationSlotsBatch,
+		RouteHostSlotAssistantPreview,
+		RouteHostSlotAssistantPublish,
 	)
 
 	// ============================================================================

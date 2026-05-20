@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -161,16 +162,20 @@ func TestCreateHostLocationSlotsBatch_OK(t *testing.T) {
 			}, nil
 		})
 
+	tomorrow := time.Now().UTC().AddDate(0, 0, 1)
+	slotDate := tomorrow.Format("2006-01-02")
+	weekday := strings.ToLower(tomorrow.Weekday().String()[:3])
+
 	res, err := server.CreateHostLocationSlotsBatch(ctx, &pb.CreateHostLocationSlotsBatchRequest{
 		LocationSlug:    "qa-clinic",
 		ServiceId:       serviceID.String(),
-		DateFrom:        "2026-05-04",
-		DateTo:          "2026-05-04",
+		DateFrom:        slotDate,
+		DateTo:          slotDate,
 		DailyStartLocal: "09:00",
 		DailyEndLocal:   "09:30",
 		SlotMinutes:     30,
 		Capacity:        2,
-		Weekdays:        []string{"mon"},
+		Weekdays:        []string{weekday},
 	})
 	require.NoError(t, err)
 	require.EqualValues(t, 1, res.CreatedCount)
@@ -207,8 +212,8 @@ func TestCreateHostLocationSlotsBatch_InvalidDailyRange(t *testing.T) {
 	_, err := server.CreateHostLocationSlotsBatch(ctx, &pb.CreateHostLocationSlotsBatchRequest{
 		LocationSlug:    "qa-clinic",
 		ServiceId:       serviceID.String(),
-		DateFrom:        "2026-05-04",
-		DateTo:          "2026-05-04",
+		DateFrom:        "2026-05-18",
+		DateTo:          "2026-05-18",
 		DailyStartLocal: "10:00",
 		DailyEndLocal:   "09:00",
 		SlotMinutes:     30,

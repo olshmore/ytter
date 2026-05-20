@@ -583,6 +583,32 @@ func local_request_Ytter_JoinPublicWaitlist_0(ctx context.Context, marshaler run
 
 }
 
+func request_Ytter_PublicBookingAssistantSuggest_0(ctx context.Context, marshaler runtime.Marshaler, client YtterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PublicBookingAssistantSuggestRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.PublicBookingAssistantSuggest(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Ytter_PublicBookingAssistantSuggest_0(ctx context.Context, marshaler runtime.Marshaler, server YtterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PublicBookingAssistantSuggestRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.PublicBookingAssistantSuggest(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_Ytter_ListHostLocations_0(ctx context.Context, marshaler runtime.Marshaler, client YtterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListHostLocationsRequest
 	var metadata runtime.ServerMetadata
@@ -1497,6 +1523,58 @@ func local_request_Ytter_CreateHostLocationSlotsBatch_0(ctx context.Context, mar
 
 }
 
+func request_Ytter_HostSlotAssistantPreview_0(ctx context.Context, marshaler runtime.Marshaler, client YtterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq HostSlotAssistantPreviewRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.HostSlotAssistantPreview(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Ytter_HostSlotAssistantPreview_0(ctx context.Context, marshaler runtime.Marshaler, server YtterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq HostSlotAssistantPreviewRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.HostSlotAssistantPreview(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_Ytter_HostSlotAssistantPublish_0(ctx context.Context, marshaler runtime.Marshaler, client YtterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq HostSlotAssistantPublishRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.HostSlotAssistantPublish(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Ytter_HostSlotAssistantPublish_0(ctx context.Context, marshaler runtime.Marshaler, server YtterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq HostSlotAssistantPublishRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.HostSlotAssistantPublish(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_Ytter_UpdateHostLocationSlot_0(ctx context.Context, marshaler runtime.Marshaler, client YtterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UpdateHostLocationSlotRequest
 	var metadata runtime.ServerMetadata
@@ -2198,6 +2276,31 @@ func RegisterYtterHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 
 	})
 
+	mux.Handle("POST", pattern_Ytter_PublicBookingAssistantSuggest_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.Ytter/PublicBookingAssistantSuggest", runtime.WithHTTPPathPattern("/v1/public/ai/booking-assistant/suggest"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Ytter_PublicBookingAssistantSuggest_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Ytter_PublicBookingAssistantSuggest_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_Ytter_ListHostLocations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -2620,6 +2723,56 @@ func RegisterYtterHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Ytter_CreateHostLocationSlotsBatch_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_Ytter_HostSlotAssistantPreview_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.Ytter/HostSlotAssistantPreview", runtime.WithHTTPPathPattern("/v1/host/ai/slot-assistant/preview"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Ytter_HostSlotAssistantPreview_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Ytter_HostSlotAssistantPreview_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_Ytter_HostSlotAssistantPublish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.Ytter/HostSlotAssistantPublish", runtime.WithHTTPPathPattern("/v1/host/ai/slot-assistant/publish"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Ytter_HostSlotAssistantPublish_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Ytter_HostSlotAssistantPublish_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -3119,6 +3272,28 @@ func RegisterYtterHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 
 	})
 
+	mux.Handle("POST", pattern_Ytter_PublicBookingAssistantSuggest_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.Ytter/PublicBookingAssistantSuggest", runtime.WithHTTPPathPattern("/v1/public/ai/booking-assistant/suggest"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Ytter_PublicBookingAssistantSuggest_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Ytter_PublicBookingAssistantSuggest_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_Ytter_ListHostLocations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -3493,6 +3668,50 @@ func RegisterYtterHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 
 	})
 
+	mux.Handle("POST", pattern_Ytter_HostSlotAssistantPreview_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.Ytter/HostSlotAssistantPreview", runtime.WithHTTPPathPattern("/v1/host/ai/slot-assistant/preview"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Ytter_HostSlotAssistantPreview_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Ytter_HostSlotAssistantPreview_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_Ytter_HostSlotAssistantPublish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.Ytter/HostSlotAssistantPublish", runtime.WithHTTPPathPattern("/v1/host/ai/slot-assistant/publish"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Ytter_HostSlotAssistantPublish_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Ytter_HostSlotAssistantPublish_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("PATCH", pattern_Ytter_UpdateHostLocationSlot_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -3637,6 +3856,8 @@ var (
 
 	pattern_Ytter_JoinPublicWaitlist_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "public", "waitlist"}, ""))
 
+	pattern_Ytter_PublicBookingAssistantSuggest_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "public", "ai", "booking-assistant", "suggest"}, ""))
+
 	pattern_Ytter_ListHostLocations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "host", "locations"}, ""))
 
 	pattern_Ytter_GetHostSetupChecklist_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "host", "setup", "checklist"}, ""))
@@ -3670,6 +3891,10 @@ var (
 	pattern_Ytter_CreateHostLocationSlot_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"v1", "host", "locations", "slug", "location_slug", "slots"}, ""))
 
 	pattern_Ytter_CreateHostLocationSlotsBatch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 2, 6}, []string{"v1", "host", "locations", "slug", "location_slug", "slots", "batch"}, ""))
+
+	pattern_Ytter_HostSlotAssistantPreview_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "host", "ai", "slot-assistant", "preview"}, ""))
+
+	pattern_Ytter_HostSlotAssistantPublish_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "host", "ai", "slot-assistant", "publish"}, ""))
 
 	pattern_Ytter_UpdateHostLocationSlot_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 6}, []string{"v1", "host", "locations", "slug", "location_slug", "slots", "slot_id"}, ""))
 
@@ -3713,6 +3938,8 @@ var (
 
 	forward_Ytter_JoinPublicWaitlist_0 = runtime.ForwardResponseMessage
 
+	forward_Ytter_PublicBookingAssistantSuggest_0 = runtime.ForwardResponseMessage
+
 	forward_Ytter_ListHostLocations_0 = runtime.ForwardResponseMessage
 
 	forward_Ytter_GetHostSetupChecklist_0 = runtime.ForwardResponseMessage
@@ -3746,6 +3973,10 @@ var (
 	forward_Ytter_CreateHostLocationSlot_0 = runtime.ForwardResponseMessage
 
 	forward_Ytter_CreateHostLocationSlotsBatch_0 = runtime.ForwardResponseMessage
+
+	forward_Ytter_HostSlotAssistantPreview_0 = runtime.ForwardResponseMessage
+
+	forward_Ytter_HostSlotAssistantPublish_0 = runtime.ForwardResponseMessage
 
 	forward_Ytter_UpdateHostLocationSlot_0 = runtime.ForwardResponseMessage
 

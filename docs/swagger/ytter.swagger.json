@@ -246,6 +246,84 @@
         ]
       }
     },
+    "/v1/host/ai/slot-assistant/preview": {
+      "post": {
+        "summary": "Host slot assistant preview",
+        "description": "Parse natural-language slot plan and return reviewable operations before publish.",
+        "operationId": "Ytter_HostSlotAssistantPreview",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbHostSlotAssistantPreviewResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbHostSlotAssistantPreviewRequest"
+            }
+          }
+        ],
+        "tags": [
+          "host_ai"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/ai/slot-assistant/publish": {
+      "post": {
+        "summary": "Host slot assistant publish",
+        "description": "Re-validate and execute a stored slot assistant plan.",
+        "operationId": "Ytter_HostSlotAssistantPublish",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbHostSlotAssistantPublishResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbHostSlotAssistantPublishRequest"
+            }
+          }
+        ],
+        "tags": [
+          "host_ai"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/v1/host/bookings/{bookingId}/approve": {
       "post": {
         "summary": "Approve pending booking",
@@ -1275,6 +1353,40 @@
           {
             "Bearer": []
           }
+        ]
+      }
+    },
+    "/v1/public/ai/booking-assistant/suggest": {
+      "post": {
+        "summary": "Guest booking assistant suggest",
+        "description": "Parse natural-language booking intent and suggest real available slots for a location.",
+        "operationId": "Ytter_PublicBookingAssistantSuggest",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbPublicBookingAssistantSuggestResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbPublicBookingAssistantSuggestRequest"
+            }
+          }
+        ],
+        "tags": [
+          "booking"
         ]
       }
     },
@@ -2413,6 +2525,127 @@
         }
       }
     },
+    "pbHostSlotAssistantPlanOperation": {
+      "type": "object",
+      "properties": {
+        "startAt": {
+          "type": "string"
+        },
+        "endAt": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "resourceLabel": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "title": "valid | warning | error"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "pbHostSlotAssistantPreviewRequest": {
+      "type": "object",
+      "properties": {
+        "locationSlug": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        }
+      }
+    },
+    "pbHostSlotAssistantPreviewResponse": {
+      "type": "object",
+      "properties": {
+        "planId": {
+          "type": "string"
+        },
+        "planOperations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostSlotAssistantPlanOperation"
+          }
+        },
+        "validationErrors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiresConfirmation": {
+          "type": "boolean"
+        },
+        "confidence": {
+          "type": "number",
+          "format": "double"
+        },
+        "model": {
+          "type": "string"
+        },
+        "traceId": {
+          "type": "string"
+        },
+        "planDateFrom": {
+          "type": "string",
+          "description": "Inclusive calendar bounds (YYYY-MM-DD) from the generated plan."
+        },
+        "planDateTo": {
+          "type": "string"
+        },
+        "totalSlotCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total slots the plan would create (preview rows may be capped)."
+        }
+      }
+    },
+    "pbHostSlotAssistantPublishRequest": {
+      "type": "object",
+      "properties": {
+        "locationSlug": {
+          "type": "string"
+        },
+        "planId": {
+          "type": "string"
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        }
+      }
+    },
+    "pbHostSlotAssistantPublishResponse": {
+      "type": "object",
+      "properties": {
+        "createdCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "skippedCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbHostSlotBatchError"
+          }
+        },
+        "traceId": {
+          "type": "string"
+        }
+      }
+    },
     "pbHostSlotBatchError": {
       "type": "object",
       "properties": {
@@ -2721,6 +2954,84 @@
         "refreshTokenExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "pbPublicBookingAssistantSlotSuggestion": {
+      "type": "object",
+      "properties": {
+        "slotId": {
+          "type": "string"
+        },
+        "startAt": {
+          "type": "string"
+        },
+        "endAt": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "confidenceHint": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "pbPublicBookingAssistantSuggestRequest": {
+      "type": "object",
+      "properties": {
+        "prompt": {
+          "type": "string"
+        },
+        "locationSlug": {
+          "type": "string"
+        },
+        "serviceId": {
+          "type": "string"
+        },
+        "practitionerId": {
+          "type": "string"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        }
+      }
+    },
+    "pbPublicBookingAssistantSuggestResponse": {
+      "type": "object",
+      "properties": {
+        "intent": {
+          "type": "string"
+        },
+        "entities": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "clarifyingQuestion": {
+          "type": "string"
+        },
+        "slotSuggestions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbPublicBookingAssistantSlotSuggestion"
+          }
+        },
+        "confidence": {
+          "type": "number",
+          "format": "double"
+        },
+        "model": {
+          "type": "string"
+        },
+        "traceId": {
+          "type": "string"
         }
       }
     },

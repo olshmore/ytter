@@ -412,6 +412,14 @@ func (server *Server) CreateHostLocationSlotsBatch(ctx context.Context, req *pb.
 	if dateTo.Before(dateFrom) {
 		return nil, status.Errorf(codes.InvalidArgument, "date_to must be on/after date_from")
 	}
+	todayLocal := locationLocalToday(loc.Timezone)
+	if dateMsgs, dateBlocking := validateBatchDateStringsNotBeforeToday(
+		dateFrom.Format("2006-01-02"),
+		dateTo.Format("2006-01-02"),
+		todayLocal,
+	); dateBlocking {
+		return nil, status.Errorf(codes.InvalidArgument, "%s", dateMsgs[0])
+	}
 	if req.GetSlotMinutes() <= 0 || req.GetCapacity() <= 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "slot_minutes and capacity must be > 0")
 	}
@@ -441,6 +449,24 @@ func (server *Server) CreateHostLocationSlotsBatch(ctx context.Context, req *pb.
 	}
 	if len(weekdaySet) == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "weekdays is required")
+	}
+
+	plan := resolvedBatchSlotPlan{
+		DateFrom:    dateFrom,
+		DateTo:      dateTo,
+		Weekdays:    weekdaySet,
+		DailyStart:  startDur,
+		DailyEnd:    endDur,
+		SlotMinutes: req.GetSlotMinutes(),
+		Capacity:    req.GetCapacity(),
+	}
+	_, pastOnlyValidation, _, pastOnlyBlocking := expandBatchSlotPlan(plan, nil)
+	if pastOnlyBlocking {
+		msg := "all slots in this plan are in the past; guests will not see them on the public booking page"
+		if len(pastOnlyValidation) > 0 {
+			msg = pastOnlyValidation[len(pastOnlyValidation)-1]
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "%s", msg)
 	}
 
 	createdCount := int32(0)
