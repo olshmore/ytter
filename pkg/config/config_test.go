@@ -40,8 +40,46 @@ func TestLoadConfig(t *testing.T) {
 		{
 			name: "MissingConfigFile",
 			setup: func() (string, func()) {
+				return t.TempDir(), func() {}
+			},
+			expectErr: true,
+		},
+		{
+			name: "MinimumSecretsUsesDefaults",
+			setup: func() (string, func()) {
+				envKeys := []string{
+					"ENVIRONMENT",
+					"MIGRATION_URL",
+					"GRPC_SERVER_ADDRESS",
+					"HTTP_SERVER_ADDRESS",
+					"REDIS_ADDRESS",
+					"EMAIL_SENDER_NAME",
+				}
+				saved := make(map[string]string, len(envKeys))
+				for _, key := range envKeys {
+					saved[key] = os.Getenv(key)
+					os.Unsetenv(key)
+				}
+
 				tmpDir := t.TempDir()
-				return tmpDir, func() {}
+				configFile := filepath.Join(tmpDir, "app.env")
+				content := `DB_URL=postgres://user:pass@localhost/db
+TOKEN_SYMMETRIC_KEY=12345678901234567890123456789012
+EMAIL_SENDER_PASSWORD=email-secret
+GOOGLE_CLIENT_SECRET=google-secret
+OPENAI_API_KEY=openai-secret
+`
+				err := os.WriteFile(configFile, []byte(content), 0644)
+				require.NoError(t, err)
+				return tmpDir, func() {
+					for _, key := range envKeys {
+						if v, ok := saved[key]; ok && v != "" {
+							os.Setenv(key, v)
+						} else {
+							os.Unsetenv(key)
+						}
+					}
+				}
 			},
 			expectErr: false,
 		},
@@ -58,10 +96,20 @@ func TestLoadConfig(t *testing.T) {
 
 			if tc.expectErr {
 				require.Error(t, err)
+				if tc.name == "MissingConfigFile" {
+					require.Contains(t, err.Error(), `Config File "app" Not Found`)
+				}
 			} else {
 				require.NoError(t, err)
 				require.NotEmpty(t, config.Environment)
 				require.NotEmpty(t, config.DBSource)
+				if tc.name == "MinimumSecretsUsesDefaults" {
+					require.Equal(t, "production", config.Environment)
+					require.Equal(t, "file://db/migration", config.MigrationURL)
+					require.Equal(t, "0.0.0.0:50051", config.GRPCServerAddress)
+					require.Equal(t, "redis:6379", config.RedisAddress)
+					require.Equal(t, "Ytter", config.EmailSenderName)
+				}
 			}
 		})
 	}

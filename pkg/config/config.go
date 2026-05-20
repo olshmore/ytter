@@ -44,32 +44,47 @@ func (c Config) AITimeout() time.Duration {
 	return time.Duration(c.AITimeoutMS) * time.Millisecond
 }
 
+func applyDefaults(v *viper.Viper) {
+	v.SetDefault("ENVIRONMENT", "production")
+	v.SetDefault("MIGRATION_URL", "file://db/migration")
+	v.SetDefault("GRPC_SERVER_ADDRESS", "0.0.0.0:50051")
+	v.SetDefault("HTTP_SERVER_ADDRESS", "0.0.0.0:8080")
+	v.SetDefault("REDIS_ADDRESS", "redis:6379")
+	v.SetDefault("ACCESS_TOKEN_DURATION", "15m")
+	v.SetDefault("REFRESH_TOKEN_DURATION", "24h")
+	v.SetDefault("EMAIL_SENDER_NAME", "Ytter")
+
+	// AI
+	v.SetDefault("AI_PROVIDER", "openai")
+	v.SetDefault("OPENAI_BASE_URL", "https://api.openai.com/v1")
+	v.SetDefault("OPENAI_MODEL_SUMMARY", "gpt-4.1")
+	v.SetDefault("OPENAI_MODEL_ASSISTANT", "gpt-4.1")
+	v.SetDefault("OPENAI_MODEL_EMBEDDING", "text-embedding-3-large")
+	v.SetDefault("AI_TIMEOUT_MS", 8000)
+	v.SetDefault("AI_MAX_TOKENS", 1024)
+	v.SetDefault("AI_TEMPERATURE", 0.2)
+	v.SetDefault("AI_MAX_RETRIES", 1)
+	v.SetDefault("AI_ENABLE_LOGGING", true)
+}
+
 func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
+	v := viper.New()
 
-	viper.SetConfigName("app")
+	v.AddConfigPath(path)
 
-	viper.SetConfigType("env")
+	v.SetConfigName("app")
 
-	viper.AutomaticEnv()
+	v.SetConfigType("env")
+	
+	v.AutomaticEnv()
+	
+	applyDefaults(v)
 
-	// AI defaults
-	viper.SetDefault("AI_PROVIDER", "openai")
-	viper.SetDefault("OPENAI_BASE_URL", "https://api.openai.com/v1")
-	viper.SetDefault("OPENAI_MODEL_SUMMARY", "gpt-4.1")
-	viper.SetDefault("OPENAI_MODEL_ASSISTANT", "gpt-4.1")
-	viper.SetDefault("OPENAI_MODEL_EMBEDDING", "text-embedding-3-large")
-	viper.SetDefault("AI_TIMEOUT_MS", 8000)
-	viper.SetDefault("AI_MAX_TOKENS", 1024)
-	viper.SetDefault("AI_TEMPERATURE", 0.2)
-	viper.SetDefault("AI_MAX_RETRIES", 1)
-	viper.SetDefault("AI_ENABLE_LOGGING", true)
-
-	err = viper.ReadInConfig()
+	err = v.ReadInConfig()
 	if err != nil {
 		return
 	}
 
-	err = viper.Unmarshal(&config)
+	err = v.Unmarshal(&config)
 	return
 }
