@@ -58,12 +58,5 @@ jobs:
         aws eks describe-cluster --name ytter-eks --region eu-west-2 --query cluster.status --output text
         kubectl get namespaces
 
-    - name: Deploy image to Amazon EKS
-      run: |
-        kubectl apply -f deployments/eks/aws-auth.yaml
-        kubectl apply -f deployments/eks/deployment.yaml
-        kubectl apply -f deployments/eks/service.yaml
-        kubectl apply -f deployments/eks/issuer.yaml
-        kubectl apply -f deployments/eks/ingress-nginx.yaml
-        kubectl apply -f deployments/eks/ingress-http.yaml
-        kubectl apply -f deployments/eks/ingress-grpc.yaml
+    - name: Deploy to Amazon EKS
+      run: bash deployments/eks/deploy.sh
