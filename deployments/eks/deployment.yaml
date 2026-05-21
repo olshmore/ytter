@@ -28,3 +28,8 @@ spec:
           name: http-server
         - containerPort: 50051
           name: grpc-server
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+          name: redis

@@ -3,7 +3,7 @@
 #
 # Usage:
 #   ./deployments/eks/deploy.sh          # secrets + app + add-ons + ingress (CI default)
-#   ./deployments/eks/deploy.sh app         # redis + secrets + application manifests
+#   ./deployments/eks/deploy.sh app         # secrets + application manifests (Redis sidecar)
 #   ./deployments/eks/deploy.sh production  # app + addons + ingress (CI)
 #   ./deployments/eks/deploy.sh secrets     # Kubernetes secret only (needs app-secrets.env)
 #   ./deployments/eks/deploy.sh addons      # ingress-nginx + cert-manager
@@ -24,23 +24,8 @@ app_rollout_failed() {
   kubectl get events --field-selector involvedObject.kind=Pod --sort-by=.lastTimestamp 2>/dev/null | tail -15 >&2 || true
 }
 
-redis_rollout_failed() {
-  echo "redis rollout failed:" >&2
-  kubectl get pods -l app=redis -o wide >&2 || true
-  kubectl describe pods -l app=redis 2>/dev/null | tail -40 >&2 || true
-}
-
-deploy_redis() {
-  kubectl apply -f "$EKS/redis.yaml"
-  if ! kubectl rollout status deployment/redis --timeout=120s; then
-    redis_rollout_failed
-    return 1
-  fi
-}
-
 deploy_app() {
   sync_secrets
-  deploy_redis
   kubectl apply -f "$EKS/aws-auth.yaml"
   kubectl apply -f "$EKS/deployment.yaml"
   kubectl apply -f "$EKS/service.yaml"

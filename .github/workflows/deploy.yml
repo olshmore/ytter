@@ -62,6 +62,7 @@ jobs:
         FRONTEND_BASE_URL: ${{ vars.FRONTEND_BASE_URL }}
         MIGRATION_URL: ${{ vars.MIGRATION_URL }}
         GRPC_SERVER_ADDRESS: ${{ vars.GRPC_SERVER_ADDRESS }}
+        REDIS_ADDRESS: ${{ vars.REDIS_ADDRESS }}
         GOOGLE_REDIRECT_URL: ${{ vars.GOOGLE_REDIRECT_URL }}
         # Repository secrets
         DB_URL: ${{ secrets.DB_URL }}
@@ -78,6 +79,7 @@ jobs:
           "FRONTEND_BASE_URL=${FRONTEND_BASE_URL}" \
           "MIGRATION_URL=${MIGRATION_URL}" \
           "GRPC_SERVER_ADDRESS=${GRPC_SERVER_ADDRESS}" \
+          "REDIS_ADDRESS=${REDIS_ADDRESS}" \
           "EMAIL_SENDER_NAME=${EMAIL_SENDER_NAME}" \
           "EMAIL_SENDER_ADDRESS=${EMAIL_SENDER_ADDRESS}" \
           "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" \
