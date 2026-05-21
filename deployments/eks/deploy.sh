@@ -3,10 +3,11 @@
 #
 # Usage:
 #   ./deployments/eks/deploy.sh          # secrets + app + add-ons + ingress (CI default)
-#   ./deployments/eks/deploy.sh app      # sync secrets + application manifests
-#   ./deployments/eks/deploy.sh secrets  # Kubernetes secret only (needs app-secrets.env)
-#   ./deployments/eks/deploy.sh addons   # ingress-nginx + cert-manager
-#   ./deployments/eks/deploy.sh ingress  # issuer + ingress rules
+#   ./deployments/eks/deploy.sh app         # redis + secrets + application manifests
+#   ./deployments/eks/deploy.sh production  # app + addons + ingress (CI)
+#   ./deployments/eks/deploy.sh secrets     # Kubernetes secret only (needs app-secrets.env)
+#   ./deployments/eks/deploy.sh addons      # ingress-nginx + cert-manager
+#   ./deployments/eks/deploy.sh ingress     # issuer + ingress rules
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -23,8 +24,23 @@ app_rollout_failed() {
   kubectl get events --field-selector involvedObject.kind=Pod --sort-by=.lastTimestamp 2>/dev/null | tail -15 >&2 || true
 }
 
+redis_rollout_failed() {
+  echo "redis rollout failed:" >&2
+  kubectl get pods -l app=redis -o wide >&2 || true
+  kubectl describe pods -l app=redis 2>/dev/null | tail -40 >&2 || true
+}
+
+deploy_redis() {
+  kubectl apply -f "$EKS/redis.yaml"
+  if ! kubectl rollout status deployment/redis --timeout=120s; then
+    redis_rollout_failed
+    return 1
+  fi
+}
+
 deploy_app() {
   sync_secrets
+  deploy_redis
   kubectl apply -f "$EKS/aws-auth.yaml"
   kubectl apply -f "$EKS/deployment.yaml"
   kubectl apply -f "$EKS/service.yaml"
@@ -33,6 +49,12 @@ deploy_app() {
     app_rollout_failed
     return 1
   fi
+}
+
+deploy_production() {
+  deploy_app
+  install_addons
+  deploy_ingress
 }
 
 addon_rollout_failed() {
@@ -70,9 +92,7 @@ deploy_ingress() {
 }
 
 run_all() {
-  deploy_app
-  install_addons
-  deploy_ingress
+  deploy_production
 }
 
 if [[ $# -eq 0 ]]; then
@@ -83,6 +103,7 @@ fi
 for target in "$@"; do
   case "$target" in
     app) deploy_app ;;
+    production) deploy_production ;;
     secrets)
       sync_secrets
       kubectl rollout restart deployment/ytter-api-deployment
@@ -91,7 +112,7 @@ for target in "$@"; do
     addons) install_addons ;;
     ingress) deploy_ingress ;;
     *)
-      echo "unknown target: $target (use app, secrets, addons, ingress, or no args for all)" >&2
+      echo "unknown target: $target (use app, production, secrets, addons, ingress, or no args for all)" >&2
       exit 1
       ;;
   esac

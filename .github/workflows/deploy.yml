@@ -90,4 +90,4 @@ jobs:
           > deployments/eks/app-secrets.env
 
     - name: Deploy to Amazon EKS
-      run: bash deployments/eks/deploy.sh app
+      run: bash deployments/eks/deploy.sh production
