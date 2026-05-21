@@ -36,7 +36,9 @@ build-errors.log
 *.env
 config/*.env
 !config/app.env
+!config/app.production.env
 !config/apptesting.env
+deployments/eks/app-secrets.env
 
 # Local
 READ.md

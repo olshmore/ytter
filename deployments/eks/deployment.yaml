@@ -18,6 +18,9 @@ spec:
       - name: ytter-api
         image: 211125664612.dkr.ecr.eu-west-2.amazonaws.com/ytter:latest
         imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: ytter-app-secrets
         ports:
         - containerPort: 8080
           name: http-server

@@ -2,8 +2,9 @@
 # Deploy ytter to EKS
 #
 # Usage:
-#   ./deployments/eks/deploy.sh          # app + add-ons + ingress (CI default)
-#   ./deployments/eks/deploy.sh app      # application manifests only
+#   ./deployments/eks/deploy.sh          # secrets + app + add-ons + ingress (CI default)
+#   ./deployments/eks/deploy.sh app      # sync secrets + application manifests
+#   ./deployments/eks/deploy.sh secrets  # Kubernetes secret only (needs app-secrets.env)
 #   ./deployments/eks/deploy.sh addons   # ingress-nginx + cert-manager
 #   ./deployments/eks/deploy.sh ingress  # issuer + ingress rules
 set -euo pipefail
@@ -11,10 +12,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 EKS="$ROOT/deployments/eks"
 
+sync_secrets() {
+  bash "$EKS/sync-secret.sh"
+}
+
 deploy_app() {
+  sync_secrets
   kubectl apply -f "$EKS/aws-auth.yaml"
   kubectl apply -f "$EKS/deployment.yaml"
   kubectl apply -f "$EKS/service.yaml"
+  kubectl rollout restart deployment/ytter-api-deployment
+  kubectl rollout status deployment/ytter-api-deployment --timeout=300s
 }
 
 addon_rollout_failed() {
@@ -65,10 +73,15 @@ fi
 for target in "$@"; do
   case "$target" in
     app) deploy_app ;;
+    secrets)
+      sync_secrets
+      kubectl rollout restart deployment/ytter-api-deployment
+      kubectl rollout status deployment/ytter-api-deployment --timeout=300s
+      ;;
     addons) install_addons ;;
     ingress) deploy_ingress ;;
     *)
-      echo "unknown target: $target (use app, addons, ingress, or no args for all)" >&2
+      echo "unknown target: $target (use app, secrets, addons, ingress, or no args for all)" >&2
       exit 1
       ;;
   esac

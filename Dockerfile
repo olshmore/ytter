@@ -9,7 +9,7 @@ FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /app/main .
 RUN mkdir -p /app/config
-COPY config/app.env /app/config/app.env
+COPY config/app.production.env /app/config/app.env
 COPY scripts/start.sh .
 COPY scripts/wait-for.sh .
 COPY db/migration ./db/migration
