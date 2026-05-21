@@ -45,6 +45,27 @@ func TestLoadConfig(t *testing.T) {
 			expectErr: true,
 		},
 		{
+			name: "EnvOverridesFile",
+			setup: func() (string, func()) {
+				const dbURL = "postgres://from-env:5432/ytter"
+				os.Setenv("DB_URL", dbURL)
+				os.Setenv("MIGRATION_URL", "file://db/migration")
+
+				tmpDir := t.TempDir()
+				configFile := filepath.Join(tmpDir, "app.env")
+				content := `ENVIRONMENT=production
+TOKEN_SYMMETRIC_KEY=12345678901234567890123456789012
+`
+				err := os.WriteFile(configFile, []byte(content), 0644)
+				require.NoError(t, err)
+				return tmpDir, func() {
+					os.Unsetenv("DB_URL")
+					os.Unsetenv("MIGRATION_URL")
+				}
+			},
+			expectErr: false,
+		},
+		{
 			name: "MinimumSecretsUsesDefaults",
 			setup: func() (string, func()) {
 				envKeys := []string{
@@ -103,6 +124,10 @@ OPENAI_API_KEY=openai-secret
 				require.NoError(t, err)
 				require.NotEmpty(t, config.Environment)
 				require.NotEmpty(t, config.DBSource)
+				if tc.name == "EnvOverridesFile" {
+					require.Equal(t, "postgres://from-env:5432/ytter", config.DBSource)
+					require.Equal(t, "file://db/migration", config.MigrationURL)
+				}
 				if tc.name == "MinimumSecretsUsesDefaults" {
 					require.Equal(t, "production", config.Environment)
 					require.Equal(t, "file://db/migration", config.MigrationURL)

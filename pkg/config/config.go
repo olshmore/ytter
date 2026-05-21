@@ -44,6 +44,42 @@ func (c Config) AITimeout() time.Duration {
 	return time.Duration(c.AITimeoutMS) * time.Millisecond
 }
 
+func bindConfigEnvs(v *viper.Viper) {
+	keys := []string{
+		"ENVIRONMENT",
+		"ALLOWED_ORIGINS",
+		"FRONTEND_BASE_URL",
+		"DB_URL",
+		"MIGRATION_URL",
+		"GRPC_SERVER_ADDRESS",
+		"HTTP_SERVER_ADDRESS",
+		"REDIS_ADDRESS",
+		"TOKEN_SYMMETRIC_KEY",
+		"ACCESS_TOKEN_DURATION",
+		"REFRESH_TOKEN_DURATION",
+		"EMAIL_SENDER_NAME",
+		"EMAIL_SENDER_ADDRESS",
+		"EMAIL_SENDER_PASSWORD",
+		"GOOGLE_CLIENT_ID",
+		"GOOGLE_CLIENT_SECRET",
+		"GOOGLE_REDIRECT_URL",
+		"AI_PROVIDER",
+		"OPENAI_API_KEY",
+		"OPENAI_BASE_URL",
+		"OPENAI_MODEL_SUMMARY",
+		"OPENAI_MODEL_ASSISTANT",
+		"OPENAI_MODEL_EMBEDDING",
+		"AI_TIMEOUT_MS",
+		"AI_MAX_TOKENS",
+		"AI_TEMPERATURE",
+		"AI_MAX_RETRIES",
+		"AI_ENABLE_LOGGING",
+	}
+	for _, key := range keys {
+		_ = v.BindEnv(key)
+	}
+}
+
 func applyDefaults(v *viper.Viper) {
 	v.SetDefault("ENVIRONMENT", "production")
 	v.SetDefault("MIGRATION_URL", "file://db/migration")
@@ -77,8 +113,10 @@ func LoadConfig(path string) (config Config, err error) {
 	v.SetConfigType("env")
 	
 	v.AutomaticEnv()
-	
+
 	applyDefaults(v)
+	
+	bindConfigEnvs(v)
 
 	err = v.ReadInConfig()
 	if err != nil {

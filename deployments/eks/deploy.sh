@@ -16,13 +16,23 @@ sync_secrets() {
   bash "$EKS/sync-secret.sh"
 }
 
+app_rollout_failed() {
+  echo "ytter-api rollout failed:" >&2
+  kubectl get pods -l app=ytter-api -o wide >&2 || true
+  kubectl describe pods -l app=ytter-api 2>/dev/null | tail -80 >&2 || true
+  kubectl get events --field-selector involvedObject.kind=Pod --sort-by=.lastTimestamp 2>/dev/null | tail -15 >&2 || true
+}
+
 deploy_app() {
   sync_secrets
   kubectl apply -f "$EKS/aws-auth.yaml"
   kubectl apply -f "$EKS/deployment.yaml"
   kubectl apply -f "$EKS/service.yaml"
   kubectl rollout restart deployment/ytter-api-deployment
-  kubectl rollout status deployment/ytter-api-deployment --timeout=300s
+  if ! kubectl rollout status deployment/ytter-api-deployment --timeout=300s; then
+    app_rollout_failed
+    return 1
+  fi
 }
 
 addon_rollout_failed() {
