@@ -21,9 +21,14 @@ jobs:
 
     - name: Load deploy infra config
       run: |
+        INFRA_ENV=deployments/eks/infra.env
+        if [[ ! -f "$INFRA_ENV" ]]; then
+          echo "missing $INFRA_ENV (copy from deployments/eks/infra.env.example)" >&2
+          exit 1
+        fi
         set -a
         # shellcheck disable=SC1091
-        source deployments/eks/infra.env
+        source "$INFRA_ENV"
         set +a
         echo "AWS_REGION=${AWS_REGION}" >> "$GITHUB_ENV"
         echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}" >> "$GITHUB_ENV"

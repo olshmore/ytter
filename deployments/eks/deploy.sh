@@ -12,7 +12,7 @@
 #   ./deployments/eks/deploy-bootstrap.sh bootstrap
 #   ./deployments/eks/deploy-bootstrap.sh addons
 #
-# Config: deployments/eks/infra.env + app-secrets.env (see app-secrets.env.example)
+# Config: deployments/eks/infra.env (see infra.env.example) + app-secrets.env (see app-secrets.env.example)
 # Override path: APP_SECRETS_FILE=/path/to/app-secrets.env
 
 set -euo pipefail
@@ -42,7 +42,7 @@ require_deploy_env() {
   local key
   for key in EKS_CLUSTER_NAME AWS_REGION ROUTE53_ZONE_NAME API_HOST GAPI_HOST CLUSTER_IAM_ROLE_NAME; do
     if [[ -z "${!key:-}" ]]; then
-      echo "deploy config: ${key} must be set (see infra.env and app-secrets.env.example)" >&2
+      echo "deploy config: ${key} must be set (see infra.env.example and app-secrets.env.example)" >&2
       exit 1
     fi
   done
