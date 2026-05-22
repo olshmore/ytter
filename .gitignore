@@ -39,6 +39,7 @@ config/*.env
 !config/app.production.env
 !config/apptesting.env
 deployments/eks/app-secrets.env
+!deployments/eks/infra.env
 
 # Local
 READ.md
