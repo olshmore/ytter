@@ -19,6 +19,15 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v4
 
+    - name: Load deploy infra config
+      run: |
+        set -a
+        # shellcheck disable=SC1091
+        source deployments/eks/infra.env
+        set +a
+        echo "AWS_REGION=${AWS_REGION}" >> "$GITHUB_ENV"
+        echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}" >> "$GITHUB_ENV"
+
     - name: Install kubectl
       uses: azure/setup-kubectl@v4
       with:
@@ -29,7 +38,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -46,13 +55,13 @@ jobs:
 
     - name: Update kube config
       run: |
-        aws eks update-kubeconfig --name ytter-eks --region eu-west-2
+        aws eks update-kubeconfig --name "$EKS_CLUSTER_NAME" --region "$AWS_REGION"
         kubectl config current-context
 
     - name: Verify EKS API access
       run: |
         aws sts get-caller-identity
-        aws eks describe-cluster --name ytter-eks --region eu-west-2 --query cluster.status --output text
+        aws eks describe-cluster --name "$EKS_CLUSTER_NAME" --region "$AWS_REGION" --query cluster.status --output text
         kubectl get namespaces
 
     - name: Prepare app secrets for Kubernetes
@@ -73,23 +82,7 @@ jobs:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      run: |
-        printf '%s\n' \
-          "ALLOWED_ORIGINS=${ALLOWED_ORIGINS}" \
-          "FRONTEND_BASE_URL=${FRONTEND_BASE_URL}" \
-          "MIGRATION_URL=${MIGRATION_URL}" \
-          "GRPC_SERVER_ADDRESS=${GRPC_SERVER_ADDRESS}" \
-          "REDIS_ADDRESS=${REDIS_ADDRESS}" \
-          "EMAIL_SENDER_NAME=${EMAIL_SENDER_NAME}" \
-          "EMAIL_SENDER_ADDRESS=${EMAIL_SENDER_ADDRESS}" \
-          "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" \
-          "GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}" \
-          "DB_URL=${DB_URL}" \
-          "TOKEN_SYMMETRIC_KEY=${TOKEN_SYMMETRIC_KEY}" \
-          "EMAIL_SENDER_PASSWORD=${EMAIL_SENDER_PASSWORD}" \
-          "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" \
-          "OPENAI_API_KEY=${OPENAI_API_KEY}" \
-          > deployments/eks/app-secrets.env
+      run: bash deployments/eks/prepare-app-secrets.sh
 
     - name: Deploy to Amazon EKS
       run: bash deployments/eks/deploy.sh production

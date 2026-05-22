@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Write app-secrets.env from CI env (secrets + variables)
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+OUT="${APP_SECRETS_FILE:-$ROOT/deployments/eks/app-secrets.env}"
+
+required=(
+  ALLOWED_ORIGINS
+  FRONTEND_BASE_URL
+  MIGRATION_URL
+  GRPC_SERVER_ADDRESS
+  REDIS_ADDRESS
+  GOOGLE_REDIRECT_URL
+  DB_URL
+  TOKEN_SYMMETRIC_KEY
+  EMAIL_SENDER_NAME
+  EMAIL_SENDER_ADDRESS
+  EMAIL_SENDER_PASSWORD
+  GOOGLE_CLIENT_ID
+  GOOGLE_CLIENT_SECRET
+  OPENAI_API_KEY
+)
+for key in "${required[@]}"; do
+  if [[ -z "${!key:-}" ]]; then
+    echo "prepare-app-secrets: ${key} must be set" >&2
+    exit 1
+  fi
+done
+
+printf '%s\n' \
+  "ALLOWED_ORIGINS=${ALLOWED_ORIGINS}" \
+  "FRONTEND_BASE_URL=${FRONTEND_BASE_URL}" \
+  "MIGRATION_URL=${MIGRATION_URL}" \
+  "GRPC_SERVER_ADDRESS=${GRPC_SERVER_ADDRESS}" \
+  "REDIS_ADDRESS=${REDIS_ADDRESS}" \
+  "EMAIL_SENDER_NAME=${EMAIL_SENDER_NAME}" \
+  "EMAIL_SENDER_ADDRESS=${EMAIL_SENDER_ADDRESS}" \
+  "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" \
+  "GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}" \
+  "DB_URL=${DB_URL}" \
+  "TOKEN_SYMMETRIC_KEY=${TOKEN_SYMMETRIC_KEY}" \
+  "EMAIL_SENDER_PASSWORD=${EMAIL_SENDER_PASSWORD}" \
+  "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" \
+  "OPENAI_API_KEY=${OPENAI_API_KEY}" \
+  > "$OUT"
