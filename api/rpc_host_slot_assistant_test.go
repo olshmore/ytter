@@ -49,10 +49,17 @@ func TestHostSlotAssistantPreview_AIGeneratesPlan(t *testing.T) {
 	locationID := uuid.New()
 	serviceID := uuid.New()
 
+	// Next Monday at least one day ahead, then a Mon–Sun window with mon/wed slots.
+	from := time.Now().UTC().AddDate(0, 0, 1)
+	for from.Weekday() != time.Monday {
+		from = from.AddDate(0, 0, 1)
+	}
+	to := from.AddDate(0, 0, 6)
+
 	planJSON, err := json.Marshal(hostAIPlanPayload{
 		ServiceName:     "Massage",
-		DateFrom:        "2026-06-01",
-		DateTo:          "2026-06-07",
+		DateFrom:        from.Format("2006-01-02"),
+		DateTo:          to.Format("2006-01-02"),
 		Weekdays:        []string{"mon", "wed"},
 		DailyStartLocal: "09:00",
 		DailyEndLocal:   "10:00",
@@ -130,6 +137,10 @@ func TestHostSlotAssistantPublish_ExecutesBatch(t *testing.T) {
 	serviceID := uuid.New()
 	planID := uuid.NewString()
 
+	tomorrow := time.Now().UTC().AddDate(0, 0, 1)
+	slotDate := tomorrow.Format("2006-01-02")
+	weekday := strings.ToLower(tomorrow.Weekday().String()[:3])
+
 	server.hostSlotPlans.put(&storedHostSlotPlan{
 		planID:        planID,
 		locationSlug:  "qa-clinic",
@@ -140,9 +151,9 @@ func TestHostSlotAssistantPublish_ExecutesBatch(t *testing.T) {
 		batch: &pb.CreateHostLocationSlotsBatchRequest{
 			LocationSlug:    "qa-clinic",
 			ServiceId:       serviceID.String(),
-			DateFrom:        "2026-06-02",
-			DateTo:          "2026-06-02",
-			Weekdays:        []string{"tue"},
+			DateFrom:        slotDate,
+			DateTo:          slotDate,
+			Weekdays:        []string{weekday},
 			DailyStartLocal: "09:00",
 			DailyEndLocal:   "09:30",
 			SlotMinutes:     30,

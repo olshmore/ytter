@@ -17,19 +17,28 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Load deploy infra config
       run: |
         INFRA_ENV=deployments/ecs/infra.env
         if [[ ! -f "$INFRA_ENV" ]]; then
-          echo "missing $INFRA_ENV (copy from deployments/ecs/infra.env.example)" >&2
-          exit 1
+          if [[ -f deployments/ecs/infra.env.example ]]; then
+            echo "missing $INFRA_ENV; using infra.env.example" >&2
+            cp deployments/ecs/infra.env.example "$INFRA_ENV"
+          else
+            echo "missing $INFRA_ENV and infra.env.example" >&2
+            exit 1
+          fi
         fi
         set -a
         # shellcheck disable=SC1091
         source "$INFRA_ENV"
         set +a
+        if [[ -z "${AWS_REGION:-}" || -z "${ECS_CLUSTER_NAME:-}" ]]; then
+          echo "AWS_REGION and ECS_CLUSTER_NAME must be set in $INFRA_ENV" >&2
+          exit 1
+        fi
         echo "AWS_REGION=${AWS_REGION}" >> "$GITHUB_ENV"
         echo "ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME}" >> "$GITHUB_ENV"
 
