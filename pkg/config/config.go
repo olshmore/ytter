@@ -12,6 +12,7 @@ type Config struct {
 	FrontendBaseURL      string        `mapstructure:"FRONTEND_BASE_URL"`
 	DBSource             string        `mapstructure:"DB_URL"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
+	EnableGRPCServer     bool          `mapstructure:"ENABLE_GRPC_SERVER"`
 	GRPCServerAddress    string        `mapstructure:"GRPC_SERVER_ADDRESS"`
 	HTTPServerAddress    string        `mapstructure:"HTTP_SERVER_ADDRESS"`
 	RedisAddress         string        `mapstructure:"REDIS_ADDRESS"`
@@ -51,6 +52,7 @@ func bindConfigEnvs(v *viper.Viper) {
 		"FRONTEND_BASE_URL",
 		"DB_URL",
 		"MIGRATION_URL",
+		"ENABLE_GRPC_SERVER",
 		"GRPC_SERVER_ADDRESS",
 		"HTTP_SERVER_ADDRESS",
 		"REDIS_ADDRESS",
@@ -83,6 +85,7 @@ func bindConfigEnvs(v *viper.Viper) {
 func applyDefaults(v *viper.Viper) {
 	v.SetDefault("ENVIRONMENT", "production")
 	v.SetDefault("MIGRATION_URL", "file://db/migration")
+	v.SetDefault("ENABLE_GRPC_SERVER", true)
 	v.SetDefault("GRPC_SERVER_ADDRESS", "0.0.0.0:50051")
 	v.SetDefault("HTTP_SERVER_ADDRESS", "0.0.0.0:8080")
 	v.SetDefault("REDIS_ADDRESS", "redis:6379")

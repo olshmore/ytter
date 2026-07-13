@@ -39,6 +39,10 @@ config/*.env
 !config/app.production.env
 !config/apptesting.env
 deployments/eks/app-secrets.env
+deployments/eks/infra.env
+deployments/ecs/app-secrets.env
+deployments/ecs/ecs-state.env
+deployments/ecs/infra.env
 !deployments/eks/infra.env
 
 # Local

@@ -81,7 +81,11 @@ func main() {
 	waitGroup, ctx := errgroup.WithContext(ctx)
 
 	runTaskProcessor(ctx, waitGroup, config, redisOpt, store)
-	runGrpcServer(ctx, waitGroup, config, store, taskDistributor)
+	if config.EnableGRPCServer {
+		runGrpcServer(ctx, waitGroup, config, store, taskDistributor)
+	} else {
+		log.Info().Msg("gRPC server disabled (ENABLE_GRPC_SERVER=false)")
+	}
 	runGatewayServer(ctx, waitGroup, config, store, taskDistributor)
 
 	err = waitGroup.Wait()

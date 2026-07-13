@@ -149,7 +149,7 @@ Install once when setting up a new machine:
 | dbdocs | `npm install -g dbdocs` → `make db_docs` |
 | dbml2sql | `npm install -g @dbml/cli` → `make db_schema` |
 
-Kubernetes deployment helpers (`kubectl`, `k9s`) and EKS manifests are under `deployments/eks/`.
+Production deploys to **ECS Fargate** via GitHub Actions (`deployments/ecs/`). Legacy EKS manifests remain under `deployments/eks/` for reference.
 
 ## Stack
 

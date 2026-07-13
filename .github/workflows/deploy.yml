@@ -12,7 +12,7 @@ jobs:
   #       run: echo "Deploy disabled"
   
   deploy:
-    name: Build image
+    name: Build and deploy to ECS
     runs-on: ubuntu-latest
 
     steps:
@@ -21,9 +21,9 @@ jobs:
 
     - name: Load deploy infra config
       run: |
-        INFRA_ENV=deployments/eks/infra.env
+        INFRA_ENV=deployments/ecs/infra.env
         if [[ ! -f "$INFRA_ENV" ]]; then
-          echo "missing $INFRA_ENV (copy from deployments/eks/infra.env.example)" >&2
+          echo "missing $INFRA_ENV (copy from deployments/ecs/infra.env.example)" >&2
           exit 1
         fi
         set -a
@@ -31,12 +31,7 @@ jobs:
         source "$INFRA_ENV"
         set +a
         echo "AWS_REGION=${AWS_REGION}" >> "$GITHUB_ENV"
-        echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}" >> "$GITHUB_ENV"
-
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v4
-      with:
-        version: 'v1.28.0'
+        echo "ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME}" >> "$GITHUB_ENV"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -55,30 +50,18 @@ jobs:
         ECR_REPOSITORY: ytter
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-        docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+        docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" .
+        docker push -a "$ECR_REGISTRY/$ECR_REPOSITORY"
+        echo "ECR_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_ENV"
 
-    - name: Update kube config
-      run: |
-        aws eks update-kubeconfig --name "$EKS_CLUSTER_NAME" --region "$AWS_REGION"
-        kubectl config current-context
-
-    - name: Verify EKS API access
-      run: |
-        aws sts get-caller-identity
-        aws eks describe-cluster --name "$EKS_CLUSTER_NAME" --region "$AWS_REGION" --query cluster.status --output text
-        kubectl get namespaces
-
-    - name: Prepare app secrets for Kubernetes
+    - name: Prepare app secrets
       env:
-        # Repository variables
         ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
         FRONTEND_BASE_URL: ${{ vars.FRONTEND_BASE_URL }}
         MIGRATION_URL: ${{ vars.MIGRATION_URL }}
         GRPC_SERVER_ADDRESS: ${{ vars.GRPC_SERVER_ADDRESS }}
         REDIS_ADDRESS: ${{ vars.REDIS_ADDRESS }}
         GOOGLE_REDIRECT_URL: ${{ vars.GOOGLE_REDIRECT_URL }}
-        # Repository secrets
         DB_URL: ${{ secrets.DB_URL }}
         TOKEN_SYMMETRIC_KEY: ${{ secrets.TOKEN_SYMMETRIC_KEY }}
         EMAIL_SENDER_NAME: ${{ secrets.EMAIL_SENDER_NAME }}
@@ -87,7 +70,8 @@ jobs:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      run: bash deployments/eks/prepare-app-secrets.sh
+      run: |
+        APP_SECRETS_FILE=deployments/ecs/app-secrets.env bash deployments/ecs/prepare-app-secrets.sh
 
-    - name: Deploy to Amazon EKS
-      run: bash deployments/eks/deploy.sh production
+    - name: Deploy to Amazon ECS
+      run: bash deployments/ecs/deploy.sh production
