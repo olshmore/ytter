@@ -45,6 +45,9 @@ deployments/ecs/ecs-state.env
 !deployments/ecs/infra.env
 !deployments/ecs/infra.env.example
 
+# Local uploads
+data/
+
 # Local
 READ.md
 READ

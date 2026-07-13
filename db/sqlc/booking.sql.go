@@ -470,7 +470,7 @@ INSERT INTO locations (
 ) VALUES (
   $1, $2, $3, $4, $5
 )
-RETURNING id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at
+RETURNING id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at, logo_url, primary_color, accent_color, font_family, background_color
 `
 
 type CreateLocationParams struct {
@@ -502,6 +502,11 @@ func (q *Queries) CreateLocation(ctx context.Context, arg CreateLocationParams) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.LogoUrl,
+		&i.PrimaryColor,
+		&i.AccentColor,
+		&i.FontFamily,
+		&i.BackgroundColor,
 	)
 	return i, err
 }
@@ -931,7 +936,7 @@ func (q *Queries) GetHostSlotByID(ctx context.Context, arg GetHostSlotByIDParams
 }
 
 const getLocationByID = `-- name: GetLocationByID :one
-SELECT id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at FROM locations
+SELECT id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at, logo_url, primary_color, accent_color, font_family, background_color FROM locations
 WHERE id = $1
   AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
 LIMIT 1
@@ -952,12 +957,17 @@ func (q *Queries) GetLocationByID(ctx context.Context, id uuid.UUID) (Location, 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.LogoUrl,
+		&i.PrimaryColor,
+		&i.AccentColor,
+		&i.FontFamily,
+		&i.BackgroundColor,
 	)
 	return i, err
 }
 
 const getLocationBySlug = `-- name: GetLocationBySlug :one
-SELECT id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at FROM locations
+SELECT id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at, logo_url, primary_color, accent_color, font_family, background_color FROM locations
 WHERE slug = $1
   AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
 LIMIT 1
@@ -978,6 +988,11 @@ func (q *Queries) GetLocationBySlug(ctx context.Context, slug string) (Location,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.LogoUrl,
+		&i.PrimaryColor,
+		&i.AccentColor,
+		&i.FontFamily,
+		&i.BackgroundColor,
 	)
 	return i, err
 }
@@ -1155,21 +1170,31 @@ SELECT
   timezone,
   is_active,
   booking_requires_host_approval,
-  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start
+  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start,
+  logo_url,
+  primary_color,
+  accent_color,
+  background_color,
+  font_family
 FROM locations
 WHERE deleted_at = '0001-01-01 00:00:00Z'::timestamptz
 ORDER BY name ASC
 `
 
 type ListAllHostLocationsRow struct {
-	ID                                       uuid.UUID `json:"id"`
-	OwnerUsername                            string    `json:"owner_username"`
-	Slug                                     string    `json:"slug"`
-	Name                                     string    `json:"name"`
-	Timezone                                 string    `json:"timezone"`
-	IsActive                                 bool      `json:"is_active"`
-	BookingRequiresHostApproval              bool      `json:"booking_requires_host_approval"`
-	EffectiveCancellationMinHoursBeforeStart int32     `json:"effective_cancellation_min_hours_before_start"`
+	ID                                       uuid.UUID   `json:"id"`
+	OwnerUsername                            string      `json:"owner_username"`
+	Slug                                     string      `json:"slug"`
+	Name                                     string      `json:"name"`
+	Timezone                                 string      `json:"timezone"`
+	IsActive                                 bool        `json:"is_active"`
+	BookingRequiresHostApproval              bool        `json:"booking_requires_host_approval"`
+	EffectiveCancellationMinHoursBeforeStart int32       `json:"effective_cancellation_min_hours_before_start"`
+	LogoUrl                                  pgtype.Text `json:"logo_url"`
+	PrimaryColor                             pgtype.Text `json:"primary_color"`
+	AccentColor                              pgtype.Text `json:"accent_color"`
+	BackgroundColor                          pgtype.Text `json:"background_color"`
+	FontFamily                               pgtype.Text `json:"font_family"`
 }
 
 func (q *Queries) ListAllHostLocations(ctx context.Context) ([]ListAllHostLocationsRow, error) {
@@ -1190,6 +1215,11 @@ func (q *Queries) ListAllHostLocations(ctx context.Context) ([]ListAllHostLocati
 			&i.IsActive,
 			&i.BookingRequiresHostApproval,
 			&i.EffectiveCancellationMinHoursBeforeStart,
+			&i.LogoUrl,
+			&i.PrimaryColor,
+			&i.AccentColor,
+			&i.BackgroundColor,
+			&i.FontFamily,
 		); err != nil {
 			return nil, err
 		}
@@ -1380,7 +1410,12 @@ SELECT
   timezone,
   is_active,
   booking_requires_host_approval,
-  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start
+  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start,
+  logo_url,
+  primary_color,
+  accent_color,
+  background_color,
+  font_family
 FROM locations
 WHERE owner_username = $1
   AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
@@ -1388,14 +1423,19 @@ ORDER BY name ASC
 `
 
 type ListHostLocationsByOwnerRow struct {
-	ID                                       uuid.UUID `json:"id"`
-	OwnerUsername                            string    `json:"owner_username"`
-	Slug                                     string    `json:"slug"`
-	Name                                     string    `json:"name"`
-	Timezone                                 string    `json:"timezone"`
-	IsActive                                 bool      `json:"is_active"`
-	BookingRequiresHostApproval              bool      `json:"booking_requires_host_approval"`
-	EffectiveCancellationMinHoursBeforeStart int32     `json:"effective_cancellation_min_hours_before_start"`
+	ID                                       uuid.UUID   `json:"id"`
+	OwnerUsername                            string      `json:"owner_username"`
+	Slug                                     string      `json:"slug"`
+	Name                                     string      `json:"name"`
+	Timezone                                 string      `json:"timezone"`
+	IsActive                                 bool        `json:"is_active"`
+	BookingRequiresHostApproval              bool        `json:"booking_requires_host_approval"`
+	EffectiveCancellationMinHoursBeforeStart int32       `json:"effective_cancellation_min_hours_before_start"`
+	LogoUrl                                  pgtype.Text `json:"logo_url"`
+	PrimaryColor                             pgtype.Text `json:"primary_color"`
+	AccentColor                              pgtype.Text `json:"accent_color"`
+	BackgroundColor                          pgtype.Text `json:"background_color"`
+	FontFamily                               pgtype.Text `json:"font_family"`
 }
 
 func (q *Queries) ListHostLocationsByOwner(ctx context.Context, ownerUsername string) ([]ListHostLocationsByOwnerRow, error) {
@@ -1416,6 +1456,11 @@ func (q *Queries) ListHostLocationsByOwner(ctx context.Context, ownerUsername st
 			&i.IsActive,
 			&i.BookingRequiresHostApproval,
 			&i.EffectiveCancellationMinHoursBeforeStart,
+			&i.LogoUrl,
+			&i.PrimaryColor,
+			&i.AccentColor,
+			&i.BackgroundColor,
+			&i.FontFamily,
 		); err != nil {
 			return nil, err
 		}
@@ -1873,7 +1918,12 @@ SELECT DISTINCT
   l.slug,
   l.name,
   l.timezone,
-  l.booking_requires_host_approval
+  l.booking_requires_host_approval,
+  l.logo_url,
+  l.primary_color,
+  l.accent_color,
+  l.background_color,
+  l.font_family
 FROM locations l
 JOIN appointment_slots s ON s.location_id = l.id
 JOIN services sv ON sv.id = s.service_id
@@ -1887,11 +1937,16 @@ ORDER BY l.name ASC
 `
 
 type ListPublicLocationsRow struct {
-	ID                          uuid.UUID `json:"id"`
-	Slug                        string    `json:"slug"`
-	Name                        string    `json:"name"`
-	Timezone                    string    `json:"timezone"`
-	BookingRequiresHostApproval bool      `json:"booking_requires_host_approval"`
+	ID                          uuid.UUID   `json:"id"`
+	Slug                        string      `json:"slug"`
+	Name                        string      `json:"name"`
+	Timezone                    string      `json:"timezone"`
+	BookingRequiresHostApproval bool        `json:"booking_requires_host_approval"`
+	LogoUrl                     pgtype.Text `json:"logo_url"`
+	PrimaryColor                pgtype.Text `json:"primary_color"`
+	AccentColor                 pgtype.Text `json:"accent_color"`
+	BackgroundColor             pgtype.Text `json:"background_color"`
+	FontFamily                  pgtype.Text `json:"font_family"`
 }
 
 func (q *Queries) ListPublicLocations(ctx context.Context) ([]ListPublicLocationsRow, error) {
@@ -1909,6 +1964,11 @@ func (q *Queries) ListPublicLocations(ctx context.Context) ([]ListPublicLocation
 			&i.Name,
 			&i.Timezone,
 			&i.BookingRequiresHostApproval,
+			&i.LogoUrl,
+			&i.PrimaryColor,
+			&i.AccentColor,
+			&i.BackgroundColor,
+			&i.FontFamily,
 		); err != nil {
 			return nil, err
 		}
@@ -1946,7 +2006,12 @@ SELECT
   l.slug AS location_slug,
   l.name AS location_name,
   l.timezone AS location_timezone,
-  l.booking_requires_host_approval
+  l.booking_requires_host_approval,
+  l.logo_url AS location_logo_url,
+  l.primary_color AS location_primary_color,
+  l.accent_color AS location_accent_color,
+  l.background_color AS location_background_color,
+  l.font_family AS location_font_family
 FROM locations l
 JOIN appointment_slots s ON s.location_id = l.id
 JOIN services sv ON sv.id = s.service_id
@@ -1983,6 +2048,11 @@ type ListPublicSlotsByLocationSlugRow struct {
 	LocationName                             string      `json:"location_name"`
 	LocationTimezone                         string      `json:"location_timezone"`
 	BookingRequiresHostApproval              bool        `json:"booking_requires_host_approval"`
+	LocationLogoUrl                          pgtype.Text `json:"location_logo_url"`
+	LocationPrimaryColor                     pgtype.Text `json:"location_primary_color"`
+	LocationAccentColor                      pgtype.Text `json:"location_accent_color"`
+	LocationBackgroundColor                  pgtype.Text `json:"location_background_color"`
+	LocationFontFamily                       pgtype.Text `json:"location_font_family"`
 }
 
 func (q *Queries) ListPublicSlotsByLocationSlug(ctx context.Context, slug string) ([]ListPublicSlotsByLocationSlugRow, error) {
@@ -2016,6 +2086,11 @@ func (q *Queries) ListPublicSlotsByLocationSlug(ctx context.Context, slug string
 			&i.LocationName,
 			&i.LocationTimezone,
 			&i.BookingRequiresHostApproval,
+			&i.LocationLogoUrl,
+			&i.LocationPrimaryColor,
+			&i.LocationAccentColor,
+			&i.LocationBackgroundColor,
+			&i.LocationFontFamily,
 		); err != nil {
 			return nil, err
 		}
@@ -2232,7 +2307,7 @@ SET
   updated_at = now()
 WHERE id = $1
   AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
-RETURNING id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at
+RETURNING id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at, logo_url, primary_color, accent_color, font_family, background_color
 `
 
 type UpdateLocationParams struct {
@@ -2266,6 +2341,112 @@ func (q *Queries) UpdateLocation(ctx context.Context, arg UpdateLocationParams) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.LogoUrl,
+		&i.PrimaryColor,
+		&i.AccentColor,
+		&i.FontFamily,
+		&i.BackgroundColor,
+	)
+	return i, err
+}
+
+const updateLocationBranding = `-- name: UpdateLocationBranding :one
+UPDATE locations
+SET
+  logo_url = CASE
+    WHEN $1::bool THEN NULL
+    WHEN $2::bool THEN NULL
+    WHEN $3::bool THEN $4
+    ELSE logo_url
+  END,
+  primary_color = CASE
+    WHEN $1::bool THEN NULL
+    WHEN $5::bool THEN NULL
+    WHEN $6::bool THEN $7
+    ELSE primary_color
+  END,
+  accent_color = CASE
+    WHEN $1::bool THEN NULL
+    WHEN $8::bool THEN NULL
+    WHEN $9::bool THEN $10
+    ELSE accent_color
+  END,
+  background_color = CASE
+    WHEN $1::bool THEN NULL
+    WHEN $11::bool THEN NULL
+    WHEN $12::bool THEN $13
+    ELSE background_color
+  END,
+  font_family = CASE
+    WHEN $1::bool THEN NULL
+    WHEN $14::bool THEN NULL
+    WHEN $15::bool THEN $16
+    ELSE font_family
+  END,
+  updated_at = now()
+WHERE id = $17
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+RETURNING id, owner_username, name, slug, timezone, is_active, booking_requires_host_approval, cancellation_min_hours_before_start, created_at, updated_at, deleted_at, logo_url, primary_color, accent_color, font_family, background_color
+`
+
+type UpdateLocationBrandingParams struct {
+	ResetBranding        bool        `json:"reset_branding"`
+	ClearLogoUrl         bool        `json:"clear_logo_url"`
+	SetLogoUrl           bool        `json:"set_logo_url"`
+	LogoUrl              pgtype.Text `json:"logo_url"`
+	ClearPrimaryColor    bool        `json:"clear_primary_color"`
+	SetPrimaryColor      bool        `json:"set_primary_color"`
+	PrimaryColor         pgtype.Text `json:"primary_color"`
+	ClearAccentColor     bool        `json:"clear_accent_color"`
+	SetAccentColor       bool        `json:"set_accent_color"`
+	AccentColor          pgtype.Text `json:"accent_color"`
+	ClearBackgroundColor bool        `json:"clear_background_color"`
+	SetBackgroundColor   bool        `json:"set_background_color"`
+	BackgroundColor      pgtype.Text `json:"background_color"`
+	ClearFontFamily      bool        `json:"clear_font_family"`
+	SetFontFamily        bool        `json:"set_font_family"`
+	FontFamily           pgtype.Text `json:"font_family"`
+	ID                   uuid.UUID   `json:"id"`
+}
+
+func (q *Queries) UpdateLocationBranding(ctx context.Context, arg UpdateLocationBrandingParams) (Location, error) {
+	row := q.db.QueryRow(ctx, updateLocationBranding,
+		arg.ResetBranding,
+		arg.ClearLogoUrl,
+		arg.SetLogoUrl,
+		arg.LogoUrl,
+		arg.ClearPrimaryColor,
+		arg.SetPrimaryColor,
+		arg.PrimaryColor,
+		arg.ClearAccentColor,
+		arg.SetAccentColor,
+		arg.AccentColor,
+		arg.ClearBackgroundColor,
+		arg.SetBackgroundColor,
+		arg.BackgroundColor,
+		arg.ClearFontFamily,
+		arg.SetFontFamily,
+		arg.FontFamily,
+		arg.ID,
+	)
+	var i Location
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerUsername,
+		&i.Name,
+		&i.Slug,
+		&i.Timezone,
+		&i.IsActive,
+		&i.BookingRequiresHostApproval,
+		&i.CancellationMinHoursBeforeStart,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.LogoUrl,
+		&i.PrimaryColor,
+		&i.AccentColor,
+		&i.FontFamily,
+		&i.BackgroundColor,
 	)
 	return i, err
 }

@@ -13,6 +13,11 @@ message HostLocationItem {
   string owner_username = 6;
   string timezone = 7;
   bool is_active = 8;
+  optional string logo_url = 9;
+  optional string primary_color = 10;
+  optional string accent_color = 11;
+  optional string font_family = 12;
+  optional string background_color = 13;
 }
 
 message ListHostLocationsRequest {}
@@ -59,6 +64,39 @@ message UpdateHostLocationRequest {
 
 message UpdateHostLocationResponse {
   HostLocationItem location = 1;
+}
+
+message UpdateLocationBrandingRequest {
+  string location_slug = 1;
+  optional string logo_url = 2;
+  optional string primary_color = 3;
+  optional string accent_color = 4;
+  optional string font_family = 5;
+  optional bool reset_all = 6;
+  optional string background_color = 7;
+}
+
+message UpdateLocationBrandingResponse {
+  string location_id = 1;
+  string location_slug = 2;
+  string location_name = 3;
+  optional string logo_url = 4;
+  optional string primary_color = 5;
+  optional string accent_color = 6;
+  optional string font_family = 7;
+  optional string background_color = 8;
+}
+
+message CreateLocationBrandingLogoUploadRequest {
+  string location_slug = 1;
+  string content_type = 2;
+  int64 content_length = 3;
+}
+
+message CreateLocationBrandingLogoUploadResponse {
+  string upload_url = 1;
+  string public_url = 2;
+  string expires_at = 3;
 }
 
 message HostBookingSlotSummary {

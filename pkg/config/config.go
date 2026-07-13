@@ -36,6 +36,12 @@ type Config struct {
 	AITemperature        float64       `mapstructure:"AI_TEMPERATURE"`
 	AIMaxRetries         int           `mapstructure:"AI_MAX_RETRIES"`
 	AIEnableLogging      bool          `mapstructure:"AI_ENABLE_LOGGING"`
+	StorageDriver        string        `mapstructure:"STORAGE_DRIVER"`
+	StorageLocalDir      string        `mapstructure:"STORAGE_LOCAL_DIR"`
+	StoragePublicBaseURL string        `mapstructure:"STORAGE_PUBLIC_BASE_URL"`
+	S3Bucket             string        `mapstructure:"S3_BUCKET"`
+	S3Region             string        `mapstructure:"S3_REGION"`
+	S3PublicBaseURL      string        `mapstructure:"S3_PUBLIC_BASE_URL"`
 }
 
 func (c Config) AITimeout() time.Duration {
@@ -76,6 +82,12 @@ func bindConfigEnvs(v *viper.Viper) {
 		"AI_TEMPERATURE",
 		"AI_MAX_RETRIES",
 		"AI_ENABLE_LOGGING",
+		"STORAGE_DRIVER",
+		"STORAGE_LOCAL_DIR",
+		"STORAGE_PUBLIC_BASE_URL",
+		"S3_BUCKET",
+		"S3_REGION",
+		"S3_PUBLIC_BASE_URL",
 	}
 	for _, key := range keys {
 		_ = v.BindEnv(key)
@@ -104,6 +116,10 @@ func applyDefaults(v *viper.Viper) {
 	v.SetDefault("AI_TEMPERATURE", 0.2)
 	v.SetDefault("AI_MAX_RETRIES", 1)
 	v.SetDefault("AI_ENABLE_LOGGING", true)
+
+	v.SetDefault("STORAGE_DRIVER", "local")
+	v.SetDefault("STORAGE_LOCAL_DIR", "./data/branding")
+	v.SetDefault("STORAGE_PUBLIC_BASE_URL", "http://localhost:8080/v1/public/media")
 }
 
 func LoadConfig(path string) (config Config, err error) {

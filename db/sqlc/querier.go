@@ -64,6 +64,7 @@ type Querier interface {
 	UpdateHostLocationService(ctx context.Context, arg UpdateHostLocationServiceParams) (Service, error)
 	UpdateHostLocationSlot(ctx context.Context, arg UpdateHostLocationSlotParams) (AppointmentSlot, error)
 	UpdateLocation(ctx context.Context, arg UpdateLocationParams) (Location, error)
+	UpdateLocationBranding(ctx context.Context, arg UpdateLocationBrandingParams) (Location, error)
 	UpdateSlotCounters(ctx context.Context, arg UpdateSlotCountersParams) (AppointmentSlot, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserEmailVerified(ctx context.Context, arg UpdateUserEmailVerifiedParams) (User, error)

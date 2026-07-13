@@ -42,7 +42,12 @@ SELECT
   l.slug AS location_slug,
   l.name AS location_name,
   l.timezone AS location_timezone,
-  l.booking_requires_host_approval
+  l.booking_requires_host_approval,
+  l.logo_url AS location_logo_url,
+  l.primary_color AS location_primary_color,
+  l.accent_color AS location_accent_color,
+  l.background_color AS location_background_color,
+  l.font_family AS location_font_family
 FROM locations l
 JOIN appointment_slots s ON s.location_id = l.id
 JOIN services sv ON sv.id = s.service_id
@@ -62,7 +67,12 @@ SELECT DISTINCT
   l.slug,
   l.name,
   l.timezone,
-  l.booking_requires_host_approval
+  l.booking_requires_host_approval,
+  l.logo_url,
+  l.primary_color,
+  l.accent_color,
+  l.background_color,
+  l.font_family
 FROM locations l
 JOIN appointment_slots s ON s.location_id = l.id
 JOIN services sv ON sv.id = s.service_id
@@ -229,7 +239,12 @@ SELECT
   timezone,
   is_active,
   booking_requires_host_approval,
-  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start
+  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start,
+  logo_url,
+  primary_color,
+  accent_color,
+  background_color,
+  font_family
 FROM locations
 WHERE owner_username = $1
   AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
@@ -244,7 +259,12 @@ SELECT
   timezone,
   is_active,
   booking_requires_host_approval,
-  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start
+  COALESCE(cancellation_min_hours_before_start, 24)::int AS effective_cancellation_min_hours_before_start,
+  logo_url,
+  primary_color,
+  accent_color,
+  background_color,
+  font_family
 FROM locations
 WHERE deleted_at = '0001-01-01 00:00:00Z'::timestamptz
 ORDER BY name ASC;
@@ -271,6 +291,44 @@ SET
   booking_requires_host_approval = COALESCE(sqlc.narg(booking_requires_host_approval), booking_requires_host_approval),
   updated_at = now()
 WHERE id = $1
+  AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
+RETURNING *;
+
+-- name: UpdateLocationBranding :one
+UPDATE locations
+SET
+  logo_url = CASE
+    WHEN @reset_branding::bool THEN NULL
+    WHEN @clear_logo_url::bool THEN NULL
+    WHEN @set_logo_url::bool THEN sqlc.narg(logo_url)
+    ELSE logo_url
+  END,
+  primary_color = CASE
+    WHEN @reset_branding::bool THEN NULL
+    WHEN @clear_primary_color::bool THEN NULL
+    WHEN @set_primary_color::bool THEN sqlc.narg(primary_color)
+    ELSE primary_color
+  END,
+  accent_color = CASE
+    WHEN @reset_branding::bool THEN NULL
+    WHEN @clear_accent_color::bool THEN NULL
+    WHEN @set_accent_color::bool THEN sqlc.narg(accent_color)
+    ELSE accent_color
+  END,
+  background_color = CASE
+    WHEN @reset_branding::bool THEN NULL
+    WHEN @clear_background_color::bool THEN NULL
+    WHEN @set_background_color::bool THEN sqlc.narg(background_color)
+    ELSE background_color
+  END,
+  font_family = CASE
+    WHEN @reset_branding::bool THEN NULL
+    WHEN @clear_font_family::bool THEN NULL
+    WHEN @set_font_family::bool THEN sqlc.narg(font_family)
+    ELSE font_family
+  END,
+  updated_at = now()
+WHERE id = @id
   AND deleted_at = '0001-01-01 00:00:00Z'::timestamptz
 RETURNING *;
 

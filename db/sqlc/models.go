@@ -58,6 +58,11 @@ type Location struct {
 	CreatedAt                       time.Time   `json:"created_at"`
 	UpdatedAt                       time.Time   `json:"updated_at"`
 	DeletedAt                       time.Time   `json:"deleted_at"`
+	LogoUrl                         pgtype.Text `json:"logo_url"`
+	PrimaryColor                    pgtype.Text `json:"primary_color"`
+	AccentColor                     pgtype.Text `json:"accent_color"`
+	FontFamily                      pgtype.Text `json:"font_family"`
+	BackgroundColor                 pgtype.Text `json:"background_color"`
 }
 
 type Practitioner struct {

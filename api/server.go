@@ -5,6 +5,7 @@ import (
 
 	db "github.com/olshmore/ytter/db/sqlc"
 	"github.com/olshmore/ytter/internal/ai"
+	"github.com/olshmore/ytter/internal/storage"
 	"github.com/olshmore/ytter/internal/worker"
 	"github.com/olshmore/ytter/pb"
 	"github.com/olshmore/ytter/pkg/config"
@@ -19,12 +20,18 @@ type Server struct {
 	taskDistributor worker.TaskDistributor
 	aiGateway       ai.Gateway
 	hostSlotPlans   *hostSlotPlanStore
+	objectStore     storage.ObjectStore
 }
 
 func NewServer(config config.Config, store db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
+	}
+
+	objectStore, err := storage.NewFromConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create object store: %w", err)
 	}
 
 	server := &Server{
@@ -34,6 +41,7 @@ func NewServer(config config.Config, store db.Store, taskDistributor worker.Task
 		taskDistributor: taskDistributor,
 		aiGateway:       ai.NewGatewayFromConfig(config),
 		hostSlotPlans:   newHostSlotPlanStore(),
+		objectStore:     objectStore,
 	}
 
 	return server, nil

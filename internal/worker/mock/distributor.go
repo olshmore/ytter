@@ -36,25 +36,6 @@ func (m *MockTaskDistributor) EXPECT() *MockTaskDistributorMockRecorder {
 	return m.recorder
 }
 
-// DistributeTaskSendVerificationEmail mocks base method.
-func (m *MockTaskDistributor) DistributeTaskSendVerificationEmail(arg0 context.Context, arg1 *worker.PayloadSendVerificationEmail, arg2 ...asynq.Option) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DistributeTaskSendVerificationEmail", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DistributeTaskSendVerificationEmail indicates an expected call of DistributeTaskSendVerificationEmail.
-func (mr *MockTaskDistributorMockRecorder) DistributeTaskSendVerificationEmail(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskSendVerificationEmail", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskSendVerificationEmail), varargs...)
-}
-
 // DistributeTaskSendBookingEmail mocks base method.
 func (m *MockTaskDistributor) DistributeTaskSendBookingEmail(arg0 context.Context, arg1 *worker.PayloadSendBookingEmail, arg2 ...asynq.Option) error {
 	m.ctrl.T.Helper()
@@ -91,4 +72,23 @@ func (mr *MockTaskDistributorMockRecorder) DistributeTaskSendBookingReminderEmai
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskSendBookingReminderEmail", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskSendBookingReminderEmail), varargs...)
+}
+
+// DistributeTaskSendVerificationEmail mocks base method.
+func (m *MockTaskDistributor) DistributeTaskSendVerificationEmail(arg0 context.Context, arg1 *worker.PayloadSendVerificationEmail, arg2 ...asynq.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DistributeTaskSendVerificationEmail", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DistributeTaskSendVerificationEmail indicates an expected call of DistributeTaskSendVerificationEmail.
+func (mr *MockTaskDistributorMockRecorder) DistributeTaskSendVerificationEmail(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskSendVerificationEmail", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskSendVerificationEmail), varargs...)
 }

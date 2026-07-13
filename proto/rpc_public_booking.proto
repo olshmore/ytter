@@ -10,6 +10,11 @@ message PublicSlotsLocation {
   string name = 3;
   string timezone = 4;
   bool booking_requires_host_approval = 5;
+  optional string logo_url = 6;
+  optional string primary_color = 7;
+  optional string accent_color = 8;
+  optional string font_family = 9;
+  optional string background_color = 10;
 }
 
 message PublicLocationItem {
@@ -18,6 +23,11 @@ message PublicLocationItem {
   string name = 3;
   string timezone = 4;
   bool booking_requires_host_approval = 5;
+  optional string logo_url = 6;
+  optional string primary_color = 7;
+  optional string accent_color = 8;
+  optional string font_family = 9;
+  optional string background_color = 10;
 }
 
 message ListPublicLocationsRequest {}

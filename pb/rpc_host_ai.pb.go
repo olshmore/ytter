@@ -175,11 +175,10 @@ type HostSlotAssistantPreviewResponse struct {
 	Confidence           float64                           `protobuf:"fixed64,5,opt,name=confidence,proto3" json:"confidence,omitempty"`
 	Model                string                            `protobuf:"bytes,6,opt,name=model,proto3" json:"model,omitempty"`
 	TraceId              string                            `protobuf:"bytes,7,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	// Inclusive calendar bounds (YYYY-MM-DD) from the generated plan.
-	PlanDateFrom string `protobuf:"bytes,8,opt,name=plan_date_from,json=planDateFrom,proto3" json:"plan_date_from,omitempty"`
-	PlanDateTo   string `protobuf:"bytes,9,opt,name=plan_date_to,json=planDateTo,proto3" json:"plan_date_to,omitempty"`
-	// Total slots the plan would create (preview rows may be capped).
-	TotalSlotCount int32 `protobuf:"varint,10,opt,name=total_slot_count,json=totalSlotCount,proto3" json:"total_slot_count,omitempty"`
+	// Inclusive calendar bounds (YYYY-MM-DD) from the generated plan
+	PlanDateFrom   string `protobuf:"bytes,8,opt,name=plan_date_from,json=planDateFrom,proto3" json:"plan_date_from,omitempty"`
+	PlanDateTo     string `protobuf:"bytes,9,opt,name=plan_date_to,json=planDateTo,proto3" json:"plan_date_to,omitempty"`
+	TotalSlotCount int32  `protobuf:"varint,10,opt,name=total_slot_count,json=totalSlotCount,proto3" json:"total_slot_count,omitempty"`
 }
 
 func (x *HostSlotAssistantPreviewResponse) Reset() {

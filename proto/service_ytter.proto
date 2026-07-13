@@ -351,6 +351,40 @@ service Ytter {
       };
     };
   };
+  rpc UpdateLocationBranding (UpdateLocationBrandingRequest) returns (UpdateLocationBrandingResponse) {
+    option (google.api.http) = {
+      patch: "/v1/host/locations/slug/{location_slug}/branding"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update location branding";
+      description: "Update logo, colors, and font for a host-owned location.";
+      tags: "host_location_branding";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
+  rpc CreateLocationBrandingLogoUpload (CreateLocationBrandingLogoUploadRequest) returns (CreateLocationBrandingLogoUploadResponse) {
+    option (google.api.http) = {
+      post: "/v1/host/locations/slug/{location_slug}/branding/logo-upload"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create branding logo upload URL";
+      description: "Create a short-lived presigned URL for uploading a location logo.";
+      tags: "host_location_branding";
+      security: {
+        security_requirement: {
+          key: "Bearer";
+          value: {};
+        };
+      };
+    };
+  };
   rpc ListHostLocationBookings (ListHostLocationBookingsRequest) returns (ListHostLocationBookingsResponse) {
     option (google.api.http) = {
       get: "/v1/host/locations/slug/{location_slug}/bookings"

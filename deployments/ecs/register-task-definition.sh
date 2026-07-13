@@ -72,6 +72,10 @@ task = {
             "environment": [
                 {"name": "ENABLE_GRPC_SERVER", "value": "false"},
                 {"name": "REDIS_ADDRESS", "value": "127.0.0.1:6379"},
+                {"name": "STORAGE_DRIVER", "value": "s3"},
+                {"name": "S3_BUCKET", "value": "ytter-branding"},
+                {"name": "S3_REGION", "value": os.environ["AWS_REGION"]},
+                {"name": "S3_PUBLIC_BASE_URL", "value": "https://ytter-branding.s3.eu-west-2.amazonaws.com"},
             ],
             "secrets": secrets,
             "logConfiguration": log_opts("api"),

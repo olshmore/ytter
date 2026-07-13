@@ -937,6 +937,21 @@ func (mr *MockStoreMockRecorder) UpdateLocation(arg0, arg1 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLocation", reflect.TypeOf((*MockStore)(nil).UpdateLocation), arg0, arg1)
 }
 
+// UpdateLocationBranding mocks base method.
+func (m *MockStore) UpdateLocationBranding(arg0 context.Context, arg1 db.UpdateLocationBrandingParams) (db.Location, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateLocationBranding", arg0, arg1)
+	ret0, _ := ret[0].(db.Location)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateLocationBranding indicates an expected call of UpdateLocationBranding.
+func (mr *MockStoreMockRecorder) UpdateLocationBranding(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLocationBranding", reflect.TypeOf((*MockStore)(nil).UpdateLocationBranding), arg0, arg1)
+}
+
 // UpdateSlotCounters mocks base method.
 func (m *MockStore) UpdateSlotCounters(arg0 context.Context, arg1 db.UpdateSlotCountersParams) (db.AppointmentSlot, error) {
 	m.ctrl.T.Helper()

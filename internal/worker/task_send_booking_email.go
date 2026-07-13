@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -84,14 +85,15 @@ func (processor *RedisTaskProcessor) ProcessTaskSendBookingEmail(
 		return fmt.Errorf("failed to load booking: %w", err)
 	}
 
-	subject := fmt.Sprintf("Booking %s", payload.EventType)
-	content := fmt.Sprintf(
+	body := fmt.Sprintf(
 		"Hello %s,<br/>Your booking (%s) was %s.<br/>Current status: %s",
 		booking.GuestName,
 		booking.ID.String(),
 		payload.EventType,
 		booking.Status,
 	)
+	subject := fmt.Sprintf("Booking %s", payload.EventType)
+	content := wrapBrandedEmailHTML(ctx, processor, booking.LocationID, body)
 	to := []string{booking.GuestEmail}
 
 	if processor.config.EmailSenderAddress == "" {
@@ -134,12 +136,13 @@ func (processor *RedisTaskProcessor) ProcessTaskSendBookingReminderEmail(
 		return nil
 	}
 
-	subject := "Booking reminder"
-	content := fmt.Sprintf(
+	body := fmt.Sprintf(
 		"Hello %s,<br/>This is a reminder for your booking on %s.",
 		row.GuestName,
 		row.StartAt.Format(time.RFC3339),
 	)
+	subject := "Booking reminder"
+	content := wrapBrandedEmailHTML(ctx, processor, row.LocationID, body)
 	to := []string{row.GuestEmail}
 
 	if processor.config.EmailSenderAddress == "" {
@@ -152,4 +155,45 @@ func (processor *RedisTaskProcessor) ProcessTaskSendBookingReminderEmail(
 
 	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).Str("email", row.GuestEmail).Msg("processed task")
 	return nil
+}
+
+const defaultEmailPrimary = "#16A34A"
+
+func wrapBrandedEmailHTML(ctx context.Context, processor *RedisTaskProcessor, locationID uuid.UUID, bodyHTML string) string {
+	primary := defaultEmailPrimary
+	headerInner := "Appointa"
+	loc, err := processor.store.GetLocationByID(ctx, locationID)
+	if err == nil {
+		if loc.PrimaryColor.Valid && loc.PrimaryColor.String != "" {
+			primary = loc.PrimaryColor.String
+		}
+		if loc.LogoUrl.Valid && loc.LogoUrl.String != "" {
+			headerInner = fmt.Sprintf(
+				`<img src="%s" alt="%s" style="max-height:48px;max-width:200px;display:block;" />`,
+				htmlEscapeAttr(loc.LogoUrl.String),
+				htmlEscapeAttr(loc.Name),
+			)
+		} else if loc.Name != "" {
+			headerInner = htmlEscapeText(loc.Name)
+		}
+	}
+	return fmt.Sprintf(
+		`<div style="font-family:Arial,Helvetica,sans-serif;color:#111;">`+
+			`<div style="background:%s;padding:16px 20px;color:#fff;">%s</div>`+
+			`<div style="padding:20px;">%s</div>`+
+			`</div>`,
+		htmlEscapeAttr(primary),
+		headerInner,
+		bodyHTML,
+	)
+}
+
+func htmlEscapeAttr(s string) string {
+	replacer := strings.NewReplacer(`&`, "&amp;", `"`, "&quot;", `<`, "&lt;", `>`, "&gt;")
+	return replacer.Replace(s)
+}
+
+func htmlEscapeText(s string) string {
+	replacer := strings.NewReplacer(`&`, "&amp;", `<`, "&lt;", `>`, "&gt;")
+	return replacer.Replace(s)
 }

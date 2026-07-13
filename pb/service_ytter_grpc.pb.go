@@ -19,46 +19,48 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Ytter_CreateUser_FullMethodName                     = "/pb.Ytter/CreateUser"
-	Ytter_VerifyEmail_FullMethodName                    = "/pb.Ytter/VerifyEmail"
-	Ytter_LoginUser_FullMethodName                      = "/pb.Ytter/LoginUser"
-	Ytter_RefreshToken_FullMethodName                   = "/pb.Ytter/RefreshToken"
-	Ytter_ListUsers_FullMethodName                      = "/pb.Ytter/ListUsers"
-	Ytter_UpdateUser_FullMethodName                     = "/pb.Ytter/UpdateUser"
-	Ytter_InitiateGoogleAuth_FullMethodName             = "/pb.Ytter/InitiateGoogleAuth"
-	Ytter_GoogleAuthCallback_FullMethodName             = "/pb.Ytter/GoogleAuthCallback"
-	Ytter_ListPublicSlots_FullMethodName                = "/pb.Ytter/ListPublicSlots"
-	Ytter_GetPublicCalendarAvailability_FullMethodName  = "/pb.Ytter/GetPublicCalendarAvailability"
-	Ytter_ListPublicLocations_FullMethodName            = "/pb.Ytter/ListPublicLocations"
-	Ytter_GetPublicFilterOptions_FullMethodName         = "/pb.Ytter/GetPublicFilterOptions"
-	Ytter_CreatePublicBooking_FullMethodName            = "/pb.Ytter/CreatePublicBooking"
-	Ytter_CancelPublicBooking_FullMethodName            = "/pb.Ytter/CancelPublicBooking"
-	Ytter_JoinPublicWaitlist_FullMethodName             = "/pb.Ytter/JoinPublicWaitlist"
-	Ytter_PublicBookingAssistantSuggest_FullMethodName  = "/pb.Ytter/PublicBookingAssistantSuggest"
-	Ytter_ListHostLocations_FullMethodName              = "/pb.Ytter/ListHostLocations"
-	Ytter_GetHostSetupChecklist_FullMethodName          = "/pb.Ytter/GetHostSetupChecklist"
-	Ytter_CreateHostLocation_FullMethodName             = "/pb.Ytter/CreateHostLocation"
-	Ytter_GetHostLocation_FullMethodName                = "/pb.Ytter/GetHostLocation"
-	Ytter_GetHostLocationBySlug_FullMethodName          = "/pb.Ytter/GetHostLocationBySlug"
-	Ytter_UpdateHostLocation_FullMethodName             = "/pb.Ytter/UpdateHostLocation"
-	Ytter_ListHostLocationBookings_FullMethodName       = "/pb.Ytter/ListHostLocationBookings"
-	Ytter_GetMyBookingRebookContext_FullMethodName      = "/pb.Ytter/GetMyBookingRebookContext"
-	Ytter_ListMyBookings_FullMethodName                 = "/pb.Ytter/ListMyBookings"
-	Ytter_CancelMyBooking_FullMethodName                = "/pb.Ytter/CancelMyBooking"
-	Ytter_GetHostBookingAnalyticsSummary_FullMethodName = "/pb.Ytter/GetHostBookingAnalyticsSummary"
-	Ytter_ListHostLocationSlots_FullMethodName          = "/pb.Ytter/ListHostLocationSlots"
-	Ytter_ListHostLocationServices_FullMethodName       = "/pb.Ytter/ListHostLocationServices"
-	Ytter_CreateHostLocationService_FullMethodName      = "/pb.Ytter/CreateHostLocationService"
-	Ytter_UpdateHostLocationService_FullMethodName      = "/pb.Ytter/UpdateHostLocationService"
-	Ytter_CreateHostLocationSlot_FullMethodName         = "/pb.Ytter/CreateHostLocationSlot"
-	Ytter_CreateHostLocationSlotsBatch_FullMethodName   = "/pb.Ytter/CreateHostLocationSlotsBatch"
-	Ytter_HostSlotAssistantPreview_FullMethodName       = "/pb.Ytter/HostSlotAssistantPreview"
-	Ytter_HostSlotAssistantPublish_FullMethodName       = "/pb.Ytter/HostSlotAssistantPublish"
-	Ytter_UpdateHostLocationSlot_FullMethodName         = "/pb.Ytter/UpdateHostLocationSlot"
-	Ytter_HostApproveBooking_FullMethodName             = "/pb.Ytter/HostApproveBooking"
-	Ytter_HostRejectBooking_FullMethodName              = "/pb.Ytter/HostRejectBooking"
-	Ytter_HostCancelBooking_FullMethodName              = "/pb.Ytter/HostCancelBooking"
-	Ytter_HostSetBookingNoShow_FullMethodName           = "/pb.Ytter/HostSetBookingNoShow"
+	Ytter_CreateUser_FullMethodName                       = "/pb.Ytter/CreateUser"
+	Ytter_VerifyEmail_FullMethodName                      = "/pb.Ytter/VerifyEmail"
+	Ytter_LoginUser_FullMethodName                        = "/pb.Ytter/LoginUser"
+	Ytter_RefreshToken_FullMethodName                     = "/pb.Ytter/RefreshToken"
+	Ytter_ListUsers_FullMethodName                        = "/pb.Ytter/ListUsers"
+	Ytter_UpdateUser_FullMethodName                       = "/pb.Ytter/UpdateUser"
+	Ytter_InitiateGoogleAuth_FullMethodName               = "/pb.Ytter/InitiateGoogleAuth"
+	Ytter_GoogleAuthCallback_FullMethodName               = "/pb.Ytter/GoogleAuthCallback"
+	Ytter_ListPublicSlots_FullMethodName                  = "/pb.Ytter/ListPublicSlots"
+	Ytter_GetPublicCalendarAvailability_FullMethodName    = "/pb.Ytter/GetPublicCalendarAvailability"
+	Ytter_ListPublicLocations_FullMethodName              = "/pb.Ytter/ListPublicLocations"
+	Ytter_GetPublicFilterOptions_FullMethodName           = "/pb.Ytter/GetPublicFilterOptions"
+	Ytter_CreatePublicBooking_FullMethodName              = "/pb.Ytter/CreatePublicBooking"
+	Ytter_CancelPublicBooking_FullMethodName              = "/pb.Ytter/CancelPublicBooking"
+	Ytter_JoinPublicWaitlist_FullMethodName               = "/pb.Ytter/JoinPublicWaitlist"
+	Ytter_PublicBookingAssistantSuggest_FullMethodName    = "/pb.Ytter/PublicBookingAssistantSuggest"
+	Ytter_ListHostLocations_FullMethodName                = "/pb.Ytter/ListHostLocations"
+	Ytter_GetHostSetupChecklist_FullMethodName            = "/pb.Ytter/GetHostSetupChecklist"
+	Ytter_CreateHostLocation_FullMethodName               = "/pb.Ytter/CreateHostLocation"
+	Ytter_GetHostLocation_FullMethodName                  = "/pb.Ytter/GetHostLocation"
+	Ytter_GetHostLocationBySlug_FullMethodName            = "/pb.Ytter/GetHostLocationBySlug"
+	Ytter_UpdateHostLocation_FullMethodName               = "/pb.Ytter/UpdateHostLocation"
+	Ytter_UpdateLocationBranding_FullMethodName           = "/pb.Ytter/UpdateLocationBranding"
+	Ytter_CreateLocationBrandingLogoUpload_FullMethodName = "/pb.Ytter/CreateLocationBrandingLogoUpload"
+	Ytter_ListHostLocationBookings_FullMethodName         = "/pb.Ytter/ListHostLocationBookings"
+	Ytter_GetMyBookingRebookContext_FullMethodName        = "/pb.Ytter/GetMyBookingRebookContext"
+	Ytter_ListMyBookings_FullMethodName                   = "/pb.Ytter/ListMyBookings"
+	Ytter_CancelMyBooking_FullMethodName                  = "/pb.Ytter/CancelMyBooking"
+	Ytter_GetHostBookingAnalyticsSummary_FullMethodName   = "/pb.Ytter/GetHostBookingAnalyticsSummary"
+	Ytter_ListHostLocationSlots_FullMethodName            = "/pb.Ytter/ListHostLocationSlots"
+	Ytter_ListHostLocationServices_FullMethodName         = "/pb.Ytter/ListHostLocationServices"
+	Ytter_CreateHostLocationService_FullMethodName        = "/pb.Ytter/CreateHostLocationService"
+	Ytter_UpdateHostLocationService_FullMethodName        = "/pb.Ytter/UpdateHostLocationService"
+	Ytter_CreateHostLocationSlot_FullMethodName           = "/pb.Ytter/CreateHostLocationSlot"
+	Ytter_CreateHostLocationSlotsBatch_FullMethodName     = "/pb.Ytter/CreateHostLocationSlotsBatch"
+	Ytter_HostSlotAssistantPreview_FullMethodName         = "/pb.Ytter/HostSlotAssistantPreview"
+	Ytter_HostSlotAssistantPublish_FullMethodName         = "/pb.Ytter/HostSlotAssistantPublish"
+	Ytter_UpdateHostLocationSlot_FullMethodName           = "/pb.Ytter/UpdateHostLocationSlot"
+	Ytter_HostApproveBooking_FullMethodName               = "/pb.Ytter/HostApproveBooking"
+	Ytter_HostRejectBooking_FullMethodName                = "/pb.Ytter/HostRejectBooking"
+	Ytter_HostCancelBooking_FullMethodName                = "/pb.Ytter/HostCancelBooking"
+	Ytter_HostSetBookingNoShow_FullMethodName             = "/pb.Ytter/HostSetBookingNoShow"
 )
 
 // YtterClient is the client API for Ytter service.
@@ -87,6 +89,8 @@ type YtterClient interface {
 	GetHostLocation(ctx context.Context, in *GetHostLocationRequest, opts ...grpc.CallOption) (*GetHostLocationResponse, error)
 	GetHostLocationBySlug(ctx context.Context, in *GetHostLocationBySlugRequest, opts ...grpc.CallOption) (*GetHostLocationBySlugResponse, error)
 	UpdateHostLocation(ctx context.Context, in *UpdateHostLocationRequest, opts ...grpc.CallOption) (*UpdateHostLocationResponse, error)
+	UpdateLocationBranding(ctx context.Context, in *UpdateLocationBrandingRequest, opts ...grpc.CallOption) (*UpdateLocationBrandingResponse, error)
+	CreateLocationBrandingLogoUpload(ctx context.Context, in *CreateLocationBrandingLogoUploadRequest, opts ...grpc.CallOption) (*CreateLocationBrandingLogoUploadResponse, error)
 	ListHostLocationBookings(ctx context.Context, in *ListHostLocationBookingsRequest, opts ...grpc.CallOption) (*ListHostLocationBookingsResponse, error)
 	GetMyBookingRebookContext(ctx context.Context, in *GetMyBookingRebookContextRequest, opts ...grpc.CallOption) (*GetMyBookingRebookContextResponse, error)
 	ListMyBookings(ctx context.Context, in *ListMyBookingsRequest, opts ...grpc.CallOption) (*ListMyBookingsResponse, error)
@@ -335,6 +339,26 @@ func (c *ytterClient) UpdateHostLocation(ctx context.Context, in *UpdateHostLoca
 	return out, nil
 }
 
+func (c *ytterClient) UpdateLocationBranding(ctx context.Context, in *UpdateLocationBrandingRequest, opts ...grpc.CallOption) (*UpdateLocationBrandingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateLocationBrandingResponse)
+	err := c.cc.Invoke(ctx, Ytter_UpdateLocationBranding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ytterClient) CreateLocationBrandingLogoUpload(ctx context.Context, in *CreateLocationBrandingLogoUploadRequest, opts ...grpc.CallOption) (*CreateLocationBrandingLogoUploadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateLocationBrandingLogoUploadResponse)
+	err := c.cc.Invoke(ctx, Ytter_CreateLocationBrandingLogoUpload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ytterClient) ListHostLocationBookings(ctx context.Context, in *ListHostLocationBookingsRequest, opts ...grpc.CallOption) (*ListHostLocationBookingsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListHostLocationBookingsResponse)
@@ -541,6 +565,8 @@ type YtterServer interface {
 	GetHostLocation(context.Context, *GetHostLocationRequest) (*GetHostLocationResponse, error)
 	GetHostLocationBySlug(context.Context, *GetHostLocationBySlugRequest) (*GetHostLocationBySlugResponse, error)
 	UpdateHostLocation(context.Context, *UpdateHostLocationRequest) (*UpdateHostLocationResponse, error)
+	UpdateLocationBranding(context.Context, *UpdateLocationBrandingRequest) (*UpdateLocationBrandingResponse, error)
+	CreateLocationBrandingLogoUpload(context.Context, *CreateLocationBrandingLogoUploadRequest) (*CreateLocationBrandingLogoUploadResponse, error)
 	ListHostLocationBookings(context.Context, *ListHostLocationBookingsRequest) (*ListHostLocationBookingsResponse, error)
 	GetMyBookingRebookContext(context.Context, *GetMyBookingRebookContextRequest) (*GetMyBookingRebookContextResponse, error)
 	ListMyBookings(context.Context, *ListMyBookingsRequest) (*ListMyBookingsResponse, error)
@@ -634,6 +660,12 @@ func (UnimplementedYtterServer) GetHostLocationBySlug(context.Context, *GetHostL
 }
 func (UnimplementedYtterServer) UpdateHostLocation(context.Context, *UpdateHostLocationRequest) (*UpdateHostLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateHostLocation not implemented")
+}
+func (UnimplementedYtterServer) UpdateLocationBranding(context.Context, *UpdateLocationBrandingRequest) (*UpdateLocationBrandingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateLocationBranding not implemented")
+}
+func (UnimplementedYtterServer) CreateLocationBrandingLogoUpload(context.Context, *CreateLocationBrandingLogoUploadRequest) (*CreateLocationBrandingLogoUploadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLocationBrandingLogoUpload not implemented")
 }
 func (UnimplementedYtterServer) ListHostLocationBookings(context.Context, *ListHostLocationBookingsRequest) (*ListHostLocationBookingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListHostLocationBookings not implemented")
@@ -1106,6 +1138,42 @@ func _Ytter_UpdateHostLocation_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Ytter_UpdateLocationBranding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateLocationBrandingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).UpdateLocationBranding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_UpdateLocationBranding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).UpdateLocationBranding(ctx, req.(*UpdateLocationBrandingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ytter_CreateLocationBrandingLogoUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateLocationBrandingLogoUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(YtterServer).CreateLocationBrandingLogoUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Ytter_CreateLocationBrandingLogoUpload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(YtterServer).CreateLocationBrandingLogoUpload(ctx, req.(*CreateLocationBrandingLogoUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Ytter_ListHostLocationBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListHostLocationBookingsRequest)
 	if err := dec(in); err != nil {
@@ -1524,6 +1592,14 @@ var Ytter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateHostLocation",
 			Handler:    _Ytter_UpdateHostLocation_Handler,
+		},
+		{
+			MethodName: "UpdateLocationBranding",
+			Handler:    _Ytter_UpdateLocationBranding_Handler,
+		},
+		{
+			MethodName: "CreateLocationBrandingLogoUpload",
+			Handler:    _Ytter_CreateLocationBrandingLogoUpload_Handler,
 		},
 		{
 			MethodName: "ListHostLocationBookings",

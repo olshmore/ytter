@@ -25,6 +25,8 @@ const (
 	RouteGetHostLocation                = pb.Ytter_GetHostLocation_FullMethodName
 	RouteGetHostLocationBySlug          = pb.Ytter_GetHostLocationBySlug_FullMethodName
 	RouteUpdateHostLocation             = pb.Ytter_UpdateHostLocation_FullMethodName
+	RouteUpdateLocationBranding         = pb.Ytter_UpdateLocationBranding_FullMethodName
+	RouteCreateLocationBrandingLogoUpload = pb.Ytter_CreateLocationBrandingLogoUpload_FullMethodName
 	RouteListHostLocationBookings       = pb.Ytter_ListHostLocationBookings_FullMethodName
 	RouteListHostLocationServices       = pb.Ytter_ListHostLocationServices_FullMethodName
 	RouteCreateHostLocationService      = pb.Ytter_CreateHostLocationService_FullMethodName
@@ -105,6 +107,8 @@ func ConfigureRoleBasedAccess() RoleConfig {
 		RouteGetHostLocation,
 		RouteGetHostLocationBySlug,
 		RouteUpdateHostLocation,
+		RouteUpdateLocationBranding,
+		RouteCreateLocationBrandingLogoUpload,
 		RouteListHostLocationBookings,
 		RouteListHostLocationServices,
 		RouteCreateHostLocationService,

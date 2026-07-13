@@ -46,7 +46,7 @@ func (server *Server) ListHostLocations(ctx context.Context, _ *pb.ListHostLocat
 		}
 		items := make([]*pb.HostLocationItem, 0, len(all))
 		for _, loc := range all {
-			items = append(items, &pb.HostLocationItem{
+			item := &pb.HostLocationItem{
 				Id:                              loc.ID.String(),
 				OwnerUsername:                   loc.OwnerUsername,
 				Slug:                            loc.Slug,
@@ -55,7 +55,13 @@ func (server *Server) ListHostLocations(ctx context.Context, _ *pb.ListHostLocat
 				IsActive:                        loc.IsActive,
 				BookingRequiresHostApproval:     loc.BookingRequiresHostApproval,
 				CancellationMinHoursBeforeStart: loc.EffectiveCancellationMinHoursBeforeStart,
-			})
+				LogoUrl:                         optionalTextPtr(loc.LogoUrl),
+				PrimaryColor:                    optionalTextPtr(loc.PrimaryColor),
+				AccentColor:                     optionalTextPtr(loc.AccentColor),
+				BackgroundColor:                 optionalTextPtr(loc.BackgroundColor),
+				FontFamily:                      optionalTextPtr(loc.FontFamily),
+			}
+			items = append(items, item)
 		}
 		return &pb.ListHostLocationsResponse{Items: items}, nil
 	}
@@ -75,6 +81,11 @@ func (server *Server) ListHostLocations(ctx context.Context, _ *pb.ListHostLocat
 			IsActive:                        loc.IsActive,
 			BookingRequiresHostApproval:     loc.BookingRequiresHostApproval,
 			CancellationMinHoursBeforeStart: loc.EffectiveCancellationMinHoursBeforeStart,
+			LogoUrl:                         optionalTextPtr(loc.LogoUrl),
+			PrimaryColor:                    optionalTextPtr(loc.PrimaryColor),
+			AccentColor:                     optionalTextPtr(loc.AccentColor),
+			BackgroundColor:                 optionalTextPtr(loc.BackgroundColor),
+			FontFamily:                      optionalTextPtr(loc.FontFamily),
 		})
 	}
 	return &pb.ListHostLocationsResponse{Items: items}, nil
@@ -108,7 +119,7 @@ func hostLocationItemFromDB(loc db.Location) *pb.HostLocationItem {
 	if loc.CancellationMinHoursBeforeStart.Valid {
 		cancellationHours = loc.CancellationMinHoursBeforeStart.Int32
 	}
-	return &pb.HostLocationItem{
+	item := &pb.HostLocationItem{
 		Id:                              loc.ID.String(),
 		OwnerUsername:                   loc.OwnerUsername,
 		Slug:                            loc.Slug,
@@ -118,6 +129,8 @@ func hostLocationItemFromDB(loc db.Location) *pb.HostLocationItem {
 		BookingRequiresHostApproval:     loc.BookingRequiresHostApproval,
 		CancellationMinHoursBeforeStart: cancellationHours,
 	}
+	applyLocationBrandingFields(item, loc)
+	return item
 }
 
 func (server *Server) CreateHostLocation(ctx context.Context, req *pb.CreateHostLocationRequest) (*pb.CreateHostLocationResponse, error) {

@@ -768,6 +768,96 @@
         ]
       }
     },
+    "/v1/host/locations/slug/{locationSlug}/branding": {
+      "patch": {
+        "summary": "Update location branding",
+        "description": "Update logo, colors, and font for a host-owned location.",
+        "operationId": "Ytter_UpdateLocationBranding",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateLocationBrandingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterUpdateLocationBrandingBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_location_branding"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/host/locations/slug/{locationSlug}/branding/logo-upload": {
+      "post": {
+        "summary": "Create branding logo upload URL",
+        "description": "Create a short-lived presigned URL for uploading a location logo.",
+        "operationId": "Ytter_CreateLocationBrandingLogoUpload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateLocationBrandingLogoUploadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "locationSlug",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/YtterCreateLocationBrandingLogoUploadBody"
+            }
+          }
+        ],
+        "tags": [
+          "host_location_branding"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/v1/host/locations/slug/{locationSlug}/services": {
       "get": {
         "summary": "List location services",
@@ -1896,6 +1986,18 @@
         }
       }
     },
+    "YtterCreateLocationBrandingLogoUploadBody": {
+      "type": "object",
+      "properties": {
+        "contentType": {
+          "type": "string"
+        },
+        "contentLength": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "YtterHostApproveBookingBody": {
       "type": "object"
     },
@@ -1999,6 +2101,29 @@
         }
       }
     },
+    "YtterUpdateLocationBrandingBody": {
+      "type": "object",
+      "properties": {
+        "logoUrl": {
+          "type": "string"
+        },
+        "primaryColor": {
+          "type": "string"
+        },
+        "accentColor": {
+          "type": "string"
+        },
+        "fontFamily": {
+          "type": "string"
+        },
+        "resetAll": {
+          "type": "boolean"
+        },
+        "backgroundColor": {
+          "type": "string"
+        }
+      }
+    },
     "pbBookingLocationSummary": {
       "type": "object",
       "properties": {
@@ -2077,6 +2202,20 @@
             "type": "object",
             "$ref": "#/definitions/pbHostSlotBatchError"
           }
+        }
+      }
+    },
+    "pbCreateLocationBrandingLogoUploadResponse": {
+      "type": "object",
+      "properties": {
+        "uploadUrl": {
+          "type": "string"
+        },
+        "publicUrl": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "type": "string"
         }
       }
     },
@@ -2476,6 +2615,21 @@
         },
         "isActive": {
           "type": "boolean"
+        },
+        "logoUrl": {
+          "type": "string"
+        },
+        "primaryColor": {
+          "type": "string"
+        },
+        "accentColor": {
+          "type": "string"
+        },
+        "fontFamily": {
+          "type": "string"
+        },
+        "backgroundColor": {
+          "type": "string"
         }
       }
     },
@@ -2594,15 +2748,14 @@
         },
         "planDateFrom": {
           "type": "string",
-          "description": "Inclusive calendar bounds (YYYY-MM-DD) from the generated plan."
+          "title": "Inclusive calendar bounds (YYYY-MM-DD) from the generated plan"
         },
         "planDateTo": {
           "type": "string"
         },
         "totalSlotCount": {
           "type": "integer",
-          "format": "int32",
-          "description": "Total slots the plan would create (preview rows may be capped)."
+          "format": "int32"
         }
       }
     },
@@ -3103,6 +3256,21 @@
         },
         "bookingRequiresHostApproval": {
           "type": "boolean"
+        },
+        "logoUrl": {
+          "type": "string"
+        },
+        "primaryColor": {
+          "type": "string"
+        },
+        "accentColor": {
+          "type": "string"
+        },
+        "fontFamily": {
+          "type": "string"
+        },
+        "backgroundColor": {
+          "type": "string"
         }
       }
     },
@@ -3164,6 +3332,21 @@
         },
         "bookingRequiresHostApproval": {
           "type": "boolean"
+        },
+        "logoUrl": {
+          "type": "string"
+        },
+        "primaryColor": {
+          "type": "string"
+        },
+        "accentColor": {
+          "type": "string"
+        },
+        "fontFamily": {
+          "type": "string"
+        },
+        "backgroundColor": {
+          "type": "string"
         }
       }
     },
@@ -3284,6 +3467,35 @@
       "properties": {
         "slot": {
           "$ref": "#/definitions/pbHostSlotItem"
+        }
+      }
+    },
+    "pbUpdateLocationBrandingResponse": {
+      "type": "object",
+      "properties": {
+        "locationId": {
+          "type": "string"
+        },
+        "locationSlug": {
+          "type": "string"
+        },
+        "locationName": {
+          "type": "string"
+        },
+        "logoUrl": {
+          "type": "string"
+        },
+        "primaryColor": {
+          "type": "string"
+        },
+        "accentColor": {
+          "type": "string"
+        },
+        "fontFamily": {
+          "type": "string"
+        },
+        "backgroundColor": {
+          "type": "string"
         }
       }
     },
